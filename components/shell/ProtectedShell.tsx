@@ -14,6 +14,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
 import Stack from '@mui/material/Stack';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -29,6 +30,8 @@ import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useAuth } from '@/components/auth/AuthContext';
 
 const drawerWidth = 288;
@@ -38,7 +41,16 @@ const navItems = [
   { label: 'Employees', href: '/employees', icon: GroupsRoundedIcon },
   { label: 'Attendance', href: '/attendance', icon: TodayRoundedIcon },
   { label: 'Payroll', href: '/payroll', icon: PaymentsRoundedIcon },
-  { label: 'Leaves', href: '/leaves', icon: DirectionsRunRoundedIcon },
+  {
+    label: 'Leaves',
+    href: '/leaves',
+    icon: DirectionsRunRoundedIcon,
+    children: [
+      { label: 'Holiday Calendar', href: '/leaves/holidays', icon: TodayRoundedIcon },
+      { label: 'Apply Leave', href: '/leaves/apply', icon: DirectionsRunRoundedIcon },
+      { label: 'Leave Balance', href: '/leaves/balance', icon: DashboardRoundedIcon }
+    ]
+  },
   { label: 'My Profile', href: '/profile', icon: PersonRoundedIcon },
   { label: 'Settings', href: '/settings', icon: SettingsRoundedIcon }
 ];
@@ -59,6 +71,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [leavesOpen, setLeavesOpen] = useState(() => pathname?.startsWith('/leaves'));
 
   useEffect(() => {
     if (status === 'ready' && !isAuthenticated) {
@@ -116,34 +129,84 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
       <List sx={{ px: 1.5, py: 2 }}>
         {navItems.map((item) => {
           const Icon = item.icon;
+          const hasChildren = Array.isArray((item as any).children) && (item as any).children.length > 0;
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
+          if (!hasChildren) {
+            return (
+              <ListItemButton
+                key={item.href}
+                selected={active}
+                onClick={() => void router.push(item.href as never)}
+                sx={{
+                  mb: 0.8,
+                  borderRadius: 3,
+                  color: active ? '#1f2340' : '#5b5f7a',
+                  '&.Mui-selected': {
+                    bgcolor: 'rgba(178, 174, 242, 0.2)',
+                    color: '#15162c'
+                  },
+                  '&.Mui-selected:hover': {
+                    bgcolor: 'rgba(178, 174, 242, 0.24)'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+                  <Icon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{ fontWeight: active ? 800 : 600 }}
+                />
+              </ListItemButton>
+            );
+          }
+
+          // render parent with collapse for children
           return (
-            <ListItemButton
-              key={item.href}
-              selected={active}
-              onClick={() => void router.push(item.href as never)}
-              sx={{
-                mb: 0.8,
-                borderRadius: 3,
-                color: active ? '#1f2340' : '#5b5f7a',
-                '&.Mui-selected': {
-                  bgcolor: 'rgba(178, 174, 242, 0.2)',
-                  color: '#15162c'
-                },
-                '&.Mui-selected:hover': {
-                  bgcolor: 'rgba(178, 174, 242, 0.24)'
-                }
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
-                <Icon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{ fontWeight: active ? 800 : 600 }}
-              />
-            </ListItemButton>
+            <Box key={item.href}>
+              <ListItemButton
+                onClick={() => setLeavesOpen((v) => !v)}
+                sx={{
+                  mb: 0.8,
+                  borderRadius: 3,
+                  color: active ? '#1f2340' : '#5b5f7a',
+                  '&.Mui-selected': {
+                    bgcolor: 'rgba(178, 174, 242, 0.2)',
+                    color: '#15162c'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+                  <Icon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 800 : 600 }} />
+                {leavesOpen ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+
+              <Collapse in={leavesOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {(item as any).children.map((child: any) => {
+                    const ChildIcon = child.icon;
+                    const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
+
+                    return (
+                      <ListItemButton
+                        key={child.href}
+                        sx={{ pl: 6, mb: 0.6, borderRadius: 2 }}
+                        selected={childActive}
+                        onClick={() => void router.push(child.href as never)}
+                      >
+                        <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#928ddd' : '#9aa0be' }}>
+                          <ChildIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: childActive ? 800 : 600 }} />
+                      </ListItemButton>
+                    );
+                  })}
+                </List>
+              </Collapse>
+            </Box>
           );
         })}
       </List>
