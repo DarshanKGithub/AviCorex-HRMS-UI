@@ -24,7 +24,7 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import AuditIcon from '@mui/icons-material/AuditRounded';
+import AuditIcon from '@mui/icons-material/History';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -63,7 +63,7 @@ export default function AuditLogsPage() {
 
   // Check authorization on mount
   useEffect(() => {
-    if (auth.status === 'loaded' && (!auth.user || auth.user.role !== 'Admin')) {
+    if (auth.status === 'ready' && (!auth.user || auth.user.role !== 'Admin')) {
       router.push('/login');
     }
   }, [auth.status, auth.user, router]);
@@ -136,7 +136,7 @@ export default function AuditLogsPage() {
     return new Date(isoString).toLocaleString();
   }
 
-  if (auth.status === 'loaded' && (!auth.user || auth.user.role !== 'Admin')) {
+  if (auth.status === 'ready' && (!auth.user || auth.user.role !== 'Admin')) {
     return null;
   }
 
