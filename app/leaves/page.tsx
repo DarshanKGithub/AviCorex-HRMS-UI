@@ -180,7 +180,7 @@ export default function LeavesPage() {
       case 'pending':
         return <HourglassTopIcon sx={{ fontSize: 16 }} />;
       default:
-        return null;
+        return undefined;
     }
   };
 
