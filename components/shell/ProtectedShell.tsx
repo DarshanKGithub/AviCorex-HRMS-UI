@@ -64,6 +64,16 @@ function getInitials(name: string) {
     .join('');
 }
 
+function resolveAvatarUrl(avatarUrl?: string | null) {
+  if (!avatarUrl) return undefined;
+  if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://') || avatarUrl.startsWith('data:')) {
+    return avatarUrl;
+  }
+
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+  return `${base.replace(/\/$/, '')}/${avatarUrl.replace(/^\//, '')}`;
+}
+
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const { status, isAuthenticated, user, logout } = useAuth();
   const router = useRouter();
@@ -247,7 +257,12 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Chip label={user.role} sx={{ bgcolor: 'rgba(178, 174, 242, 0.18)', color: '#4f4b9c', fontWeight: 800 }} />
             <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 0.5 }}>
-              <Avatar sx={{ bgcolor: '#928ddd', width: 42, height: 42 }}>{getInitials(user.full_name)}</Avatar>
+              <Avatar
+                sx={{ bgcolor: '#928ddd', width: 42, height: 42 }}
+                src={resolveAvatarUrl(user.avatar_url)}
+              >
+                {getInitials(user.full_name)}
+              </Avatar>
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Typography sx={{ fontWeight: 800, color: '#15162c', lineHeight: 1.1 }}>{user.full_name}</Typography>
                 <Typography sx={{ color: '#5b5f7a', fontSize: 13 }}>{user.email}</Typography>

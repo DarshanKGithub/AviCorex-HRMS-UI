@@ -7,6 +7,7 @@ export type AuthUser = {
   full_name: string;
   email: string;
   role: string;
+  avatar_url?: string | null;
 };
 
 export type LoginInput = {
@@ -32,6 +33,7 @@ type AuthContextValue = AuthState & {
   isAuthenticated: boolean;
   login: (input: LoginInput, options?: { remember?: boolean }) => Promise<LoginResult>;
   logout: () => void;
+  updateUser: (user: Partial<AuthUser>) => void;
 };
 
 const STORAGE_KEY = 'hrms_auth_session';
@@ -123,12 +125,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ status: 'ready', token: null, user: null });
   }
 
+  function updateUser(userPatch: Partial<AuthUser>) {
+    setState((prev) => {
+      const nextUser = prev.user ? { ...prev.user, ...userPatch } : (userPatch as AuthUser);
+      const nextState = { ...prev, user: nextUser };
+      try {
+        // persist to storage if token exists
+        if (nextState.token && nextUser) {
+          const storage = window.localStorage.getItem(STORAGE_KEY) ? window.localStorage : window.sessionStorage;
+          storage.setItem(STORAGE_KEY, JSON.stringify({ token: nextState.token, user: nextUser }));
+        }
+      } catch {}
+      return nextState;
+    });
+  }
+
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
       isAuthenticated: Boolean(state.token && state.user),
       login,
-      logout
+      logout,
+      updateUser
     }),
     [state]
   );
