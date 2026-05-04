@@ -47,8 +47,8 @@ const navItems = [
     icon: DirectionsRunRoundedIcon,
     children: [
       { label: 'Holiday Calendar', href: '/leaves/holidays', icon: TodayRoundedIcon },
-      { label: 'Apply Leave', href: '/leaves/apply', icon: DirectionsRunRoundedIcon },
-      { label: 'Leave Balance', href: '/leaves/balance', icon: DashboardRoundedIcon }
+      { label: 'Apply Leave', href: '/leaves?tab=apply', icon: DirectionsRunRoundedIcon },
+      { label: 'Leave Balance', href: '/leaves?tab=balance', icon: DashboardRoundedIcon }
     ]
   },
   { label: 'My Profile', href: '/profile', icon: PersonRoundedIcon },

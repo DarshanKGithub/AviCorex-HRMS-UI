@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -17,20 +17,35 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import AddIcon from '@mui/icons-material/Add';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth } from '../../components/auth/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 type LeaveBalance = {
   id: string;
+  employee_id: string;
   leave_type_id: string;
+  leave_type_name?: string;
   year: number;
+  granted_days: number;
   balance_days: number;
+  created_at: string;
+  updated_at: string;
 };
 
 type LeaveRequest = {
@@ -44,54 +59,160 @@ type LeaveRequest = {
   status: string;
 };
 
+type LeaveType = {
+  id: string;
+  name: string;
+  description?: string;
+  default_days_per_year: number;
+};
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div role="tabpanel" hidden={value !== index} {...other}>
+      {value === index && <Box>{children}</Box>}
+    </div>
+  );
+}
+
 export default function LeavesPage() {
   const auth = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
+  const [balancesWithDetails, setBalancesWithDetails] = useState<LeaveBalance[]>([]);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tabValue, setTabValue] = useState(0);
+  const [ccEmails, setCcEmails] = useState<string[]>([]);
+  const [ccInput, setCcInput] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const formRef = useRef<HTMLDivElement>(null);
 
-  const [form, setForm] = useState({ leave_type_id: '', start_date: '', end_date: '', reason: '' });
+  const [form, setForm] = useState({ 
+    leave_type_id: '', 
+    start_date: '', 
+    end_date: '', 
+    session_from: 'Session 1',
+    session_to: 'Session 2',
+    reason: '',
+    contact_details: '',
+  });
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
       router.push('/login');
     } else if (auth.status === 'ready' && auth.token) {
+      fetchLeaveTypes();
       fetchBalances();
+      fetchBalancesWithDetails();
       fetchRequests();
     }
   }, [auth.status, auth.token, router]);
 
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'apply') {
+      setTabValue(0);
+    } else if (tab === 'pending') {
+      setTabValue(1);
+    } else if (tab === 'balance') {
+      setTabValue(2);
+    } else if (tab === 'history') {
+      setTabValue(3);
+    }
+  }, [searchParams]);
+
+  async function fetchLeaveTypes() {
+    if (!auth.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/leave/types`, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setLeaveTypes(data || []);
+      } else if (res.status !== 401) {
+        console.error('Error fetching leave types:', res.status, res.statusText);
+      }
+    } catch (err) {
+      console.error('Error fetching leave types:', err);
+    }
+  }
+
   async function fetchBalances() {
+    if (!auth.token) {
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/leave/balances`, {
-        headers: { Authorization: auth.token ? `Bearer ${auth.token}` : '' },
+        headers: { Authorization: `Bearer ${auth.token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setBalances(data || []);
+      } else if (res.status !== 401) {
+        console.error('Error fetching balances:', res.status, res.statusText);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching balances:', err);
     } finally {
       setLoading(false);
     }
   }
 
+  async function fetchBalancesWithDetails() {
+    if (!auth.token) return;
+    try {
+      const res = await fetch(`${API_BASE}/leave/balances/with-details`, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBalancesWithDetails(data || []);
+      } else if (res.status !== 401) {
+        console.error('Error fetching balances with details:', res.status, res.statusText);
+      }
+    } catch (err) {
+      console.error('Error fetching balances with details:', err);
+    }
+  }
+
   async function fetchRequests() {
+    if (!auth.token) return;
     try {
       const url = new URL(`${API_BASE}/leave/requests`);
-      url.searchParams.set('employee_id', auth.user?.id ?? '');
-      const res = await fetch(url.toString(), { headers: { Authorization: auth.token ? `Bearer ${auth.token}` : '' } });
+      if (auth.user?.id) {
+        url.searchParams.set('employee_id', auth.user.id);
+      }
+      const res = await fetch(url.toString(), { 
+        headers: { Authorization: `Bearer ${auth.token}` } 
+      });
       if (res.ok) {
         const payload = await res.json();
         setRequests(payload.items || []);
+      } else if (res.status !== 401) {
+        console.error('Error fetching requests:', res.status, res.statusText);
+        // Set empty array on error to avoid breaking the UI
+        setRequests([]);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching requests:', err);
+      // Set empty array on error to avoid breaking the UI
+      setRequests([]);
     }
   }
 
@@ -104,6 +225,7 @@ export default function LeavesPage() {
     setSuccess(null);
 
     try {
+      // Step 1: Create the leave request
       const res = await fetch(`${API_BASE}/leave/requests`, {
         method: 'POST',
         headers: {
@@ -114,7 +236,12 @@ export default function LeavesPage() {
           leave_type_id: form.leave_type_id,
           start_date: form.start_date,
           end_date: form.end_date,
+          session_from: form.session_from,
+          session_to: form.session_to,
           reason: form.reason,
+          contact_details: form.contact_details,
+          cc_to: ccEmails,
+          attachment_paths: [],
         }),
       });
 
@@ -124,8 +251,37 @@ export default function LeavesPage() {
         return;
       }
 
+      const leaveRequest = await res.json();
+
+      // Step 2: Upload files if any
+      if (attachments.length > 0) {
+        for (const file of attachments) {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          try {
+            const uploadRes = await fetch(`${API_BASE}/leave/requests/${leaveRequest.id}/upload`, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${auth.token}`,
+              },
+              body: formData,
+            });
+
+            if (!uploadRes.ok) {
+              console.warn(`Failed to upload file ${file.name}`);
+            }
+          } catch (uploadErr) {
+            console.warn(`Error uploading file ${file.name}:`, uploadErr);
+          }
+        }
+      }
+
       await fetchRequests();
-      setForm({ leave_type_id: '', start_date: '', end_date: '', reason: '' });
+      setForm({ leave_type_id: '', start_date: '', end_date: '', session_from: 'Session 1', session_to: 'Session 2', reason: '', contact_details: '' });
+      setCcEmails([]);
+      setCcInput('');
+      setAttachments([]);
       setSuccess('Leave request created successfully!');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -184,248 +340,765 @@ export default function LeavesPage() {
     }
   };
 
+  const leaveOptions = [
+    'Restricted Holiday',
+    'Leave Cancel',
+    'Comp Off Grant'
+  ];
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+    setTabValue(0);
+    setForm({ ...form, leave_type_id: category });
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    const tab = newValue === 0 ? 'apply' : newValue === 1 ? 'pending' : newValue === 2 ? 'balance' : 'history';
+    router.replace(`/leaves?tab=${tab}`);
+  };
+
+  const currentYearBalances = balancesWithDetails.filter((b) => b.year === selectedYear);
+
   return (
-    <Box className="mx-auto max-w-6xl px-4 py-6">
-      <Stack spacing={4}>
-        {/* Header */}
-        <Box>
-          <Chip label="Time Off" sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800, mb: 2 }} />
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
-            Leave Management
-          </Typography>
-          <Typography sx={{ mt: 1, color: '#5b5f7a', lineHeight: 1.8 }}>
-            Request, track, and manage your leave balances and requests
-          </Typography>
-        </Box>
-
+    <Box sx={{ minHeight: '100vh', bgcolor: '#fcfcfe', py: 3, px: { xs: 1, sm: 2, md: 3 } }}>
+      <Box className="mx-auto max-w-7xl">
         {/* Alerts */}
-        {success && <Alert severity="success" onClose={() => setSuccess(null)}>{success}</Alert>}
-        {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
+        {success && <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 2 }}>{success}</Alert>}
+        {error && <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>{error}</Alert>}
 
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            {/* Balances Grid */}
-            {balances.length > 0 && (
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c', mb: 2 }}>
-                  Your Leave Balances
+        <Grid container spacing={3}>
+          {/* Sidebar */}
+          <Grid item xs={12} md={3}>
+            <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 2.5, fontSize: '0.95rem' }}>
+                  Leave
                 </Typography>
-                <Grid container spacing={2}>
-                  {balances.map((b) => (
-                    <Grid item xs={12} sm={6} md={4} key={b.id}>
-                      <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(17, 24, 39, 0.04)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 12px 24px rgba(17, 24, 39, 0.08)' } }}>
-                        <CardContent sx={{ p: 2.5 }}>
-                          <Stack spacing={1.5}>
-                            <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
-                              {b.leave_type_id}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c' }}>
-                                {b.balance_days}
-                              </Typography>
-                              <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>
-                                days available
-                              </Typography>
-                            </Box>
-                            <Typography sx={{ color: '#9ca3af', fontSize: '0.75rem' }}>
-                              Year {b.year}
-                            </Typography>
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                <Stack spacing={1}>
+                  {leaveOptions.map((option) => (
+                    <Button
+                      key={option}
+                      onClick={() => handleCategoryClick(option)}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        color: selectedCategory === option ? '#928ddd' : '#5b5f7a',
+                        textTransform: 'none',
+                        fontSize: '0.9rem',
+                        fontWeight: selectedCategory === option ? 600 : 500,
+                        py: 1.2,
+                        px: 1.5,
+                        borderRadius: 1.5,
+                        bgcolor: selectedCategory === option ? 'rgba(146, 141, 221, 0.1)' : 'transparent',
+                        border: selectedCategory === option ? '1px solid rgba(146, 141, 221, 0.2)' : 'none',
+                        '&:hover': {
+                          bgcolor: 'rgba(146, 141, 221, 0.08)',
+                          color: '#928ddd',
+                        },
+                      }}
+                    >
+                      {option}
+                    </Button>
                   ))}
-                </Grid>
-              </Box>
-            )}
-
-            {/* Request Form */}
-            <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-              <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c', mb: 3 }}>
-                  Request Leave
-                </Typography>
-                <form onSubmit={submitRequest}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="Leave Type ID"
-                        value={form.leave_type_id}
-                        onChange={(e) => setForm({ ...form, leave_type_id: e.target.value })}
-                        fullWidth
-                        size="small"
-                        required
-                        placeholder="e.g., Casual Leave"
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="Start Date"
-                        type="date"
-                        value={form.start_date}
-                        onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-                        fullWidth
-                        size="small"
-                        required
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="End Date"
-                        type="date"
-                        value={form.end_date}
-                        onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-                        fullWidth
-                        size="small"
-                        required
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        label="Reason"
-                        value={form.reason}
-                        onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                        fullWidth
-                        size="small"
-                        multiline
-                        rows={1}
-                        placeholder="Optional reason"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={submitting || !form.leave_type_id || !form.start_date || !form.end_date}
-                        sx={{
-                          bgcolor: '#4f4b9c',
-                          color: '#fff',
-                          fontWeight: 600,
-                          px: 3,
-                          py: 1.2,
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontSize: '0.95rem',
-                          '&:hover': { bgcolor: '#3f3a7c' },
-                          '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
-                        }}
-                      >
-                        {submitting ? <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} /> : null}
-                        Request Leave
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
+                </Stack>
               </CardContent>
             </Card>
+          </Grid>
 
-            {/* Requests Table */}
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c', mb: 2 }}>
-                Your Requests
-              </Typography>
-              {requests.length > 0 ? (
-                <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)', overflow: 'hidden' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: '#f9fafb', borderBottom: '2px solid #e7e9ef' }}>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
-                        {auth.user?.role !== 'Employee' && <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Actions</TableCell>}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {requests.map((r) => (
-                        <TableRow key={r.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
-                          <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{r.leave_type_id}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
-                            {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell sx={{ color: '#15162c', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Chip
-                              icon={getStatusIcon(r.status)}
-                              label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+          {/* Main Content */}
+          <Grid item xs={12} md={9}>
+
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Card ref={formRef} sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)', overflow: 'hidden' }}>
+                {/* Tab Navigation */}
+                <Box sx={{ borderBottom: '1px solid #e7e9ef', bgcolor: '#fafbfd' }}>
+                  <Tabs 
+                    value={tabValue} 
+                    onChange={handleTabChange}
+                    sx={{
+                      '& .MuiTabs-indicator': {
+                        bgcolor: '#928ddd',
+                        height: 3,
+                      },
+                      '& .MuiTab-root': {
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        fontSize: '0.95rem',
+                        color: '#5b5f7a',
+                        py: 1.5,
+                        '&.Mui-selected': {
+                          color: '#928ddd',
+                        },
+                      },
+                    }}
+                  >
+                    <Tab label="Apply" />
+                    <Tab label="Pending" />
+                    <Tab label="Balance" />
+                    <Tab label="History" />
+                  </Tabs>
+                </Box>
+
+                {/* Tab Panel: Apply */}
+                <TabPanel value={tabValue} index={0}>
+                  <CardContent sx={{ p: 3.5 }}>
+                    <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 3.5, fontSize: '1.1rem' }}>
+                      Applying for Leave
+                    </Typography>
+                    <form onSubmit={submitRequest}>
+                      <Stack spacing={3}>
+                        {/* Leave Type */}
+                        <Box>
+                          <FormControl fullWidth size="small">
+                            <InputLabel sx={{ color: '#5b5f7a' }}>Leave type *</InputLabel>
+                            <Select
+                              value={form.leave_type_id}
+                              label="Leave type *"
+                              onChange={(e) => setForm({ ...form, leave_type_id: e.target.value })}
+                              required
                               sx={{
-                                bgcolor: `${getStatusColor(r.status)}15`,
-                                color: getStatusColor(r.status),
-                                fontWeight: 600,
-                                fontSize: '0.8rem',
-                                textTransform: 'capitalize',
+                                bgcolor: '#fafbfd',
+                                borderRadius: 1.5,
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#e7e9ef',
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#d0cee4',
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#928ddd',
+                                },
+                              }}
+                            >
+                              <MenuItem value="">Select type</MenuItem>
+                              {leaveTypes.map((type) => (
+                                <MenuItem key={type.id} value={type.id}>
+                                  {type.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Box>
+
+                        {/* Date Range Row */}
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                              From date *
+                            </Typography>
+                            <TextField
+                              type="date"
+                              value={form.start_date}
+                              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                              fullWidth
+                              size="small"
+                              required
+                              InputLabelProps={{ shrink: true }}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& fieldset': { borderColor: '#e7e9ef' },
+                                  '&:hover fieldset': { borderColor: '#d0cee4' },
+                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                },
                               }}
                             />
-                          </TableCell>
-                          {auth.user?.role !== 'Employee' && (
-                            <TableCell sx={{ py: 2 }}>
-                              {r.status === 'pending' ? (
-                                <Stack direction="row" spacing={1}>
-                                  <Button
-                                    size="small"
-                                    variant="contained"
-                                    onClick={() => approve(r.id, true)}
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                              Session
+                            </Typography>
+                            <FormControl fullWidth size="small">
+                              <Select
+                                value={form.session_from}
+                                onChange={(e) => setForm({ ...form, session_from: e.target.value })}
+                                sx={{
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#e7e9ef',
+                                  },
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#d0cee4',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#928ddd',
+                                  },
+                                }}
+                              >
+                                <MenuItem value="Session 1">Session 1</MenuItem>
+                                <MenuItem value="Session 2">Session 2</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Grid>
+                        </Grid>
+
+                        {/* To Date Row */}
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                              To date *
+                            </Typography>
+                            <TextField
+                              type="date"
+                              value={form.end_date}
+                              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                              fullWidth
+                              size="small"
+                              required
+                              InputLabelProps={{ shrink: true }}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& fieldset': { borderColor: '#e7e9ef' },
+                                  '&:hover fieldset': { borderColor: '#d0cee4' },
+                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                },
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={6}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                              Session
+                            </Typography>
+                            <FormControl fullWidth size="small">
+                              <Select
+                                value={form.session_to}
+                                onChange={(e) => setForm({ ...form, session_to: e.target.value })}
+                                sx={{
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#e7e9ef',
+                                  },
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#d0cee4',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#928ddd',
+                                  },
+                                }}
+                              >
+                                <MenuItem value="Session 1">Session 1</MenuItem>
+                                <MenuItem value="Session 2">Session 2</MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Grid>
+                        </Grid>
+
+                        {/* Leave Balance Info */}
+                        {balances.length > 0 && (
+                          <Box sx={{ p: 2.5, bgcolor: 'rgba(146, 141, 221, 0.06)', borderRadius: 1.5, border: '1px solid rgba(146, 141, 221, 0.12)' }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                              Leave Balance:
+                            </Typography>
+                            <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
+                              {balances.map((b) => (
+                                <Box key={b.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <Typography sx={{ fontSize: '0.8rem', color: '#5b5f7a' }}>
+                                    {b.leave_type_id}:
+                                  </Typography>
+                                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#928ddd' }}>
+                                    {b.balance_days}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Stack>
+                          </Box>
+                        )}
+
+                        {/* Applying To */}
+                        <Box sx={{ p: 2.5, bgcolor: '#fafbfd', borderRadius: 1.5, border: '1px solid #e7e9ef', display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Avatar sx={{ bgcolor: '#928ddd', width: 40, height: 40, fontSize: '0.9rem' }}>
+                            {auth.user?.full_name?.charAt(0).toUpperCase()}
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 500 }}>
+                              Applying to
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.95rem', color: '#15162c', fontWeight: 600 }}>
+                              {auth.user?.full_name}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* CC To */}
+                        <Box>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                            CC to
+                          </Typography>
+                          <Stack spacing={1.5}>
+                            {ccEmails.length > 0 && (
+                              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+                                {ccEmails.map((email, idx) => (
+                                  <Chip
+                                    key={idx}
+                                    label={email}
+                                    onDelete={() => setCcEmails(ccEmails.filter((_, i) => i !== idx))}
                                     sx={{
-                                      bgcolor: '#10b981',
-                                      color: '#fff',
-                                      fontWeight: 600,
-                                      textTransform: 'none',
-                                      fontSize: '0.8rem',
-                                      py: 0.5,
-                                      px: 1.5,
-                                      borderRadius: 1.5,
-                                      '&:hover': { bgcolor: '#059669' },
+                                      bgcolor: 'rgba(146, 141, 221, 0.1)',
+                                      color: '#928ddd',
+                                      fontWeight: 500,
+                                      fontSize: '0.85rem',
                                     }}
-                                  >
-                                    Approve
-                                  </Button>
-                                  <Button
+                                  />
+                                ))}
+                              </Stack>
+                            )}
+                            <Stack direction="row" spacing={1}>
+                              <TextField
+                                value={ccInput}
+                                onChange={(e) => setCcInput(e.target.value)}
+                                placeholder="Enter email"
+                                fullWidth
+                                size="small"
+                                sx={{
+                                  '& .MuiOutlinedInput-root': {
+                                    bgcolor: '#fafbfd',
+                                    borderRadius: 1.5,
+                                    '& fieldset': { borderColor: '#e7e9ef' },
+                                    '&:hover fieldset': { borderColor: '#d0cee4' },
+                                    '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                  },
+                                }}
+                              />
+                              <IconButton
+                                onClick={() => {
+                                  if (ccInput && !ccEmails.includes(ccInput)) {
+                                    setCcEmails([...ccEmails, ccInput]);
+                                    setCcInput('');
+                                  }
+                                }}
+                                sx={{
+                                  bgcolor: 'rgba(146, 141, 221, 0.1)',
+                                  color: '#928ddd',
+                                  '&:hover': { bgcolor: 'rgba(146, 141, 221, 0.2)' },
+                                }}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            </Stack>
+                          </Stack>
+                        </Box>
+
+                        {/* Contact Details */}
+                        <Box>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            Contact details
+                          </Typography>
+                          <TextField
+                            value={form.contact_details}
+                            onChange={(e) => setForm({ ...form, contact_details: e.target.value })}
+                            placeholder="Enter your contact details"
+                            fullWidth
+                            multiline
+                            rows={2}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                bgcolor: '#fafbfd',
+                                borderRadius: 1.5,
+                                '& fieldset': { borderColor: '#e7e9ef' },
+                                '&:hover fieldset': { borderColor: '#d0cee4' },
+                                '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                              },
+                            }}
+                          />
+                        </Box>
+
+                        {/* Reason */}
+                        <Box>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            Reason
+                          </Typography>
+                          <TextField
+                            value={form.reason}
+                            onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                            placeholder="Enter a reason"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            sx={{
+                              '& .MuiOutlinedInput-root': {
+                                bgcolor: '#fafbfd',
+                                borderRadius: 1.5,
+                                '& fieldset': { borderColor: '#e7e9ef' },
+                                '&:hover fieldset': { borderColor: '#d0cee4' },
+                                '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                              },
+                            }}
+                          />
+                        </Box>
+
+                        {/* File Upload */}
+                        <Box>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                            Attach File
+                          </Typography>
+                          <Button
+                            component="label"
+                            variant="outlined"
+                            startIcon={<CloudUploadIcon />}
+                            sx={{
+                              borderColor: '#e7e9ef',
+                              color: '#5b5f7a',
+                              textTransform: 'none',
+                              fontWeight: 500,
+                              borderRadius: 1.5,
+                              py: 1,
+                              '&:hover': {
+                                borderColor: '#928ddd',
+                                bgcolor: 'rgba(146, 141, 221, 0.04)',
+                              },
+                            }}
+                          >
+                            Upload
+                            <input
+                              hidden
+                              type="file"
+                              multiple
+                              onChange={(e) => {
+                                if (e.target.files) {
+                                  setAttachments([...attachments, ...Array.from(e.target.files)]);
+                                }
+                              }}
+                            />
+                          </Button>
+                          {attachments.length > 0 && (
+                            <Stack spacing={1} sx={{ mt: 1.5 }}>
+                              {attachments.map((file, idx) => (
+                                <Typography
+                                  key={idx}
+                                  sx={{
+                                    fontSize: '0.85rem',
+                                    color: '#5b5f7a',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    p: 1,
+                                    bgcolor: '#fafbfd',
+                                    borderRadius: 1,
+                                  }}
+                                >
+                                  {file.name}
+                                  <IconButton
                                     size="small"
-                                    variant="outlined"
-                                    onClick={() => approve(r.id, false)}
-                                    sx={{
-                                      color: '#ef4444',
-                                      borderColor: '#ef4444',
-                                      fontWeight: 600,
-                                      textTransform: 'none',
-                                      fontSize: '0.8rem',
-                                      py: 0.5,
-                                      px: 1.5,
-                                      borderRadius: 1.5,
-                                      '&:hover': { bgcolor: '#fef2f2', borderColor: '#ef4444' },
-                                    }}
+                                    onClick={() =>
+                                      setAttachments(attachments.filter((_, i) => i !== idx))
+                                    }
                                   >
-                                    Reject
-                                  </Button>
-                                </Stack>
-                              ) : (
-                                <Typography sx={{ color: '#9ca3af', fontSize: '0.8rem' }}>-</Typography>
-                              )}
-                            </TableCell>
+                                    <CloseIcon sx={{ fontSize: 16 }} />
+                                  </IconButton>
+                                </Typography>
+                              ))}
+                            </Stack>
                           )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
-              ) : (
-                <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-                  <CardContent sx={{ py: 4, textAlign: 'center' }}>
-                    <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                    <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No leave requests yet</Typography>
+                        </Box>
+
+                        {/* Submit Buttons */}
+                        <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e7e9ef' }}>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={submitting || !form.leave_type_id || !form.start_date || !form.end_date}
+                            sx={{
+                              bgcolor: '#928ddd',
+                              color: '#fff',
+                              fontWeight: 600,
+                              px: 3,
+                              py: 1,
+                              borderRadius: 1.5,
+                              textTransform: 'none',
+                              fontSize: '0.95rem',
+                              '&:hover': { bgcolor: '#7a76c4' },
+                              '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
+                            }}
+                          >
+                            {submitting ? <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} /> : null}
+                            Submit
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            onClick={() => {
+                              setForm({ leave_type_id: '', start_date: '', end_date: '', session_from: 'Session 1', session_to: 'Session 2', reason: '', contact_details: '' });
+                              setCcEmails([]);
+                              setCcInput('');
+                              setAttachments([]);
+                            }}
+                            sx={{
+                              color: '#5b5f7a',
+                              borderColor: '#e7e9ef',
+                              fontWeight: 600,
+                              px: 3,
+                              py: 1,
+                              borderRadius: 1.5,
+                              textTransform: 'none',
+                              fontSize: '0.95rem',
+                              '&:hover': {
+                                bgcolor: '#fafbfd',
+                                borderColor: '#d0cee4',
+                              },
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </Stack>
+                      </Stack>
+                    </form>
                   </CardContent>
-                </Card>
-              )}
-            </Box>
-          </>
-        )}
-      </Stack>
+                </TabPanel>
+
+                {/* Tab Panel: Pending */}
+                <TabPanel value={tabValue} index={1}>
+                  <CardContent sx={{ p: 3.5 }}>
+                    {requests.filter(r => r.status === 'pending').length > 0 ? (
+                      <Table>
+                        <TableHead>
+                          <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
+                            {auth.user?.role !== 'Employee' && <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Actions</TableCell>}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {requests.filter(r => r.status === 'pending').map((r) => (
+                            <TableRow key={r.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
+                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{r.leave_type_id}</TableCell>
+                              <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
+                                {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell sx={{ color: '#15162c', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
+                              <TableCell sx={{ py: 2 }}>
+                                <Chip
+                                  icon={getStatusIcon(r.status)}
+                                  label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                                  sx={{
+                                    bgcolor: `${getStatusColor(r.status)}15`,
+                                    color: getStatusColor(r.status),
+                                    fontWeight: 600,
+                                    fontSize: '0.8rem',
+                                    textTransform: 'capitalize',
+                                  }}
+                                />
+                              </TableCell>
+                              {auth.user?.role !== 'Employee' && (
+                                <TableCell sx={{ py: 2 }}>
+                                  {r.status === 'pending' ? (
+                                    <Stack direction="row" spacing={1}>
+                                      <Button
+                                        size="small"
+                                        variant="contained"
+                                        onClick={() => approve(r.id, true)}
+                                        sx={{
+                                          bgcolor: '#10b981',
+                                          color: '#fff',
+                                          fontWeight: 600,
+                                          textTransform: 'none',
+                                          fontSize: '0.8rem',
+                                          py: 0.5,
+                                          px: 1.5,
+                                          borderRadius: 1.5,
+                                          '&:hover': { bgcolor: '#059669' },
+                                        }}
+                                      >
+                                        Approve
+                                      </Button>
+                                      <Button
+                                        size="small"
+                                        variant="outlined"
+                                        onClick={() => approve(r.id, false)}
+                                        sx={{
+                                          color: '#ef4444',
+                                          borderColor: '#ef4444',
+                                          fontWeight: 600,
+                                          textTransform: 'none',
+                                          fontSize: '0.8rem',
+                                          py: 0.5,
+                                          px: 1.5,
+                                          borderRadius: 1.5,
+                                          '&:hover': { bgcolor: '#fef2f2', borderColor: '#ef4444' },
+                                        }}
+                                      >
+                                        Reject
+                                      </Button>
+                                    </Stack>
+                                  ) : (
+                                    <Typography sx={{ color: '#9ca3af', fontSize: '0.8rem' }}>-</Typography>
+                                  )}
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <Box sx={{ py: 4, textAlign: 'center' }}>
+                        <HourglassTopIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
+                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No pending requests</Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </TabPanel>
+
+                {/* Tab Panel: Balance */}
+                <TabPanel value={tabValue} index={2}>
+                  <CardContent sx={{ p: 3.5 }}>
+                    <Box sx={{ mb: 3 }}>
+                      <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 2, fontSize: '1.1rem' }}>
+                        Leave Balance
+                      </Typography>
+                      <FormControl sx={{ minWidth: 120 }}>
+                        <InputLabel sx={{ color: '#5b5f7a' }}>Year</InputLabel>
+                        <Select
+                          value={selectedYear}
+                          label="Year"
+                          onChange={(e) => setSelectedYear(e.target.value as number)}
+                          sx={{
+                            bgcolor: '#fafbfd',
+                            borderRadius: 1.5,
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#e7e9ef',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#d0cee4',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#928ddd',
+                            },
+                          }}
+                        >
+                          {[2024, 2025, 2026, 2027].map((year) => (
+                            <MenuItem key={year} value={year}>{year}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+
+                    {currentYearBalances.length > 0 ? (
+                      <Grid container spacing={2}>
+                        {currentYearBalances.map((balance) => {
+                          const percentageUsed = balance.granted_days > 0
+                            ? Math.round(((balance.granted_days - balance.balance_days) / balance.granted_days) * 100)
+                            : 0;
+                          const takenDays = Math.max(balance.granted_days - balance.balance_days, 0);
+                          const isTaken = takenDays > 0;
+                          return (
+                            <Grid item xs={12} sm={6} md={4} key={balance.id}>
+                              <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 2px 8px rgba(146, 141, 221, 0.05)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 4px 12px rgba(146, 141, 221, 0.12)', borderColor: '#928ddd' } }}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ mb: 2 }}>
+                                    <Typography sx={{ fontWeight: 700, color: '#15162c', fontSize: '1rem' }}>{balance.leave_type_name || 'Leave'}</Typography>
+                                    <Chip
+                                      label={isTaken ? 'Taken' : 'Not Taken'}
+                                      size="small"
+                                      sx={{
+                                        height: 24,
+                                        fontWeight: 700,
+                                        bgcolor: isTaken ? 'rgba(16, 185, 129, 0.12)' : 'rgba(107, 114, 128, 0.12)',
+                                        color: isTaken ? '#10b981' : '#6b7280',
+                                      }}
+                                    />
+                                  </Stack>
+                                  <Stack spacing={2}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Granted</Typography>
+                                      <Typography sx={{ color: '#15162c', fontWeight: 700, fontSize: '0.95rem' }}>{balance.granted_days}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Taken</Typography>
+                                      <Typography sx={{ color: '#15162c', fontWeight: 700, fontSize: '0.95rem' }}>{takenDays}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Available</Typography>
+                                      <Typography sx={{ color: '#10b981', fontWeight: 700, fontSize: '0.95rem' }}>{balance.balance_days}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Used</Typography>
+                                      <Typography sx={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.95rem' }}>{percentageUsed}%</Typography>
+                                    </Box>
+                                    <Box sx={{ width: '100%', height: 6, bgcolor: '#e7e9ef', borderRadius: 10, overflow: 'hidden', mt: 1 }}>
+                                      <Box sx={{ height: '100%', width: `${percentageUsed}%`, bgcolor: percentageUsed > 80 ? '#ef4444' : percentageUsed > 60 ? '#f59e0b' : '#10b981', transition: 'width 0.3s ease' }} />
+                                    </Box>
+                                    <Button variant="text" sx={{ textTransform: 'none', fontSize: '0.9rem', color: '#928ddd', fontWeight: 600, mt: 1, '&:hover': { bgcolor: 'rgba(146, 141, 221, 0.1)' } }}>
+                                      View Details
+                                    </Button>
+                                  </Stack>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    ) : (
+                      <Box sx={{ py: 6, textAlign: 'center' }}>
+                        <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
+                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No leave balances for selected year</Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </TabPanel>
+
+                {/* Tab Panel: History */}
+                <TabPanel value={tabValue} index={3}>
+                  <CardContent sx={{ p: 3.5 }}>
+                    {requests.filter(r => r.status !== 'pending').length > 0 ? (
+                      <Table>
+                        <TableHead>
+                          <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {requests.filter(r => r.status !== 'pending').map((r) => (
+                            <TableRow key={r.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
+                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{r.leave_type_id}</TableCell>
+                              <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
+                                {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell sx={{ color: '#15162c', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
+                              <TableCell sx={{ py: 2 }}>
+                                <Chip
+                                  icon={getStatusIcon(r.status)}
+                                  label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                                  sx={{
+                                    bgcolor: `${getStatusColor(r.status)}15`,
+                                    color: getStatusColor(r.status),
+                                    fontWeight: 600,
+                                    fontSize: '0.8rem',
+                                    textTransform: 'capitalize',
+                                  }}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <Box sx={{ py: 4, textAlign: 'center' }}>
+                        <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
+                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No history available</Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </TabPanel>
+              </Card>
+            )}
+          </Grid>
+        </Grid>
+      </Box>
     </Box>
   );
 }
