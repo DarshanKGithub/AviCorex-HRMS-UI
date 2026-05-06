@@ -122,7 +122,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
     if (!isAllowed) {
       const fallback = navItems[0]?.href ?? '/profile';
-      router.replace(fallback);
+      router.replace(fallback as never);
     }
   }, [isAuthenticated, navItems, pathname, permissionStatus, router, status]);
 
