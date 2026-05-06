@@ -106,7 +106,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   },
   {
     label: 'Helpdesk',
-    href: '#helpdesk',
+    href: '/helpdesk',
     icon: 'helpdesk',
   },
   {
