@@ -30,6 +30,16 @@ import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
+import SensorsRoundedIcon from '@mui/icons-material/SensorsRounded';
+import WindowRoundedIcon from '@mui/icons-material/WindowRounded';
+import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
+import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
+import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import AppsRoundedIcon from '@mui/icons-material/AppsRounded';
+import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useAuth } from '@/components/auth/AuthContext';
@@ -39,9 +49,21 @@ import { generateSidebarItems, type SidebarItem } from '@/components/shell/sideb
 const drawerWidth = 288;
 
 const iconMap = {
+  home: HomeRoundedIcon,
+  engage: SensorsRoundedIcon,
+  worklife: WindowRoundedIcon,
+  todo: AssignmentRoundedIcon,
+  salary: PaymentsRoundedIcon,
+  leave: DirectionsRunRoundedIcon,
+  attendance: FactCheckRoundedIcon,
+  expense: AccountBalanceWalletRoundedIcon,
+  docs: FolderRoundedIcon,
+  people: GroupsRoundedIcon,
+  helpdesk: InfoRoundedIcon,
+  requests: AppsRoundedIcon,
+  workflow: AccountTreeRoundedIcon,
   dashboard: DashboardRoundedIcon,
   employees: GroupsRoundedIcon,
-  attendance: TodayRoundedIcon,
   payroll: PaymentsRoundedIcon,
   leaves: DirectionsRunRoundedIcon,
   profile: PersonRoundedIcon,

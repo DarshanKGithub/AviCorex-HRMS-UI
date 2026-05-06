@@ -1,73 +1,123 @@
 export type SidebarItem = {
   label: string;
   href: string;
-  icon: 'dashboard' | 'employees' | 'attendance' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar';
+  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar';
   requiredAnyPermissions?: string[];
   children?: SidebarItem[];
 };
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   {
-    label: 'Dashboard',
+    label: 'Home',
     href: '/dashboard',
-    icon: 'dashboard',
+    icon: 'home',
     requiredAnyPermissions: ['view_dashboard']
   },
   {
-    label: 'Employees',
-    href: '/employees',
-    icon: 'employees',
-    requiredAnyPermissions: ['view_employee']
+    label: 'Engage',
+    href: '#engage',
+    icon: 'engage',
   },
   {
-    label: 'Attendance',
-    href: '/attendance',
-    icon: 'attendance',
-    requiredAnyPermissions: ['view_attendance', 'view_attendance_own']
+    label: 'My Worklife',
+    href: '#worklife',
+    icon: 'worklife',
   },
   {
-    label: 'Payroll',
+    label: 'To do',
+    href: '#todo',
+    icon: 'todo',
+  },
+  {
+    label: 'Salary',
     href: '/payroll',
-    icon: 'payroll',
+    icon: 'salary',
     requiredAnyPermissions: ['view_payroll', 'view_payslip_own'],
+    children: [
+      { label: 'Payslips', href: '/payroll/payslips', icon: 'salary', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
+      { label: 'YTD Reports', href: '#ytd', icon: 'salary' },
+      { label: 'IT Statement', href: '#it-statement', icon: 'salary' },
+      { label: 'IT Declaration', href: '#it-declaration', icon: 'salary' },
+      { label: 'Loans and Advances', href: '#loans', icon: 'salary' },
+      { label: 'Reimbursement', href: '#reimbursement', icon: 'salary' },
+      { label: 'Proof Of Investment', href: '#poi', icon: 'salary' },
+      { label: 'Salary Revision', href: '#revision', icon: 'salary' },
+    ]
   },
   {
-    label: 'Leaves',
+    label: 'Leave',
     href: '/leaves',
-    icon: 'leaves',
+    icon: 'leave',
     requiredAnyPermissions: ['view_leave', 'view_leave_own', 'request_leave'],
     children: [
+      {
+        label: 'Leave Apply',
+        href: '/leaves',
+        icon: 'leave',
+        requiredAnyPermissions: ['request_leave']
+      },
+      {
+        label: 'Leave Balances',
+        href: '/leaves/balances',
+        icon: 'dashboard',
+        requiredAnyPermissions: ['view_leave', 'view_leave_own']
+      },
+      {
+        label: 'Leave Calendar',
+        href: '#leave-calendar',
+        icon: 'calendar',
+      },
       {
         label: 'Holiday Calendar',
         href: '/leaves/holidays',
         icon: 'calendar',
         requiredAnyPermissions: ['view_leave', 'view_leave_own', 'request_leave']
-      },
-      {
-        label: 'Apply Leave',
-        href: '/leaves?tab=apply',
-        icon: 'leaves',
-        requiredAnyPermissions: ['request_leave']
-      },
-      {
-        label: 'Leave Balance',
-        href: '/leaves?tab=balance',
-        icon: 'dashboard',
-        requiredAnyPermissions: ['view_leave', 'view_leave_own']
       }
     ]
   },
   {
-    label: 'My Profile',
-    href: '/profile',
-    icon: 'profile',
-    requiredAnyPermissions: ['view_profile']
+    label: 'Attendance',
+    href: '/attendance',
+    icon: 'attendance',
+    requiredAnyPermissions: ['view_attendance', 'view_attendance_own'],
+    children: [
+      {
+        label: 'Attendance Info',
+        href: '/attendance/info',
+        icon: 'attendance',
+      }
+    ]
   },
   {
-    label: 'Settings',
-    href: '/settings',
-    icon: 'settings',
-    requiredAnyPermissions: ['manage_settings']
+    label: 'Expense Claims',
+    href: '#expense',
+    icon: 'expense',
+  },
+  {
+    label: 'Document Center',
+    href: '#docs',
+    icon: 'docs',
+  },
+  {
+    label: 'People',
+    href: '/employees',
+    icon: 'people',
+    requiredAnyPermissions: ['view_employee']
+  },
+  {
+    label: 'Helpdesk',
+    href: '#helpdesk',
+    icon: 'helpdesk',
+  },
+  {
+    label: 'Request Hub',
+    href: '#requests',
+    icon: 'requests',
+  },
+  {
+    label: 'Workflow Delegates',
+    href: '#workflow',
+    icon: 'workflow',
   }
 ];
 
