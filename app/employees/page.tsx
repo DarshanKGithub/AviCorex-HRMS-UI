@@ -38,6 +38,7 @@ import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -55,6 +56,7 @@ type Option = { id: string; name: string };
 
 export default function EmployeesPage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -83,7 +85,10 @@ export default function EmployeesPage() {
   const [departments, setDepartments] = useState<Option[]>([]);
   const [designations, setDesignations] = useState<Option[]>([]);
 
-  const canModify = auth.user?.role && ['Admin', 'HR'].includes(auth.user.role);
+  const canCreateEmployee = hasPermission('create_employee');
+  const canEditEmployee = hasPermission('edit_employee');
+  const canDeleteEmployee = hasPermission('delete_employee');
+  const canModify = canCreateEmployee || canEditEmployee || canDeleteEmployee;
 
   useEffect(() => {
     if (auth.status === 'loading') return;
@@ -105,6 +110,7 @@ export default function EmployeesPage() {
   }
 
   function handleDelete(id: string) {
+    if (!canDeleteEmployee) return;
     setConfirmDeleteId(id);
   }
 
@@ -180,6 +186,7 @@ export default function EmployeesPage() {
   }
 
   function startEdit(emp: Employee) {
+    if (!canEditEmployee) return;
     setEditingId(emp.id);
     setName(emp.full_name);
     setEmail(emp.email);
@@ -212,6 +219,20 @@ export default function EmployeesPage() {
 
   async function handleSave() {
     if (!validateForm()) return;
+
+    if (editingId && !canEditEmployee) {
+      setToastMsg('You do not have permission to edit employees');
+      setToastSeverity('error');
+      setToastOpen(true);
+      return;
+    }
+
+    if (!editingId && !canCreateEmployee) {
+      setToastMsg('You do not have permission to create employees');
+      setToastSeverity('error');
+      setToastOpen(true);
+      return;
+    }
 
     const payload = {
       full_name: name,
@@ -285,8 +306,12 @@ export default function EmployeesPage() {
                     </ListItemButton>
                     {canModify && (
                       <Stack direction="row" spacing={1} sx={{ ml: 1 }}>
-                        <IconButton edge="end" onClick={() => startEdit(emp)} aria-label="edit"><EditRoundedIcon /></IconButton>
-                        <IconButton edge="end" onClick={() => handleDelete(emp.id)} aria-label="delete"><DeleteRoundedIcon /></IconButton>
+                        {canEditEmployee && (
+                          <IconButton edge="end" onClick={() => startEdit(emp)} aria-label="edit"><EditRoundedIcon /></IconButton>
+                        )}
+                        {canDeleteEmployee && (
+                          <IconButton edge="end" onClick={() => handleDelete(emp.id)} aria-label="delete"><DeleteRoundedIcon /></IconButton>
+                        )}
                       </Stack>
                     )}
                   </ListItem>
@@ -332,7 +357,12 @@ export default function EmployeesPage() {
                     </Select>
                   </FormControl>
                   <Stack direction="row" spacing={1}>
-                    <Button variant="contained" startIcon={<SaveRoundedIcon />} onClick={() => setSaveConfirmOpen(true)} disabled={!isFormValid}>
+                    <Button
+                      variant="contained"
+                      startIcon={<SaveRoundedIcon />}
+                      onClick={() => setSaveConfirmOpen(true)}
+                      disabled={!isFormValid || (editingId ? !canEditEmployee : !canCreateEmployee)}
+                    >
                       {editingId ? 'Save' : 'Add'}
                     </Button>
                     {editingId && (

@@ -15,10 +15,12 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 
 export default function SettingsPage() {
   const router = useRouter();
   const authContext = useAuth();
+  const { hasPermission } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [changing, setChanging] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -26,6 +28,7 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const canEditProfile = hasPermission('edit_profile');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -82,6 +85,10 @@ export default function SettingsPage() {
   };
 
   const handleChangePassword = async () => {
+    if (!canEditProfile) {
+      setError('You do not have permission to change password');
+      return;
+    }
     if (!validatePasswords()) {
       return;
     }
@@ -143,6 +150,7 @@ export default function SettingsPage() {
 
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+            {!canEditProfile && <Alert severity="warning" sx={{ mb: 2 }}>You do not have permission to update profile credentials.</Alert>}
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
@@ -152,7 +160,7 @@ export default function SettingsPage() {
                 placeholder="Enter your current password"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                disabled={changing}
+                disabled={changing || !canEditProfile}
               />
 
               <TextField
@@ -162,7 +170,7 @@ export default function SettingsPage() {
                 placeholder="Enter your new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                disabled={changing}
+                disabled={changing || !canEditProfile}
                 helperText="Minimum 6 characters"
               />
 
@@ -173,13 +181,13 @@ export default function SettingsPage() {
                 placeholder="Confirm your new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={changing}
+                disabled={changing || !canEditProfile}
               />
 
               <Button
                 variant="contained"
                 onClick={handleChangePassword}
-                disabled={changing}
+                disabled={changing || !canEditProfile}
                 sx={{ mt: 2 }}
               >
                 {changing ? 'Changing...' : 'Change Password'}

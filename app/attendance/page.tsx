@@ -20,6 +20,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -49,6 +50,7 @@ type PaginatedResponse = {
 
 export default function AttendancePage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +58,7 @@ export default function AttendancePage() {
   const [todayAttendance, setTodayAttendance] = useState<AttendanceRecord | null>(null);
   const [recentRecords, setRecentRecords] = useState<AttendanceRecord[]>([]);
   const [checking, setChecking] = useState(false);
+  const canMarkAttendance = hasPermission('view_attendance_own') || hasPermission('manage_attendance_records');
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -257,6 +260,8 @@ export default function AttendancePage() {
           {/* Error Alert */}
           {error && <Alert severity="error">{error}</Alert>}
 
+          {!canMarkAttendance && <Alert severity="warning">You do not have permission to mark attendance.</Alert>}
+
           {/* Success Alert */}
           {success && <Alert severity="success">{success}</Alert>}
 
@@ -288,7 +293,7 @@ export default function AttendancePage() {
                     variant="contained"
                     startIcon={<CheckCircleIcon />}
                     onClick={handleCheckIn}
-                    disabled={checking || !!todayAttendance?.check_in_time}
+                    disabled={checking || !!todayAttendance?.check_in_time || !canMarkAttendance}
                     sx={{ mt: 2 }}
                     fullWidth
                   >
@@ -322,7 +327,7 @@ export default function AttendancePage() {
                     color="error"
                     startIcon={<LogoutIcon />}
                     onClick={handleCheckOut}
-                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time}
+                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time || !canMarkAttendance}
                     sx={{ mt: 2 }}
                     fullWidth
                   >

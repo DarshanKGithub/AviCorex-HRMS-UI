@@ -32,6 +32,7 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import AddIcon from '@mui/icons-material/Add';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth } from '../../components/auth/AuthContext';
+import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -83,6 +84,7 @@ function TabPanel(props: TabPanelProps) {
 
 export default function LeavesPage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
@@ -110,6 +112,9 @@ export default function LeavesPage() {
     reason: '',
     contact_details: '',
   });
+
+  const canRequestLeave = hasPermission('request_leave');
+  const canApproveLeave = hasPermission('approve_leave');
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -219,6 +224,10 @@ export default function LeavesPage() {
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
     if (!auth.token) return;
+    if (!canRequestLeave) {
+      setError('You do not have permission to submit leave requests.');
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -294,6 +303,10 @@ export default function LeavesPage() {
 
   async function approve(requestId: string, approve: boolean) {
     if (!auth.token) return;
+    if (!canApproveLeave) {
+      setError('You do not have permission to approve leave requests.');
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/leave/requests/${requestId}/approve`, {
         method: 'POST',
@@ -452,6 +465,11 @@ export default function LeavesPage() {
                     <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 3.5, fontSize: '1.1rem' }}>
                       Applying for Leave
                     </Typography>
+                    {!canRequestLeave && (
+                      <Alert severity="warning" sx={{ mb: 2 }}>
+                        You do not have permission to submit leave requests.
+                      </Alert>
+                    )}
                     <form onSubmit={submitRequest}>
                       <Stack spacing={3}>
                         {/* Leave Type */}
@@ -808,7 +826,7 @@ export default function LeavesPage() {
                           <Button
                             type="submit"
                             variant="contained"
-                            disabled={submitting || !form.leave_type_id || !form.start_date || !form.end_date}
+                            disabled={submitting || !form.leave_type_id || !form.start_date || !form.end_date || !canRequestLeave}
                             sx={{
                               bgcolor: '#928ddd',
                               color: '#fff',
@@ -867,7 +885,7 @@ export default function LeavesPage() {
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
-                            {auth.user?.role !== 'Employee' && <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Actions</TableCell>}
+                            {canApproveLeave && <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Actions</TableCell>}
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -891,7 +909,7 @@ export default function LeavesPage() {
                                   }}
                                 />
                               </TableCell>
-                              {auth.user?.role !== 'Employee' && (
+                              {canApproveLeave && (
                                 <TableCell sx={{ py: 2 }}>
                                   {r.status === 'pending' ? (
                                     <Stack direction="row" spacing={1}>

@@ -33,27 +33,21 @@ import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
+import { generateSidebarItems, type SidebarItem } from '@/components/shell/sidebarConfig';
 
 const drawerWidth = 288;
 
-const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: DashboardRoundedIcon },
-  { label: 'Employees', href: '/employees', icon: GroupsRoundedIcon },
-  { label: 'Attendance', href: '/attendance', icon: TodayRoundedIcon },
-  { label: 'Payroll', href: '/payroll', icon: PaymentsRoundedIcon },
-  {
-    label: 'Leaves',
-    href: '/leaves',
-    icon: DirectionsRunRoundedIcon,
-    children: [
-      { label: 'Holiday Calendar', href: '/leaves/holidays', icon: TodayRoundedIcon },
-      { label: 'Apply Leave', href: '/leaves?tab=apply', icon: DirectionsRunRoundedIcon },
-      { label: 'Leave Balance', href: '/leaves?tab=balance', icon: DashboardRoundedIcon }
-    ]
-  },
-  { label: 'My Profile', href: '/profile', icon: PersonRoundedIcon },
-  { label: 'Settings', href: '/settings', icon: SettingsRoundedIcon }
-];
+const iconMap = {
+  dashboard: DashboardRoundedIcon,
+  employees: GroupsRoundedIcon,
+  attendance: TodayRoundedIcon,
+  payroll: PaymentsRoundedIcon,
+  leaves: DirectionsRunRoundedIcon,
+  profile: PersonRoundedIcon,
+  settings: SettingsRoundedIcon,
+  calendar: TodayRoundedIcon
+};
 
 function getInitials(name: string) {
   return name
@@ -76,18 +70,39 @@ function resolveAvatarUrl(avatarUrl?: string | null) {
 
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const { status, isAuthenticated, user, logout } = useAuth();
+  const { status: permissionStatus, permissionSet } = usePermissions();
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [leavesOpen, setLeavesOpen] = useState(() => pathname?.startsWith('/leaves'));
+  const [expandedHref, setExpandedHref] = useState<string | null>(pathname?.startsWith('/leaves') ? '/leaves' : null);
+
+  const navItems = useMemo(() => generateSidebarItems(permissionSet), [permissionSet]);
 
   useEffect(() => {
     if (status === 'ready' && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isAuthenticated, router, status]);
+
+  useEffect(() => {
+    if (status !== 'ready' || permissionStatus !== 'ready' || !isAuthenticated) {
+      return;
+    }
+
+    const allowedPaths = navItems.flatMap((item) => {
+      const parent = [item.href];
+      const children = (item.children ?? []).map((child) => child.href);
+      return [...parent, ...children];
+    });
+    const isAllowed = allowedPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+    if (!isAllowed) {
+      const fallback = navItems[0]?.href ?? '/profile';
+      router.replace(fallback);
+    }
+  }, [isAuthenticated, navItems, pathname, permissionStatus, router, status]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -138,8 +153,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
       <List sx={{ px: 1.5, py: 2 }}>
         {navItems.map((item) => {
-          const Icon = item.icon;
-          const hasChildren = Array.isArray((item as any).children) && (item as any).children.length > 0;
+          const Icon = iconMap[item.icon];
+          const hasChildren = Array.isArray(item.children) && item.children.length > 0;
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           if (!hasChildren) {
@@ -176,7 +191,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           return (
             <Box key={item.href}>
               <ListItemButton
-                onClick={() => setLeavesOpen((v) => !v)}
+                onClick={() => setExpandedHref((current) => (current === item.href ? null : item.href))}
                 sx={{
                   mb: 0.8,
                   borderRadius: 3,
@@ -191,13 +206,13 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
                   <Icon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 800 : 600 }} />
-                {leavesOpen ? <ExpandLess /> : <ExpandMore />}
+                {expandedHref === item.href ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
 
-              <Collapse in={leavesOpen} timeout="auto" unmountOnExit>
+              <Collapse in={expandedHref === item.href} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {(item as any).children.map((child: any) => {
-                    const ChildIcon = child.icon;
+                  {(item.children ?? []).map((child: SidebarItem) => {
+                    const ChildIcon = iconMap[child.icon];
                     const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
 
                     return (

@@ -25,6 +25,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from '../../components/auth/AuthContext';
+import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -65,6 +66,7 @@ type PayslipDetail = Payslip & {
 
 export default function PayrollPage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [salary, setSalary] = useState<Salary | null>(null);
   const [payslips, setPayslips] = useState<Payslip[]>([]);
@@ -72,6 +74,7 @@ export default function PayrollPage() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const canProcessPayroll = hasPermission('process_payroll');
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -156,6 +159,10 @@ export default function PayrollPage() {
   }
 
   async function sendPayslipEmail(payslipId: string) {
+    if (!canProcessPayroll) {
+      setError('You do not have permission to email payslips');
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/payroll/payslips/${payslipId}/send-email`, {
         method: 'POST',
@@ -337,7 +344,7 @@ export default function PayrollPage() {
                                 <FileDownloadIcon sx={{ fontSize: 16, mr: 0.5 }} />
                                 PDF
                               </Button>
-                              {auth.user?.role !== 'Employee' && (
+                              {canProcessPayroll && (
                                 <Button
                                   size="small"
                                   variant="outlined"
