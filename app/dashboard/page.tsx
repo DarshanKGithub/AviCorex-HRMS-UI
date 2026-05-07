@@ -1,15 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box, Typography, Grid, Card, CardContent, Stack,
   Button, Avatar, Divider, Chip, List, ListItem,
-  ListItemAvatar, ListItemText, IconButton
+  ListItemAvatar, ListItemText, IconButton, Snackbar, Alert
 } from '@mui/material';
 import {
   CheckCircle, InfoOutlined, Circle, TrendingUp, Bolt,
   MoreHoriz, CalendarMonth, LocalBar
 } from '@mui/icons-material';
+import { useAuth } from '@/components/auth/AuthContext';
 
 // MUI X Charts Imports
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -145,16 +146,7 @@ export default function MuiXDashboard() {
             </Card>
 
             {/* CLOCK IN CARD */}
-            <Card sx={{ borderRadius: 8, bgcolor: '#3b82f6', color: '#fff', boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.2)' }}>
-              <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', opacity: 0.8, mb: 1 }}>SHIFT STATUS: ACTIVE</Typography>
-                <Typography variant="h3" sx={{ fontWeight: 900, mb: 1 }}>23:03:55</Typography>
-                <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
-                <Button fullWidth variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3, '&:hover': { bgcolor: '#f1f5f9' } }}>
-                  Sign In Now
-                </Button>
-              </CardContent>
-            </Card>
+            <AttendanceCard />
 
             {/* QUICK TEAM STATS */}
             <Card sx={DESIGN.glass}>
@@ -184,5 +176,138 @@ export default function MuiXDashboard() {
         </Grid>
       </Grid>
     </Box>
+  );
+}
+
+
+function resolveApiBaseUrl() {
+  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
+  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
+  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
+  return raw.replace(/\/$/, '');
+}
+
+function AttendanceCard() {
+  const { token, user, isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [attendance, setAttendance] = useState(null);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMsg, setSnackMsg] = useState('');
+  const [snackSeverity, setSnackSeverity] = useState('info');
+  const API_BASE = resolveApiBaseUrl();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    const today = new Date().toISOString().slice(0, 10);
+    setLoading(true);
+    fetch(`${API_BASE}/attendance?employee_id=${user.id}&start_date=${today}&end_date=${today}` , {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(async (res) => {
+      setLoading(false);
+      if (!res.ok) return setAttendance(null);
+      const payload = await res.json().catch(() => null);
+      if (payload && payload.items && payload.items.length) setAttendance(payload.items[0]);
+      else setAttendance(null);
+    }).catch(() => setLoading(false));
+  }, [isAuthenticated, user, token]);
+
+  function showToast(message, severity = 'info') {
+    setSnackMsg(message);
+    setSnackSeverity(severity);
+    setSnackOpen(true);
+  }
+
+  async function doPostWithRetry(url, body, headers = {}, retries = 2, delay = 800) {
+    let attempt = 0;
+    while (attempt <= retries) {
+      try {
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) });
+        const text = await res.text().catch(() => null);
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+        if (!res.ok) throw { status: res.status, body: data || text };
+        return data;
+      } catch (err) {
+        attempt += 1;
+        if (attempt > retries) throw err;
+        await new Promise((r) => setTimeout(r, delay * attempt));
+      }
+    }
+  }
+
+  async function handleCheckIn() {
+    if (!user) return showToast('You must be signed in to check in', 'warning');
+    setLoading(true);
+    const today = new Date().toISOString().slice(0, 10);
+    const body = { employee_id: user.id, attendance_date: today, check_in_time: new Date().toISOString() };
+    try {
+      console.debug('Attempting check-in', { API_BASE, employee_id: user.id });
+      const data = await doPostWithRetry(`${API_BASE}/attendance/check-in`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
+      setAttendance(data);
+      showToast('Checked in successfully', 'success');
+    } catch (err) {
+      console.error('Check-in error', err);
+      const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
+      showToast('Check-in failed: ' + msg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleCheckOut() {
+    if (!user || !attendance) return showToast('No active attendance to check out', 'warning');
+    setLoading(true);
+    const today = new Date().toISOString().slice(0, 10);
+    const body = { employee_id: user.id, attendance_date: today, check_out_time: new Date().toISOString() };
+    try {
+      console.debug('Attempting check-out', { API_BASE, employee_id: user.id });
+      const data = await doPostWithRetry(`${API_BASE}/attendance/check-out`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
+      setAttendance(data);
+      showToast('Checked out successfully', 'success');
+    } catch (err) {
+      console.error('Check-out error', err);
+      const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
+      showToast('Check-out failed: ' + msg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const signedIn = !!attendance && attendance.check_in_time;
+  const signedOut = !!attendance && attendance.check_out_time;
+
+  return (
+    <Card sx={{ borderRadius: 8, bgcolor: '#3b82f6', color: '#fff', boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.2)' }}>
+      <CardContent sx={{ p: 4, textAlign: 'center' }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', opacity: 0.8, mb: 1 }}>SHIFT STATUS: ACTIVE</Typography>
+        <Typography variant="h3" sx={{ fontWeight: 900, mb: 1 }}>{new Date().toLocaleTimeString()}</Typography>
+        <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+        {!isAuthenticated ? (
+          <Button disabled fullWidth variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign In Now</Button>
+        ) : (
+          <>
+            {!signedIn ? (
+              <Button fullWidth onClick={handleCheckIn} disabled={loading} variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign In Now</Button>
+            ) : !signedOut ? (
+              <Button fullWidth onClick={handleCheckOut} disabled={loading} variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign Out</Button>
+            ) : (
+              <Button fullWidth disabled variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Attendance Completed</Button>
+            )}
+
+            {attendance && (
+              <Typography sx={{ mt: 2, color: 'rgba(255,255,255,0.9)' }}>
+                {attendance.check_in_time ? `Checked in: ${new Date(attendance.check_in_time).toLocaleTimeString()}` : ''}
+                {attendance.check_out_time ? ` • Checked out: ${new Date(attendance.check_out_time).toLocaleTimeString()}` : ''}
+              </Typography>
+            )}
+          </>
+        )}
+      </CardContent>
+      <Snackbar open={snackOpen} autoHideDuration={6000} onClose={() => setSnackOpen(false)}>
+        <Alert onClose={() => setSnackOpen(false)} severity={snackSeverity} sx={{ width: '100%' }}>
+          {snackMsg}
+        </Alert>
+      </Snackbar>
+    </Card>
   );
 }
