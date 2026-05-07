@@ -11,7 +11,6 @@ import { AuthShell } from '@/components/auth/AuthShell';
 export default function ForgotPasswordPage() {
   return (
     <AuthShell>
-    <AuthShell>
       <Box>
         <Stack spacing={1}>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
