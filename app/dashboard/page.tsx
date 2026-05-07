@@ -32,17 +32,31 @@ const DESIGN = {
 };
 
 export default function MuiXDashboard() {
+  const { user } = useAuth();
+
+  // Dynamic Date Formatting
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  // Dynamic Location with Fallback
+  const userLocation = (user as any)?.location ;
+
   return (
     <Box sx={{ p: { xs: 2, md: 5 }, bgcolor: '#f8fafc', minHeight: '100vh' }}>
 
-      {/* 1. HEADER SECTION */}
+      {/* 1. HEADER SECTION - Dynamic */}
       <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 4 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 900, color: DESIGN.text.primary, letterSpacing: '-0.04em' }}>
             Workforce Insights
           </Typography>
           <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 500 }}>
-            Sunday, 3 May 2026 • Baramati Office
+            {formattedDate}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
