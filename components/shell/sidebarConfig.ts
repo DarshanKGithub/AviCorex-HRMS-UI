@@ -35,6 +35,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyPermissions: ['view_payroll', 'view_payslip_own'],
     children: [
       { label: 'Payslips', href: '/payroll/payslips', icon: 'salary', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
+      { label: 'Financials & Claims', href: '/payroll/financials', icon: 'salary' },
       { label: 'YTD Reports', href: '#ytd', icon: 'salary' },
       { label: 'IT Statement', href: '#it-statement', icon: 'salary' },
       { label: 'IT Declaration', href: '#it-declaration', icon: 'salary' },
@@ -110,14 +111,20 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   },
   {
     label: 'Document Center',
-    href: '#docs',
+    href: '/documents',
     icon: 'docs',
+    requiredAnyPermissions: ['view_employee']
   },
   {
     label: 'People',
     href: '/employees',
     icon: 'people',
-    requiredAnyPermissions: ['view_employee']
+    requiredAnyPermissions: ['view_employee'],
+    children: [
+      { label: 'Directory', href: '/employees', icon: 'people', requiredAnyPermissions: ['view_employee'] },
+      { label: 'Org Hierarchy', href: '/organization/hierarchy', icon: 'people', requiredAnyPermissions: ['view_employee'] },
+      { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people' },
+    ]
   },
   {
     label: 'Helpdesk',

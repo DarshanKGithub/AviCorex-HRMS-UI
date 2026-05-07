@@ -1,34 +1,101 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Box, Button, Card, CardContent, CardHeader, Container, Divider, Typography, CircularProgress, Stack } from '@mui/material';
+import { Box, Button, Card, CardContent, CardHeader, Container, Divider, Typography, CircularProgress, Stack, List, ListItem, ListItemText, ListItemIcon, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DownloadIcon from '@mui/icons-material/Download';
+import { useAuth } from '@/components/auth/AuthContext';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 export default function EmployeeDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { token } = useAuth();
   const id = params?.id as string;
   const [loading, setLoading] = useState(true);
   const [employee, setEmployee] = useState<any | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !token) return;
     setLoading(true);
-    fetch(`${API_BASE_URL}/employees/${id}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((data) => setEmployee(data))
-      .catch(() => setEmployee(null))
-      .finally(() => setLoading(false));
-  }, [id]);
+    
+    Promise.all([
+      fetch(`${API_BASE_URL}/employees/${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : null),
+      fetch(`${API_BASE_URL}/employees/${id}/documents`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : [])
+    ])
+    .then(([empData, docsData]) => {
+      setEmployee(empData);
+      setDocuments(docsData || []);
+    })
+    .finally(() => setLoading(false));
+  }, [id, token]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('document_type', 'General'); // Default to General, could be expanded to a dropdown
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/employees/${id}/documents`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      
+      if (res.ok) {
+        const newDoc = await res.json();
+        setDocuments(prev => [...prev, newDoc]);
+      } else {
+        alert('Failed to upload document');
+      }
+    } catch (err) {
+      alert('Network error during upload');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDownload = async (docId: string, fileName: string) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/employees/documents/${docId}/download`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      } else {
+        alert('Failed to download file');
+      }
+    } catch (err) {
+      alert('Network error during download');
+    }
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Button startIcon={<ArrowBackIcon />} onClick={() => router.back()} sx={{ mb: 2 }}>Back</Button>
       <Card>
-        <CardHeader title={employee ? employee.full_name : 'Employee'} subheader={employee ? employee.email : ''} />
+        <CardHeader title={employee ? employee.full_name : 'Employee Details'} subheader={employee ? employee.email : ''} />
         <CardContent>
           {loading ? (
             <CircularProgress />
@@ -37,24 +104,61 @@ export default function EmployeeDetailPage() {
           ) : (
             <Box>
               <Typography variant="h6">Basic Info</Typography>
-              <Divider sx={{ mb: 1 }} />
+              <Divider sx={{ mb: 2 }} />
               <Typography><strong>Full name:</strong> {employee.full_name}</Typography>
               <Typography><strong>Email:</strong> {employee.email}</Typography>
               <Typography><strong>Active:</strong> {employee.is_active ? 'Yes' : 'No'}</Typography>
               <Typography><strong>Department:</strong> {employee.department_id || '—'}</Typography>
               <Typography><strong>Designation:</strong> {employee.designation_id || '—'}</Typography>
 
-              <Stack sx={{ mt: 2 }}>
-                <Typography variant="h6">KYC / Documents (placeholders)</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography sx={{ color: '#666' }}>Upload and display KYC documents here (placeholder).</Typography>
-                <Button sx={{ mt: 1 }} variant="outlined">Upload document</Button>
-              </Stack>
+              <Stack sx={{ mt: 4 }}>
+                <Typography variant="h6">Documents</Typography>
+                <Divider sx={{ mb: 2 }} />
+                
+                <Box sx={{ mb: 3 }}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleFileUpload}
+                  />
+                  <Button 
+                    variant="contained" 
+                    startIcon={uploading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Upload Document
+                  </Button>
+                </Box>
 
-              <Stack sx={{ mt: 2 }}>
-                <Typography variant="h6">Attachments</Typography>
-                <Divider sx={{ mb: 1 }} />
-                <Typography sx={{ color: '#666' }}>Attachments viewer placeholder.</Typography>
+                {documents.length === 0 ? (
+                  <Typography sx={{ color: '#6b7280', fontStyle: 'italic' }}>No documents uploaded yet.</Typography>
+                ) : (
+                  <List sx={{ bgcolor: '#f9fafb', borderRadius: 1, border: '1px solid #e5e7eb' }}>
+                    {documents.map((doc) => (
+                      <ListItem 
+                        key={doc.id}
+                        secondaryAction={
+                          <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#3b82f6' }}>
+                            <DownloadIcon />
+                          </IconButton>
+                        }
+                        sx={{ borderBottom: '1px solid #f3f4f6', '&:last-child': { borderBottom: 'none' } }}
+                      >
+                        <ListItemIcon>
+                          <InsertDriveFileIcon sx={{ color: '#9ca3af' }} />
+                        </ListItemIcon>
+                        <ListItemText 
+                          primary={doc.file_name} 
+                          secondary={`${doc.document_type} • Uploaded ${new Date(doc.uploaded_at).toLocaleDateString()}`}
+                          primaryTypographyProps={{ fontWeight: 500 }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
               </Stack>
             </Box>
           )}

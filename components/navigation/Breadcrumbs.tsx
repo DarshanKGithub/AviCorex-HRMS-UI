@@ -23,6 +23,12 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Employees', href: '/employees' },
     { label: 'Employee Details' },
   ],
+  '/organization/hierarchy': [
+    { label: 'Organization' },
+    { label: 'Hierarchy', href: '/organization/hierarchy' }
+  ],
+  '/recruitment': [{ label: 'Recruitment & ATS', href: '/recruitment' }],
+  '/documents': [{ label: 'Document Center', href: '/documents' }],
   '/attendance': [{ label: 'Attendance', href: '/attendance' }],
   '/attendance/timesheets': [
     { label: 'Attendance', href: '/attendance' },
@@ -54,6 +60,10 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Holiday Calendar' },
   ],
   '/payroll': [{ label: 'Payroll', href: '/payroll' }],
+  '/payroll/financials': [
+    { label: 'Payroll', href: '/payroll' },
+    { label: 'Financials & Claims', href: '/payroll/financials' },
+  ],
   '/payroll/payslips': [
     { label: 'Payroll', href: '/payroll' },
     { label: 'Payslips' },
