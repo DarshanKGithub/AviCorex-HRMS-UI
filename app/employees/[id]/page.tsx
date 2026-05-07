@@ -93,10 +93,27 @@ export default function EmployeeDetailPage() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => router.back()} sx={{ mb: 2 }}>Back</Button>
-      <Card>
-        <CardHeader title={employee ? employee.full_name : 'Employee Details'} subheader={employee ? employee.email : ''} />
-        <CardContent>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+        <IconButton 
+          onClick={() => router.back()} 
+          sx={{ 
+            bgcolor: '#ffffff', 
+            border: '1px solid #e2e8f0', 
+            borderRadius: 2,
+            boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',
+            color: '#64748b',
+            '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' }
+          }}
+        >
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+          {employee ? employee.full_name : 'Employee Profile'}
+        </Typography>
+      </Stack>
+
+      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)' }}>
+        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {loading ? (
             <CircularProgress />
           ) : !employee ? (

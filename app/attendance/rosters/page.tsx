@@ -81,9 +81,9 @@ export default function RostersPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', maxWidth: 800 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>Create New Roster</Typography>
+      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 800 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: '#0f172a' }}>Create New Roster</Typography>
           
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
             <TextField 
@@ -116,7 +116,18 @@ export default function RostersPage() {
             startIcon={<AddIcon />}
             onClick={handleCreateRoster}
             disabled={loading}
-            sx={{ bgcolor: '#3b82f6' }}
+            size="large"
+            sx={{ 
+              bgcolor: '#3b82f6', 
+              borderRadius: 2,
+              fontWeight: 600,
+              textTransform: 'none',
+              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+              '&:hover': {
+                bgcolor: '#2563eb',
+                boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+              }
+            }}
           >
             {loading ? 'Creating...' : 'Create Roster'}
           </Button>

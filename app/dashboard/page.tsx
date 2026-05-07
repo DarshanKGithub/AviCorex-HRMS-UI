@@ -21,8 +21,8 @@ const DESIGN = {
   glass: {
     background: '#ffffff',
     border: '1px solid #e2e8f0',
-    borderRadius: 2,
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'
+    borderRadius: 4,
+    boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)'
   },
   text: {
     primary: '#0f172a',
@@ -73,7 +73,8 @@ export default function MuiXDashboard() {
             {/* HERO BANNER WITH INTEGRATED SPARKLINE */}
             <Card sx={{
               background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              color: '#fff', borderRadius: 8, overflow: 'hidden', position: 'relative'
+              color: '#fff', borderRadius: 4, overflow: 'hidden', position: 'relative',
+              boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.25)'
             }}>
               <CardContent sx={{ p: 4 }}>
                 <Grid container spacing={2} alignItems="center">
@@ -297,27 +298,27 @@ function AttendanceCard() {
   const signedOut = !!attendance && attendance.check_out_time;
 
   return (
-    <Card sx={{ borderRadius: 8, bgcolor: '#3b82f6', color: '#fff', boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.2)' }}>
+    <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)' }}>
       <CardContent sx={{ p: 4, textAlign: 'center' }}>
-        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', opacity: 0.8, mb: 1 }}>SHIFT STATUS: ACTIVE</Typography>
-        <Typography variant="h3" sx={{ fontWeight: 900, mb: 1 }}>{new Date().toLocaleTimeString()}</Typography>
-        <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.1)' }} />
+        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#64748b', mb: 1, letterSpacing: '0.05em' }}>SHIFT STATUS: ACTIVE</Typography>
+        <Typography variant="h3" sx={{ fontWeight: 900, mb: 1, color: '#0f172a', letterSpacing: '-0.02em' }}>{new Date().toLocaleTimeString()}</Typography>
+        <Divider sx={{ my: 3, borderColor: '#e2e8f0' }} />
         {!isAuthenticated ? (
-          <Button disabled fullWidth variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign In Now</Button>
+          <Button disabled fullWidth variant="contained" sx={{ bgcolor: '#f1f5f9', color: '#94a3b8', fontWeight: 700, py: 1.5, borderRadius: 2 }}>Sign In Now</Button>
         ) : (
           <>
             {!signedIn ? (
-              <Button fullWidth onClick={handleCheckIn} disabled={loading} variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign In Now</Button>
+              <Button fullWidth onClick={handleCheckIn} disabled={loading} variant="contained" sx={{ bgcolor: '#3b82f6', color: '#fff', fontWeight: 700, py: 1.5, borderRadius: 2, boxShadow: '0 8px 16px -4px rgba(59, 130, 246, 0.3)' }}>Clock In Now</Button>
             ) : !signedOut ? (
-              <Button fullWidth onClick={handleCheckOut} disabled={loading} variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Sign Out</Button>
+              <Button fullWidth onClick={handleCheckOut} disabled={loading} variant="contained" sx={{ bgcolor: '#ef4444', color: '#fff', fontWeight: 700, py: 1.5, borderRadius: 2, boxShadow: '0 8px 16px -4px rgba(239, 68, 68, 0.3)' }}>Clock Out</Button>
             ) : (
-              <Button fullWidth disabled variant="contained" sx={{ bgcolor: '#fff', color: '#3b82f6', fontWeight: 800, py: 1.5, borderRadius: 3 }}>Attendance Completed</Button>
+              <Button fullWidth disabled variant="contained" sx={{ bgcolor: '#f1f5f9', color: '#10b981', fontWeight: 700, py: 1.5, borderRadius: 2 }}>Shift Completed</Button>
             )}
 
             {attendance && (
-              <Typography sx={{ mt: 2, color: 'rgba(255,255,255,0.9)' }}>
-                {attendance.check_in_time ? `Checked in: ${new Date(attendance.check_in_time).toLocaleTimeString()}` : ''}
-                {attendance.check_out_time ? ` • Checked out: ${new Date(attendance.check_out_time).toLocaleTimeString()}` : ''}
+              <Typography sx={{ mt: 2, color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>
+                {attendance.check_in_time ? `In: ${new Date(attendance.check_in_time).toLocaleTimeString()}` : ''}
+                {attendance.check_out_time ? ` • Out: ${new Date(attendance.check_out_time).toLocaleTimeString()}` : ''}
               </Typography>
             )}
           </>

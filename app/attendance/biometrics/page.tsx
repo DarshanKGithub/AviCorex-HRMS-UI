@@ -83,9 +83,9 @@ export default function BiometricsPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', maxWidth: 600 }}>
-        <CardContent>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Manual Log Synchronization</Typography>
+      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 600 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: '#0f172a' }}>Manual Log Synchronization</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
             Manually pull or inject biometric logs from the hardware device into the HRMS ecosystem.
           </Typography>
@@ -124,7 +124,18 @@ export default function BiometricsPage() {
               startIcon={syncing ? <CircularProgress size={20} color="inherit" /> : <SyncIcon />}
               onClick={handleManualSync}
               disabled={syncing}
-              sx={{ bgcolor: '#3b82f6', py: 1.5 }}
+              sx={{ 
+                bgcolor: '#3b82f6', 
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: 600,
+                textTransform: 'none',
+                boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                '&:hover': {
+                  bgcolor: '#2563eb',
+                  boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+                }
+              }}
             >
               Sync Log to System
             </Button>

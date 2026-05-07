@@ -11,44 +11,60 @@ import { AuthShell } from '@/components/auth/AuthShell';
 export default function ForgotPasswordPage() {
   return (
     <AuthShell>
-      <Card
-        elevation={0}
-        sx={{
-          borderRadius: 6,
-          border: '1px solid rgba(231, 233, 239, 0.95)',
-          background: 'rgba(255, 255, 255, 0.78)',
-          boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
-          backdropFilter: 'blur(18px)'
-        }}
-      >
-        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-          <Stack spacing={1.2}>
-            <Typography variant="overline" sx={{ letterSpacing: 1.8, color: '#928ddd', fontWeight: 800 }}>
-              Account recovery
-            </Typography>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.03em', color: '#15162c' }}>
-              Reset your password
-            </Typography>
-            <Typography sx={{ color: '#5b5f7a', lineHeight: 1.7 }}>
-              Placeholder recovery flow for the Phase 1 auth experience.
-            </Typography>
-          </Stack>
+    <AuthShell>
+      <Box>
+        <Stack spacing={1}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
+            Reset password
+          </Typography>
+          <Typography sx={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6 }}>
+            Enter your email and we'll send you instructions to reset your password.
+          </Typography>
+        </Stack>
 
-          <Stack spacing={2} sx={{ mt: 4 }}>
-            <TextField fullWidth label="Work email" placeholder="name@company.com" />
-            <Button fullWidth size="large" variant="contained" sx={{ bgcolor: '#928ddd', boxShadow: '0 12px 24px rgba(146, 141, 221, 0.3)' }}>
+        <Box component="form" noValidate>
+          <Stack spacing={2.5} sx={{ mt: 4 }}>
+            <TextField 
+              fullWidth 
+              label="Work email" 
+              placeholder="name@company.com" 
+              InputLabelProps={{ sx: { color: '#64748b', fontWeight: 500 } }}
+              InputProps={{
+                sx: { borderRadius: 2, bgcolor: '#f8fafc', '& fieldset': { borderColor: '#e2e8f0' } }
+              }}
+            />
+            
+            <Button 
+              fullWidth 
+              size="large" 
+              variant="contained" 
+              sx={{ 
+                mt: 2,
+                py: 1.5,
+                bgcolor: '#3b82f6', 
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                '&:hover': {
+                  bgcolor: '#2563eb',
+                  boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+                }
+              }}
+            >
               Send reset link
             </Button>
 
-            <Box sx={{ textAlign: 'center', color: '#5b5f7a' }}>
+            <Typography sx={{ textAlign: 'center', color: '#64748b', fontSize: '0.9rem', mt: 2 }}>
               Remembered it?{' '}
-              <Link href="/login" style={{ color: '#928ddd', fontWeight: 700 }}>
+              <Link href="/login" style={{ color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}>
                 Back to sign in
               </Link>
-            </Box>
+            </Typography>
           </Stack>
-        </CardContent>
-      </Card>
+        </Box>
+      </Box>
     </AuthShell>
   );
 }

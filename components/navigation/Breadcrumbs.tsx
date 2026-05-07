@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Box, Breadcrumbs as MuiBreadcrumbs, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 interface BreadcrumbItem {
   label: string;
@@ -140,11 +141,34 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
   }
 
   return (
-    <Box sx={{ mb: 3, ...sx }}>
-      <MuiBreadcrumbs
-        separator={<NavigateNextIcon sx={{ fontSize: 20 }} />}
-        aria-label="breadcrumb"
-      >
+    <Box sx={{ mb: 4, ...sx }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {allItems.length > 1 && (
+          <Box
+            onClick={() => window.history.back()}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 36,
+              height: 36,
+              bgcolor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: 2,
+              boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',
+              color: '#64748b',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' }
+            }}
+          >
+            <ArrowBackIcon sx={{ fontSize: 18 }} />
+          </Box>
+        )}
+        <MuiBreadcrumbs
+          separator={<NavigateNextIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
+          aria-label="breadcrumb"
+        >
         {allItems.map((item, index) => {
           const isLast = index === allItems.length - 1;
 
@@ -192,7 +216,8 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
             </Link>
           );
         })}
-      </MuiBreadcrumbs>
+        </MuiBreadcrumbs>
+      </Box>
     </Box>
   );
 }

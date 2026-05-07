@@ -137,36 +137,36 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
   if (status === 'loading' || !isAuthenticated || !user) {
     return (
-      <Box className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#fcfcfe_0%,#f6f7ff_100%)] px-6">
+      <Box className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-6">
         <Stack spacing={2} alignItems="center">
-          <Box className="h-14 w-14 animate-pulse rounded-2xl bg-[rgba(146,141,221,0.15)]" />
-          <Typography sx={{ color: '#5b5f7a', fontWeight: 700 }}>Loading secure workspace...</Typography>
+          <Box className="h-14 w-14 animate-pulse rounded-2xl bg-blue-100" />
+          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>Loading secure workspace...</Typography>
         </Stack>
       </Box>
     );
   }
 
   const sidebarContent = (
-    <Box sx={{ height: '100%', background: 'linear-gradient(180deg, rgba(252,252,254,0.98), rgba(243,244,255,0.92))' }}>
+    <Box sx={{ height: '100%', bgcolor: '#ffffff' }}>
       <Box sx={{ px: 3, py: 3 }}>
         <Stack direction="row" alignItems="center" spacing={1.4}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 3,
+              width: 40,
+              height: 40,
+              borderRadius: 2,
               display: 'grid',
               placeItems: 'center',
-              bgcolor: '#928ddd',
+              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
               color: '#fff',
-              boxShadow: '0 12px 24px rgba(146, 141, 221, 0.3)'
+              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)'
             }}
           >
-            <BusinessCenterRoundedIcon />
+            <BusinessCenterRoundedIcon fontSize="small" />
           </Box>
           <Box>
-            <Typography sx={{ fontWeight: 800, letterSpacing: '-0.03em', color: '#15162c' }}>HRMS</Typography>
-            <Typography sx={{ color: '#5b5f7a', fontSize: 13 }}>{user.role} workspace</Typography>
+            <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a', lineHeight: 1.2 }}>HRMS</Typography>
+            <Typography sx={{ color: '#64748b', fontSize: 12, fontWeight: 500 }}>{user.role} workspace</Typography>
           </Box>
         </Stack>
       </Box>
@@ -186,24 +186,28 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
                 selected={active}
                 onClick={() => void router.push(item.href as never)}
                 sx={{
-                  mb: 0.8,
-                  borderRadius: 3,
-                  color: active ? '#1f2340' : '#5b5f7a',
+                  mb: 0.5,
+                  borderRadius: 2,
+                  color: active ? '#2563eb' : '#64748b',
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(178, 174, 242, 0.2)',
-                    color: '#15162c'
+                    bgcolor: '#eff6ff',
+                    color: '#2563eb'
                   },
                   '&.Mui-selected:hover': {
-                    bgcolor: 'rgba(178, 174, 242, 0.24)'
+                    bgcolor: '#dbeafe'
+                  },
+                  '&:hover': {
+                    bgcolor: '#f8fafc',
+                    color: '#0f172a'
                   }
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+                <ListItemIcon sx={{ minWidth: 40, color: active ? '#3b82f6' : '#94a3b8' }}>
                   <Icon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
-                  primaryTypographyProps={{ fontWeight: active ? 800 : 600 }}
+                  primaryTypographyProps={{ fontWeight: active ? 700 : 500, fontSize: '0.95rem' }}
                 />
               </ListItemButton>
             );
@@ -215,19 +219,23 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
               <ListItemButton
                 onClick={() => setExpandedHref((current) => (current === item.href ? null : item.href))}
                 sx={{
-                  mb: 0.8,
-                  borderRadius: 3,
-                  color: active ? '#1f2340' : '#5b5f7a',
+                  mb: 0.5,
+                  borderRadius: 2,
+                  color: active ? '#0f172a' : '#64748b',
                   '&.Mui-selected': {
-                    bgcolor: 'rgba(178, 174, 242, 0.2)',
-                    color: '#15162c'
+                    bgcolor: '#eff6ff',
+                    color: '#2563eb'
+                  },
+                  '&:hover': {
+                    bgcolor: '#f8fafc',
+                    color: '#0f172a'
                   }
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+                <ListItemIcon sx={{ minWidth: 40, color: active ? '#3b82f6' : '#94a3b8' }}>
                   <Icon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 800 : 600 }} />
+                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 700 : 500, fontSize: '0.95rem' }} />
                 {expandedHref === item.href ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
 
@@ -240,14 +248,14 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
                     return (
                       <ListItemButton
                         key={child.href}
-                        sx={{ pl: 6, mb: 0.6, borderRadius: 2 }}
+                        sx={{ pl: 6, mb: 0.5, borderRadius: 2, color: childActive ? '#2563eb' : '#64748b', '&:hover': { bgcolor: '#f8fafc', color: '#0f172a' } }}
                         selected={childActive}
                         onClick={() => void router.push(child.href as never)}
                       >
-                        <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#928ddd' : '#9aa0be' }}>
+                        <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#3b82f6' : '#cbd5e1' }}>
                           <ChildIcon fontSize="small" />
                         </ListItemIcon>
-                        <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: childActive ? 800 : 600 }} />
+                        <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: childActive ? 600 : 500, fontSize: '0.9rem' }} />
                       </ListItemButton>
                     );
                   })}
@@ -263,58 +271,57 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#fcfcfe' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc' }}>
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          bgcolor: 'rgba(252, 252, 254, 0.82)',
-          backdropFilter: 'blur(18px)',
-          borderBottom: '1px solid #e7e9ef',
-          color: '#15162c'
+          bgcolor: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #e2e8f0',
+          color: '#0f172a'
         }}
       >
         <Toolbar sx={{ minHeight: 84, px: { xs: 2, sm: 3, lg: 4 } }}>
           <Stack direction="row" alignItems="center" spacing={1.5} sx={{ flex: 1 }}>
             {!isDesktop ? (
-              <IconButton edge="start" onClick={() => setMobileOpen((value) => !value)} sx={{ color: '#15162c' }}>
+              <IconButton edge="start" onClick={() => setMobileOpen((value) => !value)} sx={{ color: '#0f172a' }}>
                 <MenuRoundedIcon />
               </IconButton>
             ) : null}
             <Box>
-              <Typography sx={{ fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase', color: '#928ddd', fontWeight: 800 }}>
+              <Typography sx={{ fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', color: '#64748b', fontWeight: 700 }}>
                 Secure HRMS Platform
               </Typography>
-              <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+              <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
                 {activeNav ? activeNav.label : 'Dashboard'}
               </Typography>
             </Box>
           </Stack>
 
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Chip label={user.role} sx={{ bgcolor: 'rgba(178, 174, 242, 0.18)', color: '#4f4b9c', fontWeight: 800 }} />
+            <Chip label={user.role} size="small" sx={{ bgcolor: '#eff6ff', color: '#2563eb', fontWeight: 700, borderRadius: 1.5 }} />
             <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 0.5 }}>
               <Avatar
-                sx={{ bgcolor: '#928ddd', width: 42, height: 42 }}
+                sx={{ bgcolor: '#3b82f6', width: 40, height: 40, fontSize: '1rem', fontWeight: 600 }}
                 src={resolveAvatarUrl(user.avatar_url)}
               >
                 {getInitials(user.full_name)}
               </Avatar>
               <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <Typography sx={{ fontWeight: 800, color: '#15162c', lineHeight: 1.1 }}>{user.full_name}</Typography>
-                <Typography sx={{ color: '#5b5f7a', fontSize: 13 }}>{user.email}</Typography>
+                <Typography sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.1, fontSize: '0.95rem' }}>{user.full_name}</Typography>
+                <Typography sx={{ color: '#64748b', fontSize: 12 }}>{user.email}</Typography>
               </Box>
             </Stack>
             <Button
-              variant="outlined"
+              variant="text"
               onClick={() => {
                 logout();
                 router.replace('/login');
               }}
-              startIcon={<LogoutRoundedIcon />}
-              sx={{ borderColor: '#e7e9ef', color: '#1f2340' }}
+              sx={{ color: '#64748b', minWidth: 0, p: 1, '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' } }}
             >
-              Logout
+              <LogoutRoundedIcon fontSize="small" />
             </Button>
           </Stack>
         </Toolbar>
@@ -331,7 +338,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            borderRight: '1px solid #e7e9ef',
+            borderRight: '1px solid #e2e8f0',
             bgcolor: 'transparent'
           }
         }}
