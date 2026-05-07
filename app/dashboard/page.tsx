@@ -190,10 +190,10 @@ function resolveApiBaseUrl() {
 function AttendanceCard() {
   const { token, user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [attendance, setAttendance] = useState(null);
+  const [attendance, setAttendance] = useState<any>(null);
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMsg, setSnackMsg] = useState('');
-  const [snackSeverity, setSnackSeverity] = useState('info');
+  const [snackSeverity, setSnackSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const API_BASE = resolveApiBaseUrl();
 
   useEffect(() => {
@@ -211,13 +211,19 @@ function AttendanceCard() {
     }).catch(() => setLoading(false));
   }, [isAuthenticated, user, token]);
 
-  function showToast(message, severity = 'info') {
+  function showToast(message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'info') {
     setSnackMsg(message);
     setSnackSeverity(severity);
     setSnackOpen(true);
   }
 
-  async function doPostWithRetry(url, body, headers = {}, retries = 2, delay = 800) {
+  async function doPostWithRetry(
+    url: string,
+    body: Record<string, unknown>,
+    headers: Record<string, string> = {},
+    retries = 2,
+    delay = 800
+  ): Promise<any> {
     let attempt = 0;
     while (attempt <= retries) {
       try {
@@ -227,7 +233,7 @@ function AttendanceCard() {
         try { data = text ? JSON.parse(text) : null; } catch { data = text; }
         if (!res.ok) throw { status: res.status, body: data || text };
         return data;
-      } catch (err) {
+      } catch (err: unknown) {
         attempt += 1;
         if (attempt > retries) throw err;
         await new Promise((r) => setTimeout(r, delay * attempt));
@@ -245,7 +251,7 @@ function AttendanceCard() {
       const data = await doPostWithRetry(`${API_BASE}/attendance/check-in`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
       setAttendance(data);
       showToast('Checked in successfully', 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Check-in error', err);
       const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
       showToast('Check-in failed: ' + msg, 'error');
@@ -264,7 +270,7 @@ function AttendanceCard() {
       const data = await doPostWithRetry(`${API_BASE}/attendance/check-out`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
       setAttendance(data);
       showToast('Checked out successfully', 'success');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Check-out error', err);
       const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
       showToast('Check-out failed: ' + msg, 'error');
