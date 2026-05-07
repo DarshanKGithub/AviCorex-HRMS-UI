@@ -152,7 +152,7 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
           return (
             <Link
               key={index}
-              href={item.href || '#'}
+              href={(item.href || '#') as any}
               style={{
                 color: '#3b82f6',
                 textDecoration: 'none',

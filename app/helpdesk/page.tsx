@@ -67,7 +67,7 @@ export default function HelpdeskPage() {
   useEffect(() => {
     if (token) {
       // Check if user is admin/hr
-      setIsAdmin(['Admin', 'HR'].includes(user?.role));
+      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
       fetchTickets();
     }
   }, [token, user?.role]);
