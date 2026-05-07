@@ -26,7 +26,7 @@ export default function AttendanceLayout({ children }: AttendanceLayoutProps) {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     const paths = ['/attendance/timesheets', '/attendance/overtime', '/attendance/comp-off', '/attendance/shifts', '/attendance/info'];
-    router.push(paths[newValue]);
+    router.push(paths[newValue] as any);
   };
 
   return (
@@ -37,7 +37,7 @@ export default function AttendanceLayout({ children }: AttendanceLayoutProps) {
             value={getTabValue()}
             onChange={handleTabChange}
             variant={isMobile ? 'scrollable' : 'standard'}
-            scrollButtonsDisplay={isMobile ? 'auto' : 'off'}
+            scrollButtons={isMobile ? 'auto' : false}
             sx={{
               mb: 3,
               borderBottom: '2px solid #e5e7eb',
