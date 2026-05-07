@@ -94,8 +94,7 @@ export function LoginForm() {
       await login(
         {
           email: email.trim(),
-          password,
-          role: selectedRole
+          password
         },
         { remember: rememberMe }
       );

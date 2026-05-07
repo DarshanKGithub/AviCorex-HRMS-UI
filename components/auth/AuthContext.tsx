@@ -37,7 +37,16 @@ type AuthContextValue = AuthState & {
 };
 
 const STORAGE_KEY = 'hrms_auth_session';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+
+function resolveApiBaseUrl() {
+  const raw = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? '';
+  if (!raw || raw.includes('https://avicorex-hrms-server.onrender.com')) {
+    return 'https://avicorex-hrms-server.onrender.com';
+  }
+  return raw.replace(/\/$/, '');
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
