@@ -72,7 +72,7 @@ export default function GrievancePage() {
 
   useEffect(() => {
     if (token) {
-      setIsAdmin(['Admin', 'HR'].includes(user?.role));
+      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
       fetchGrievances();
     }
   }, [token, user?.role, statusFilter]);

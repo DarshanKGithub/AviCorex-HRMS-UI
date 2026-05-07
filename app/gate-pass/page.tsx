@@ -72,7 +72,7 @@ export default function GatePassPage() {
 
   useEffect(() => {
     if (token) {
-      setIsAdmin(['Admin', 'HR'].includes(user?.role));
+      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
       fetchGatePasses();
     }
   }, [token, user?.role]);

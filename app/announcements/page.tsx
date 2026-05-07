@@ -58,7 +58,7 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     if (token) {
-      setIsAdmin(['Admin', 'HR'].includes(user?.role));
+      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
       fetchAnnouncements();
     }
   }, [token, user?.role]);
