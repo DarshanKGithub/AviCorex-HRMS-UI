@@ -50,6 +50,14 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Attendance', href: '/attendance' },
     { label: 'Shifts' },
   ],
+  '/attendance/rosters': [
+    { label: 'Attendance', href: '/attendance' },
+    { label: 'Shift Roster' },
+  ],
+  '/attendance/biometrics': [
+    { label: 'Attendance', href: '/attendance' },
+    { label: 'Biometrics & Devices' },
+  ],
   '/leaves': [{ label: 'Leaves', href: '/leaves' }],
   '/leaves/balances': [
     { label: 'Leaves', href: '/leaves' },

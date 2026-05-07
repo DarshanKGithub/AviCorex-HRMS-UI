@@ -101,6 +101,18 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
         label: 'Regularization',
         href: '/attendance/info',
         icon: 'attendance',
+      },
+      {
+        label: 'Shift Roster',
+        href: '/attendance/rosters',
+        icon: 'attendance',
+        requiredAnyPermissions: ['manage_attendance']
+      },
+      {
+        label: 'Biometrics Sync',
+        href: '/attendance/biometrics',
+        icon: 'attendance',
+        requiredAnyPermissions: ['manage_attendance']
       }
     ]
   },

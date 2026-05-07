@@ -162,6 +162,48 @@ export default function AttendancePage() {
     }
   }
 
+  async function handleGeoCheckIn() {
+    if (!auth.token || !auth.user) return;
+    
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setChecking(true);
+    setError(null);
+    setSuccess(null);
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/advanced-attendance/geo-attendance/check-in?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${auth.token}`,
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          fetchTodayAttendance(); // Refresh to get the full record
+          setSuccess('Geo-Location Check in successful!');
+          setTimeout(() => setSuccess(null), 3000);
+        } else {
+          const error = await response.json();
+          setError(error.detail || 'Failed to check in');
+        }
+      } catch {
+        setError('Failed to connect to server');
+      } finally {
+        setChecking(false);
+      }
+    }, (err) => {
+      setError('Failed to get location: ' + err.message);
+      setChecking(false);
+    });
+  }
+
   async function handleCheckOut() {
     if (!auth.token || !auth.user || !todayAttendance) return;
 
@@ -299,7 +341,17 @@ export default function AttendancePage() {
                     sx={{ mt: 2 }}
                     fullWidth
                   >
-                    {checking ? 'Checking in...' : 'Check In'}
+                    {checking ? 'Checking in...' : 'Check In (Network)'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<CheckCircleIcon />}
+                    onClick={handleGeoCheckIn}
+                    disabled={checking || !!todayAttendance?.check_in_time || !canMarkAttendance}
+                    sx={{ mt: 1 }}
+                    fullWidth
+                  >
+                    Geo-Location Check In (GPS)
                   </Button>
                 </CardContent>
               </Card>
