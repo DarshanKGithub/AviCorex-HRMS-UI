@@ -11,6 +11,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import {
   Box,
   Button,
@@ -25,6 +27,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 interface ProfileData {
   id: string;
@@ -32,6 +35,24 @@ interface ProfileData {
   email: string;
   role: string;
   avatar_url?: string | null;
+  phone?: string;
+  date_of_birth?: string;
+  gender?: string;
+  personal_email?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  country?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+  bank_account_number?: string;
+  bank_ifsc_code?: string;
+  pan_number?: string;
+  aadhar_number?: string;
+  joining_date?: string;
+  date_of_confirmation?: string;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -91,7 +112,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -99,6 +119,10 @@ export default function ProfilePage() {
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarSourceFile, setAvatarSourceFile] = useState<File | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
+
+  // Form state
+  const [formData, setFormData] = useState<Partial<ProfileData>>({});
 
   const initials = useMemo(() => toInitials(profile?.full_name ?? ''), [profile?.full_name]);
 
@@ -142,7 +166,7 @@ export default function ProfilePage() {
 
         const data = await response.json();
         setProfile(data);
-        setFullName(data.full_name);
+        setFormData(data);
         // sync auth context user profile (avatar/name) if available
         try {
           authContext.updateUser({ full_name: data.full_name, avatar_url: data.avatar_url });
@@ -159,7 +183,7 @@ export default function ProfilePage() {
   }, [authContext?.isAuthenticated, authContext?.status, authContext?.token, router]);
 
   const handleUpdateProfile = async () => {
-    if (!fullName.trim()) {
+    if (!formData.full_name?.trim()) {
       setError('Full name is required');
       return;
     }
@@ -175,13 +199,36 @@ export default function ProfilePage() {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/auth/me`, {
+      // Build update payload - only include fields that have been edited
+      const updatePayload: Record<string, any> = {
+        full_name: formData.full_name,
+        phone: formData.phone || null,
+        date_of_birth: formData.date_of_birth || null,
+        gender: formData.gender || null,
+        personal_email: formData.personal_email || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        zip_code: formData.zip_code || null,
+        country: formData.country || null,
+        emergency_contact_name: formData.emergency_contact_name || null,
+        emergency_contact_phone: formData.emergency_contact_phone || null,
+        emergency_contact_relationship: formData.emergency_contact_relationship || null,
+        bank_account_number: formData.bank_account_number || null,
+        bank_ifsc_code: formData.bank_ifsc_code || null,
+        pan_number: formData.pan_number || null,
+        aadhar_number: formData.aadhar_number || null,
+        joining_date: formData.joining_date || null,
+        date_of_confirmation: formData.date_of_confirmation || null,
+      };
+
+      const response = await fetch(`${API_BASE}/employees/${profile?.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ full_name: fullName }),
+        body: JSON.stringify(updatePayload),
       });
 
       if (!response.ok) {
@@ -190,6 +237,7 @@ export default function ProfilePage() {
 
       const data = await response.json();
       setProfile(data);
+      setFormData(data);
       setSuccess('Profile updated successfully');
       try { authContext.updateUser({ full_name: data.full_name }); } catch {}
       setIsEditing(false);
@@ -330,15 +378,43 @@ export default function ProfilePage() {
     );
   }
 
+  const renderField = (label: string, field: keyof ProfileData, type: string = 'text') => (
+    <Box sx={{ mb: 2 }}>
+      <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>
+        {label}
+      </Typography>
+      {isEditing ? (
+        <TextField
+          fullWidth
+          size="small"
+          type={type}
+          value={formData[field] || ''}
+          onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+          InputLabelProps={type === 'date' ? { shrink: true } : {}}
+        />
+      ) : (
+        <Box sx={{ fontWeight: 500, fontSize: '0.95rem' }}>
+          {formData[field] ? (
+            type === 'date' ? new Date(formData[field] as string).toLocaleDateString() : formData[field]
+          ) : (
+            <Typography sx={{ color: '#999', fontStyle: 'italic' }}>Not provided</Typography>
+          )}
+        </Box>
+      )}
+    </Box>
+  );
+
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Breadcrumbs />
       <Card>
         <CardHeader title="My Profile" />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {error && <Alert severity="error">{error}</Alert>}
           {success && <Alert severity="success">{success}</Alert>}
 
-          <Box>
+          {/* Avatar Section */}
+          <Box sx={{ borderBottom: '1px solid #e5e7eb', pb: 3 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
               <Avatar src={resolveAvatarUrl(profile.avatar_url)} sx={{ width: 72, height: 72, bgcolor: '#928ddd' }}>
                 {initials}
@@ -362,70 +438,143 @@ export default function ProfilePage() {
                 {avatarUploading ? <CircularProgress size={20} /> : null}
               </Stack>
             </Box>
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Box sx={{ fontSize: '0.875rem', color: '#666' }}>Full Name</Box>
-                {!isEditing && (
-                  <Button size="small" variant="text" onClick={() => setIsEditing(true)}>
-                    Edit
-                  </Button>
-                )}
-              </Box>
-              {isEditing ? (
-                <TextField
-                  fullWidth
-                  size="small"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Full Name"
-                />
-              ) : (
-                <Box sx={{ fontWeight: 500 }}>{profile.full_name}</Box>
-              )}
-            </Box>
+          </Box>
 
+          {/* Basic Info Section */}
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              Basic Information
+            </Typography>
+            {renderField('Full Name', 'full_name')}
+            {renderField('Email', 'email')}
+            {renderField('Personal Email', 'personal_email')}
+            {renderField('Phone', 'phone')}
             <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Email</Box>
-              <Box sx={{ fontWeight: 500 }}>{profile.email}</Box>
+              <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Role</Typography>
+              <Chip label={profile.role} color="primary" variant="outlined" sx={{ mt: 0.5 }} />
             </Box>
-
             <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Role</Box>
-              <Chip label={profile.role} color="primary" variant="outlined" />
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>ID</Box>
-              <Box sx={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#666' }}>{profile.id}</Box>
+              <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>ID</Typography>
+              <Typography sx={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#666' }}>
+                {profile.id}
+              </Typography>
             </Box>
           </Box>
 
-          {isEditing && (
-            <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* Tabs for Additional Fields */}
+          <Box sx={{ borderBottom: '1px solid #e5e7eb' }}>
+            <Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+              <Tab label="Personal" />
+              <Tab label="Address" />
+              <Tab label="Emergency Contact" />
+              <Tab label="Financial" />
+              <Tab label="Employment" />
+            </Tabs>
+          </Box>
+
+          {/* Tab Content */}
+          <Box>
+            {/* Personal Tab */}
+            {tabIndex === 0 && (
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  Personal Information
+                </Typography>
+                {renderField('Date of Birth', 'date_of_birth', 'date')}
+                {renderField('Gender', 'gender')}
+              </Box>
+            )}
+
+            {/* Address Tab */}
+            {tabIndex === 1 && (
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  Address Information
+                </Typography>
+                {renderField('Address', 'address')}
+                {renderField('City', 'city')}
+                {renderField('State', 'state')}
+                {renderField('Zip Code', 'zip_code')}
+                {renderField('Country', 'country')}
+              </Box>
+            )}
+
+            {/* Emergency Contact Tab */}
+            {tabIndex === 2 && (
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  Emergency Contact Information
+                </Typography>
+                {renderField('Contact Name', 'emergency_contact_name')}
+                {renderField('Contact Phone', 'emergency_contact_phone')}
+                {renderField('Relationship', 'emergency_contact_relationship')}
+              </Box>
+            )}
+
+            {/* Financial Tab */}
+            {tabIndex === 3 && (
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  Financial Information
+                </Typography>
+                {renderField('Bank Account Number', 'bank_account_number')}
+                {renderField('Bank IFSC Code', 'bank_ifsc_code')}
+                {renderField('PAN Number', 'pan_number')}
+                {renderField('Aadhar Number', 'aadhar_number')}
+              </Box>
+            )}
+
+            {/* Employment Tab */}
+            {tabIndex === 4 && (
+              <Box>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                  Employment Information
+                </Typography>
+                {renderField('Joining Date', 'joining_date', 'date')}
+                {renderField('Date of Confirmation', 'date_of_confirmation', 'date')}
+              </Box>
+            )}
+          </Box>
+
+          {/* Action Buttons */}
+          <Box sx={{ display: 'flex', gap: 2, pt: 3, borderTop: '1px solid #e5e7eb' }}>
+            {isEditing ? (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleUpdateProfile}
+                  disabled={updating}
+                  sx={{ flex: 1 }}
+                >
+                  {updating ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setFormData(profile);
+                    setIsEditing(false);
+                    setError('');
+                  }}
+                  disabled={updating}
+                  sx={{ flex: 1 }}
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
               <Button
                 variant="contained"
-                onClick={handleUpdateProfile}
-                disabled={updating}
+                onClick={() => setIsEditing(true)}
                 sx={{ flex: 1 }}
               >
-                {updating ? 'Saving...' : 'Save'}
+                Edit Profile
               </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setFullName(profile.full_name);
-                  setIsEditing(false);
-                  setError('');
-                }}
-                disabled={updating}
-              >
-                Cancel
-              </Button>
-            </Box>
-          )}
+            )}
+          </Box>
         </CardContent>
       </Card>
 
+      {/* Avatar Dialog */}
       <Dialog open={avatarDialogOpen} onClose={() => setAvatarDialogOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>Update Profile Picture</DialogTitle>
         <DialogContent>

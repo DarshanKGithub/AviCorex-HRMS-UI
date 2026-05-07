@@ -164,7 +164,6 @@ export function LoginForm() {
                 setFieldErrors((current) => ({ ...current, password: undefined }));
               }}
               error={Boolean(fieldErrors.password)}
-              helperText={fieldErrors.password ?? 'Demo password: Hrms@12345'}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -200,9 +199,6 @@ export function LoginForm() {
                   </Button>
                 ))}
               </Stack>
-              <Typography sx={{ mt: 1, fontSize: 13, color: '#5b5f7a' }}>
-                Demo account: {selectedRole} using {demoEmail}
-              </Typography>
             </Box>
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>

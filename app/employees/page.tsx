@@ -39,6 +39,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -291,6 +292,7 @@ export default function EmployeesPage() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <Breadcrumbs />
       <Card>
         <CardHeader title="Employees" subheader="Manage employee master data" />
         <CardContent>

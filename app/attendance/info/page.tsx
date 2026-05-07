@@ -24,6 +24,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Chip from '@mui/material/Chip';
 import { useAuth } from '@/components/auth/AuthContext';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -125,6 +126,7 @@ export default function AttendanceInfoPage() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
           {tab === 0 ? 'Attendance Info' : 'Attendance Info / My Regularizations'}

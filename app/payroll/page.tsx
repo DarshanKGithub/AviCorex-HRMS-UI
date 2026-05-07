@@ -27,6 +27,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import { useAuth } from '../../components/auth/AuthContext';
 import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -196,6 +197,7 @@ export default function PayrollPage() {
 
   return (
     <Box className="mx-auto max-w-6xl px-4 py-6">
+      <Breadcrumbs />
       <Stack spacing={4}>
         {/* Header */}
         <Box>

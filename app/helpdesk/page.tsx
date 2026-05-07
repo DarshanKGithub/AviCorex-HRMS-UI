@@ -20,19 +20,26 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 type Ticket = {
   id: string;
+  employee_id: string;
   subject: string;
   description: string;
   category: string;
   priority: string;
   status: string;
+  assigned_to?: string;
   created_at: string;
+  updated_at: string;
 };
 
 export default function HelpdeskPage() {
@@ -41,25 +48,35 @@ export default function HelpdeskPage() {
   // State
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Form State
   const [openModal, setOpenModal] = useState(false);
+  const [detailModal, setDetailModal] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('General');
   const [priority, setPriority] = useState('Medium');
+  const [status, setStatus] = useState('Open');
+  
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (token) {
+      // Check if user is admin/hr
+      setIsAdmin(['Admin', 'HR'].includes(user?.role));
       fetchTickets();
     }
-  }, [token]);
+  }, [token, user?.role]);
 
   async function fetchTickets() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/engagement/tickets`, {
+      const endpoint = isAdmin ? '/engagement/tickets' : '/engagement/tickets';
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -68,6 +85,7 @@ export default function HelpdeskPage() {
       }
     } catch (e) {
       console.error(e);
+      setError('Failed to load tickets');
     } finally {
       setLoading(false);
     }
@@ -96,12 +114,13 @@ export default function HelpdeskPage() {
       });
 
       if (res.ok) {
+        setSuccess('Ticket created successfully');
         setOpenModal(false);
         setSubject('');
         setDescription('');
         setCategory('General');
         setPriority('Medium');
-        fetchTickets(); // Refresh
+        setTimeout(() => fetchTickets(), 500);
       } else {
         const err = await res.json();
         setError(err.detail || 'Failed to submit ticket');
@@ -111,51 +130,131 @@ export default function HelpdeskPage() {
     }
   }
 
+  async function updateTicketStatus(ticketId: string, newStatus: string) {
+    try {
+      const res = await fetch(`${API_BASE}/engagement/tickets/${ticketId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (res.ok) {
+        setSuccess(`Ticket status updated to ${newStatus}`);
+        if (selectedTicket?.id === ticketId) {
+          setSelectedTicket({ ...selectedTicket, status: newStatus });
+        }
+        setTimeout(() => fetchTickets(), 500);
+      } else {
+        const err = await res.json();
+        setError(err.detail || 'Failed to update ticket');
+      }
+    } catch (e) {
+      setError('Network error');
+    }
+  }
+
+  async function openDetails(ticket: Ticket) {
+    setSelectedTicket(ticket);
+    setSubject(ticket.subject);
+    setDescription(ticket.description);
+    setCategory(ticket.category);
+    setPriority(ticket.priority);
+    setStatus(ticket.status);
+    setDetailModal(true);
+  }
+
+  const getStatusColor = (st: string) => {
+    switch (st) {
+      case 'Resolved':
+      case 'Closed':
+        return { bg: '#dcfce7', text: '#166534' };
+      case 'In Progress':
+        return { bg: '#dbeafe', text: '#1e40af' };
+      case 'Open':
+      default:
+        return { bg: '#fef3c7', text: '#92400e' };
+    }
+  };
+
+  const getPriorityColor = (pr: string) => {
+    switch (pr) {
+      case 'Critical':
+        return { bg: '#fecaca', text: '#7f1d1d' };
+      case 'High':
+        return { bg: '#fee2e2', text: '#991b1b' };
+      case 'Medium':
+        return { bg: '#fef3c7', text: '#92400e' };
+      case 'Low':
+      default:
+        return { bg: '#f3f4f6', text: '#4b5563' };
+    }
+  };
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SupportAgentRoundedIcon color="primary" /> My Helpdesk Tickets
+          <SupportAgentRoundedIcon color="primary" /> 
+          {isAdmin ? 'Helpdesk Management' : 'My Helpdesk Tickets'}
         </Typography>
         <Button 
           variant="contained" 
-          onClick={() => setOpenModal(true)}
+          onClick={() => {
+            setOpenModal(true);
+            setSubject('');
+            setDescription('');
+            setCategory('General');
+            setPriority('Medium');
+          }}
           sx={{ bgcolor: '#3b82f6', borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 3 }}
         >
           Create New Ticket
         </Button>
       </Stack>
 
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
       <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
         <CardContent sx={{ p: 0 }}>
           {loading ? (
             <Typography sx={{ p: 3, textAlign: 'center' }}>Loading tickets...</Typography>
           ) : tickets.length === 0 ? (
-            <Typography sx={{ p: 4, textAlign: 'center', color: '#6b7280' }}>You have not submitted any helpdesk tickets.</Typography>
+            <Typography sx={{ p: 4, textAlign: 'center', color: '#6b7280' }}>
+              {isAdmin ? 'No tickets yet.' : 'You have not submitted any helpdesk tickets.'}
+            </Typography>
           ) : (
             <Table>
               <TableHead sx={{ bgcolor: '#f9fafb' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Subject</TableCell>
+                  {isAdmin && <TableCell sx={{ fontWeight: 600 }}>Employee</TableCell>}
                   <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tickets.map(t => (
-                  <TableRow key={t.id}>
+                  <TableRow key={t.id} sx={{ '&:hover': { bgcolor: '#f9fafb' } }}>
                     <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
                     <TableCell sx={{ fontWeight: 500 }}>{t.subject}</TableCell>
+                    {isAdmin && <TableCell sx={{ fontSize: '0.85rem' }}>{t.employee_id}</TableCell>}
                     <TableCell>{t.category}</TableCell>
                     <TableCell>
                       <Chip 
                         label={t.priority} 
                         size="small" 
                         sx={{ 
-                          bgcolor: t.priority === 'High' || t.priority === 'Critical' ? '#fee2e2' : '#f3f4f6',
-                          color: t.priority === 'High' || t.priority === 'Critical' ? '#991b1b' : '#4b5563',
+                          bgcolor: getPriorityColor(t.priority).bg,
+                          color: getPriorityColor(t.priority).text,
+                          fontWeight: 600
                         }} 
                       />
                     </TableCell>
@@ -164,11 +263,31 @@ export default function HelpdeskPage() {
                         label={t.status} 
                         size="small" 
                         sx={{ 
-                          bgcolor: t.status === 'Resolved' || t.status === 'Closed' ? '#dcfce7' : t.status === 'In Progress' ? '#dbeafe' : '#fef3c7',
-                          color: t.status === 'Resolved' || t.status === 'Closed' ? '#166534' : t.status === 'In Progress' ? '#1e40af' : '#92400e',
+                          bgcolor: getStatusColor(t.status).bg,
+                          color: getStatusColor(t.status).text,
                           fontWeight: 600
                         }} 
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <IconButton
+                          size="small"
+                          onClick={() => openDetails(t)}
+                          sx={{ color: '#3b82f6' }}
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        {isAdmin && t.status !== 'Closed' && (
+                          <IconButton
+                            size="small"
+                            onClick={() => openDetails(t)}
+                            sx={{ color: '#6b7280' }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -178,11 +297,10 @@ export default function HelpdeskPage() {
         </CardContent>
       </Card>
 
-      {/* Ticket Modal */}
+      {/* Ticket Creation Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>Raise a Helpdesk Ticket</DialogTitle>
         <DialogContent>
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField 
               label="Subject" 
@@ -227,6 +345,85 @@ export default function HelpdeskPage() {
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none' }}>Cancel</Button>
           <Button onClick={submitTicket} variant="contained" sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}>Submit Ticket</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Ticket Detail Modal */}
+      <Dialog open={detailModal} onClose={() => setDetailModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>Ticket Details</DialogTitle>
+        <DialogContent>
+          {selectedTicket && (
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              <Box>
+                <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Subject</Typography>
+                <Typography sx={{ fontWeight: 500 }}>{selectedTicket.subject}</Typography>
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Description</Typography>
+                <Typography sx={{ whiteSpace: 'pre-wrap' }}>{selectedTicket.description}</Typography>
+              </Box>
+              <Stack direction="row" spacing={2}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Category</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{selectedTicket.category}</Typography>
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Priority</Typography>
+                  <Chip 
+                    label={selectedTicket.priority}
+                    sx={{ 
+                      bgcolor: getPriorityColor(selectedTicket.priority).bg,
+                      color: getPriorityColor(selectedTicket.priority).text,
+                      fontWeight: 600
+                    }}
+                  />
+                </Box>
+              </Stack>
+              <Box>
+                <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Status</Typography>
+                {isAdmin ? (
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    {['Open', 'In Progress', 'Resolved', 'Closed'].map(s => (
+                      <MenuItem key={s} value={s}>{s}</MenuItem>
+                    ))}
+                  </TextField>
+                ) : (
+                  <Chip
+                    label={status}
+                    sx={{
+                      bgcolor: getStatusColor(status).bg,
+                      color: getStatusColor(status).text,
+                      fontWeight: 600
+                    }}
+                  />
+                )}
+              </Box>
+              <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
+                Created: {new Date(selectedTicket.created_at).toLocaleString()}
+              </Box>
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDetailModal(false)}>Close</Button>
+          {isAdmin && selectedTicket && selectedTicket.status !== 'Closed' && (
+            <Button
+              onClick={() => {
+                updateTicketStatus(selectedTicket.id, status);
+                setDetailModal(false);
+              }}
+              variant="contained"
+              sx={{ bgcolor: '#3b82f6' }}
+            >
+              Update Status
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </Box>

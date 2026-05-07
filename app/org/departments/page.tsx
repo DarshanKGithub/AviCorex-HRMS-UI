@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Container, Divider, List, ListItem, ListItemText, TextField, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 type Dept = { id: string; name: string };
 
@@ -40,6 +41,7 @@ export default function DepartmentsPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Breadcrumbs />
       <Card>
         <CardHeader title="Departments" subheader="Manage organization departments" />
         <CardContent>

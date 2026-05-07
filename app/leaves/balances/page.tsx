@@ -15,6 +15,7 @@ import Stack from '@mui/material/Stack';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -66,6 +67,7 @@ export default function LeaveBalancesPage() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
           Leave Balances

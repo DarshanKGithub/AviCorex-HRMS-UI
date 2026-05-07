@@ -16,6 +16,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -142,6 +143,7 @@ export default function SettingsPage() {
 
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Breadcrumbs />
       <Card>
         <CardHeader title="Settings" />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

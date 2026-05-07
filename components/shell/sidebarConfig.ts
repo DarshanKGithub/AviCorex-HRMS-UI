@@ -82,7 +82,22 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyPermissions: ['view_attendance', 'view_attendance_own'],
     children: [
       {
-        label: 'Attendance Info',
+        label: 'Timesheets',
+        href: '/attendance/timesheets',
+        icon: 'attendance',
+      },
+      {
+        label: 'Overtime',
+        href: '/attendance/overtime',
+        icon: 'attendance',
+      },
+      {
+        label: 'Comp-Off',
+        href: '/attendance/comp-off',
+        icon: 'attendance',
+      },
+      {
+        label: 'Regularization',
         href: '/attendance/info',
         icon: 'attendance',
       }
@@ -108,6 +123,28 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     label: 'Helpdesk',
     href: '/helpdesk',
     icon: 'helpdesk',
+    children: [
+      {
+        label: 'Support Tickets',
+        href: '/helpdesk',
+        icon: 'helpdesk',
+      },
+      {
+        label: 'Announcements',
+        href: '/announcements',
+        icon: 'engage',
+      },
+      {
+        label: 'Gate Pass',
+        href: '/gate-pass',
+        icon: 'requests',
+      },
+      {
+        label: 'Grievances',
+        href: '/grievance',
+        icon: 'requests',
+      }
+    ]
   },
   {
     label: 'Request Hub',

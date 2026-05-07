@@ -24,6 +24,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ClockIcon from '@mui/icons-material/Schedule';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -156,6 +157,7 @@ export default function ShiftsPage() {
   return (
     <Box className="min-h-screen bg-[linear-gradient(180deg,#fcfcfe_0%,#f6f7ff_100%)] p-4 sm:p-6 lg:p-8">
       <Box className="mx-auto max-w-4xl">
+        <Breadcrumbs />
         <Stack spacing={3}>
           {/* Header */}
           <Box className="rounded-[28px] border border-line/70 bg-white/85 px-6 py-6 shadow-soft backdrop-blur-sm">

@@ -34,6 +34,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth } from '../../components/auth/AuthContext';
 import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -379,6 +380,7 @@ export default function LeavesPage() {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fcfcfe', py: 3, px: { xs: 1, sm: 2, md: 3 } }}>
       <Box className="mx-auto max-w-7xl">
+        <Breadcrumbs sx={{ mb: 3 }} />
         {/* Alerts */}
         {success && <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 2 }}>{success}</Alert>}
         {error && <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>{error}</Alert>}
