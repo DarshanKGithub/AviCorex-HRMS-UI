@@ -21,7 +21,7 @@ const DESIGN = {
   glass: {
     background: '#ffffff',
     border: '1px solid #e2e8f0',
-    borderRadius: 6,
+    borderRadius: 2,
     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'
   },
   text: {
@@ -111,7 +111,7 @@ export default function MuiXDashboard() {
 
         {/* RIGHT COLUMN */}
         <Grid item xs={12} lg={4}>
-          <Stack spacing={3}>
+          <Stack spacing={4}>
 
             {/* LEAVE DISTRIBUTION PIE CHART (MUI X) */}
             <Card sx={DESIGN.glass}>
