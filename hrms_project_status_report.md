@@ -21,6 +21,10 @@ The following areas are present in the backend and/or frontend and are working a
 - Leave balances and holiday calendar UI
 - Payroll management
 - Payslip generation and payroll views
+- Salary structure management
+- Tax, PF, and ESI compliance
+- Reimbursements and expense claims
+- Loans and advances
 - Profile and basic account pages
 - Admin audit log page
 - Employee profile expansion with personal, emergency, and bank details
@@ -34,6 +38,8 @@ The following areas are present in the backend and/or frontend and are working a
 These areas have some backend models, routes, or frontend pages, but they still need fuller end-to-end implementation or product polish:
 
 - Biometric device integration and sync
+- Recruitment and ATS core flow (job postings, candidate intake, resume parsing, applications, interviews)
+- Offer management, onboarding/probation, exit handling, and asset inventory lifecycle hub
 - Engagement-related features (performance, KPI, training, surveys - models only)
 - File upload and document handling improvements
 - Org hierarchy visualization
@@ -41,18 +47,6 @@ These areas have some backend models, routes, or frontend pages, but they still 
 ## Remaining
 
 These are the larger modules that are still mostly roadmap items or only partially represented in the current project:
-
-- Recruitment and ATS
-- Candidate management and job posting workflows
-- Resume parsing
-- Interview and offer management
-- Onboarding and probation management
-- Exit management and full-and-final settlement
-- Asset and inventory management
-- Salary structure management
-- Tax, PF, and ESI compliance
-- Reimbursements and expenses
-- Loans, advances, and allowance automation
 - Biometric device integrations and device sync flows
 - Geo-fencing, GPS tracking, QR, and face recognition attendance
 - Roster management

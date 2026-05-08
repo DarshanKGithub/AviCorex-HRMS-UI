@@ -29,6 +29,7 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Hierarchy', href: '/organization/hierarchy' }
   ],
   '/recruitment': [{ label: 'Recruitment & ATS', href: '/recruitment' }],
+  '/lifecycle': [{ label: 'Lifecycle', href: '/lifecycle' }],
   '/documents': [{ label: 'Document Center', href: '/documents' }],
   '/attendance': [{ label: 'Attendance', href: '/attendance' }],
   '/attendance/timesheets': [
@@ -71,7 +72,7 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   '/payroll': [{ label: 'Payroll', href: '/payroll' }],
   '/payroll/financials': [
     { label: 'Payroll', href: '/payroll' },
-    { label: 'Financials & Claims', href: '/payroll/financials' },
+    { label: 'Compensation & Claims', href: '/payroll/financials' },
   ],
   '/payroll/payslips': [
     { label: 'Payroll', href: '/payroll' },
@@ -82,6 +83,7 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Helpdesk', href: '/helpdesk' },
     { label: 'Announcements' },
   ],
+  '/engage': [{ label: 'Engage', href: '/engage' }],
   '/gate-pass': [
     { label: 'Helpdesk', href: '/helpdesk' },
     { label: 'Gate Pass' },
@@ -90,8 +92,10 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Helpdesk', href: '/helpdesk' },
     { label: 'Grievances' },
   ],
+  '/my-worklife': [{ label: 'My Worklife', href: '/my-worklife' }],
   '/profile': [{ label: 'Profile', href: '/profile' }],
   '/settings': [{ label: 'Settings', href: '/settings' }],
+  '/todo': [{ label: 'To Do', href: '/todo' }],
   '/admin/audit-logs': [
     { label: 'Admin', href: '#admin' },
     { label: 'Audit Logs' },

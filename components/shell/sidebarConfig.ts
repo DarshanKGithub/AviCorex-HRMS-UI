@@ -15,17 +15,17 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   },
   {
     label: 'Engage',
-    href: '#engage',
+    href: '/engage',
     icon: 'engage',
   },
   {
     label: 'My Worklife',
-    href: '#worklife',
+    href: '/my-worklife',
     icon: 'worklife',
   },
   {
-    label: 'To do',
-    href: '#todo',
+    label: 'To Do',
+    href: '/todo',
     icon: 'todo',
   },
   {
@@ -35,7 +35,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyPermissions: ['view_payroll', 'view_payslip_own'],
     children: [
       { label: 'Payslips', href: '/payroll/payslips', icon: 'salary', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
-      { label: 'Financials & Claims', href: '/payroll/financials', icon: 'salary' },
+      { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'salary' },
       { label: 'YTD Reports', href: '#ytd', icon: 'salary' },
       { label: 'IT Statement', href: '#it-statement', icon: 'salary' },
       { label: 'IT Declaration', href: '#it-declaration', icon: 'salary' },
@@ -136,6 +136,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       { label: 'Directory', href: '/employees', icon: 'people', requiredAnyPermissions: ['view_employee'] },
       { label: 'Org Hierarchy', href: '/organization/hierarchy', icon: 'people', requiredAnyPermissions: ['view_employee'] },
       { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people' },
+      { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow' },
     ]
   },
   {

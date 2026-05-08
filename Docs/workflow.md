@@ -23,6 +23,9 @@ This is the Next.js route layer. Each folder is a screen or route group.
 - `app/login/page.tsx` - login screen.
 - Registration: handled by Admin/HR via employee creation (no self-service register page).
 - `app/forgot-password/page.tsx` - password recovery screen.
+- `app/engage/page.tsx` - engagement hub for announcements and helpdesk links.
+- `app/my-worklife/page.tsx` - personal shortcuts and employee self-service hub.
+- `app/todo/page.tsx` - personal to-do list powered by the backend API.
 - `app/dashboard/page.tsx` - main role-based dashboard.
 - `app/employees/page.tsx` - employee list and management screen.
 - `app/employees/[id]/page.tsx` - employee detail screen.
@@ -45,10 +48,11 @@ This folder holds reusable UI and auth wrappers.
 
 - `components/ThemeRegistry.tsx` - sets the Material UI theme and wraps the app with auth context.
 - `components/auth/AuthContext.tsx` - stores login state, session persistence, and auth helpers.
-- `components/auth/AuthShell.tsx` - shared layout for login and registration screens.
+- `components/auth/AuthShell.tsx` - shared layout for login and recovery screens.
 - `components/auth/LoginForm.tsx` - login form logic and submission.
 - `components/shell/ProtectedShell.tsx` - authenticated application shell with sidebar, top bar, and logout.
 - `components/shell/SectionPage.tsx` - reusable section page layout for simple feature screens.
+- `components/shell/sidebarConfig.ts` - protected navigation items, including Engage, My Worklife, and To Do.
 
 Why these files matter:
 - They prevent duplicated layout and auth logic.
@@ -97,7 +101,7 @@ Why this folder matters:
 2. CORS is configured so the frontend can call the API.
 3. Routers are mounted under `/auth`, `/org`, `/employees`, `/dashboard`, and `/admin`.
 4. On startup, tables are created and demo data is seeded.
-5. A frontend request hits a route such as `/auth/login` or `/dashboard/summary`.
+5. A frontend request hits a route such as `/auth/login`, `/dashboard/summary`, or `/todo/`.
 6. The route validates the request using Pydantic schemas.
 7. The route calls a service function for business logic.
 8. The service talks to the database through SQLAlchemy session code.
@@ -153,6 +157,14 @@ What each backend area is used for:
 - `core` handles configuration and security helpers.
 - `tests` verifies service behavior.
 
+### Engagement And To Do
+
+- `app/api/routes/engagement.py` - announcements, helpdesk tickets, gate passes, and grievances.
+- `app/api/routes/todo.py` - authenticated personal To Do endpoints.
+- `app/services/todo_service.py` - To Do CRUD helpers.
+- `app/schemas/todo.py` - To Do request and response models.
+- `app/db/models.py` - `TodoItem` persistence model.
+
 ### Frontend Structure
 
 ```text
@@ -172,7 +184,9 @@ Frontend/
 │   │   └── designations/
 │   ├── payroll/
 │   ├── profile/
-│   ├── register/
+│   ├── engage/
+│   ├── my-worklife/
+│   ├── todo/
 │   ├── settings/
 │   ├── globals.css
 │   ├── layout.tsx
