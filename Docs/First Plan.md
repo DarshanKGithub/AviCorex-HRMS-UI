@@ -304,7 +304,7 @@ backend/
 ### API Modules
 #### Auth
 - POST /login
-- POST /register
+- Account creation: handled by Admin/HR via POST /employees (role-based)
 
 #### Employee
 - GET /employees

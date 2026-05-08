@@ -239,12 +239,7 @@ export function LoginForm() {
             {submitting ? 'Signing in...' : 'Sign in'}
           </Button>
 
-          <Typography sx={{ textAlign: 'center', color: '#64748b', fontSize: '0.9rem', mt: 2 }}>
-            Don't have an account?{' '}
-            <Link href="/register" style={{ color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}>
-              Register
-            </Link>
-          </Typography>
+          {/* Registration is handled by Admin/HR; self-registration removed */}
         </Stack>
       </Box>
     </Box>

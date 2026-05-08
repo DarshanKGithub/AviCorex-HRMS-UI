@@ -21,7 +21,7 @@ This is the Next.js route layer. Each folder is a screen or route group.
 - `app/layout.tsx` - root layout for the whole app. It loads the global theme wrapper.
 - `app/page.tsx` - landing page or root redirect surface.
 - `app/login/page.tsx` - login screen.
-- `app/register/page.tsx` - registration screen.
+- Registration: handled by Admin/HR via employee creation (no self-service register page).
 - `app/forgot-password/page.tsx` - password recovery screen.
 - `app/dashboard/page.tsx` - main role-based dashboard.
 - `app/employees/page.tsx` - employee list and management screen.
