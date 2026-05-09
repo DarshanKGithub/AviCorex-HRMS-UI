@@ -266,6 +266,14 @@ export default function FinancialsPage() {
     }
   }
 
+  const monthlyGross = salaryForm.base_salary + salaryForm.hra + salaryForm.da + salaryForm.special_allowance;
+  const pfDeduction = (monthlyGross * salaryForm.pf_percentage) / 100;
+  const esiDeduction = (monthlyGross * salaryForm.esi_percentage) / 100;
+  const estimatedTax = (monthlyGross * salaryForm.tax_bracket_percentage) / 100;
+  const estimatedTakeHome = monthlyGross - pfDeduction - esiDeduction - estimatedTax;
+  const annualGross = monthlyGross * 12;
+  const selectedEmployee = selectedEmployeeId ? employees.find(e => e.id === selectedEmployeeId) : null;
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
@@ -285,223 +293,243 @@ export default function FinancialsPage() {
       {loading ? (
         <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />
       ) : activeTab === 0 ? (
-        <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
-          <CardContent>
-            {salaryStructure ? (
-              <Box>
-                <Typography variant="h6" sx={{ mb: 2 }}>Current Salary Structure</Typography>
-                <Stack spacing={1.5} sx={{ mb: 4 }}>
-                  <Chip label="Compensation" sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', color: '#2563eb', fontWeight: 700, alignSelf: 'flex-start' }} />
-                  <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
-                    Salary Structure, Tax, PF & ESI
-                  </Typography>
-                  <Typography sx={{ color: '#5b5f7a', lineHeight: 1.8, maxWidth: 900 }}>
-                    Configure compensation bands, statutory deductions, and salary components from one place.
-                  </Typography>
-                </Stack>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>ESI Contribution:</Typography><Typography fontWeight={600}>{salaryStructure.esi_percentage}%</Typography></Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Tax Bracket:</Typography><Typography fontWeight={600}>{salaryStructure.tax_bracket_percentage}%</Typography></Box>
-                </Stack>
-              </Box>
-            ) : (
-              <Alert severity="info">No salary structure defined for your profile yet.</Alert>
+        canManagePayroll ? (
+          <Stack spacing={3}>
+            {(structureMessage || structureError) && (
+              <Alert severity={structureError ? 'error' : 'success'} onClose={() => {
+                setStructureError(null);
+                setStructureMessage(null);
+              }}>
+                {structureError || structureMessage}
+              </Alert>
             )}
-          </CardContent>
-        </Card>
-      ) : activeTab === 1 ? (
-                  <Stack spacing={3}>
-                    {(structureMessage || structureError) && (
-                      <Alert severity={structureError ? 'error' : 'success'} onClose={() => {
-                        setStructureError(null);
-                        setStructureMessage(null);
-                      }}>
-                        {structureError || structureMessage}
-                      </Alert>
-                    )}
 
-                    {canManagePayroll && (
-                      <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-                        <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-                          <Stack spacing={2}>
-                            <Stack direction="row" spacing={1.5} alignItems="center">
-                              <WorkOutlineIcon sx={{ color: '#2563eb' }} />
-                              <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
-                                Choose Employee
-                              </Typography>
-                            </Stack>
-                            <TextField
-                              select
-                              label="Employee"
-                              value={selectedEmployeeId}
-                              onChange={(event) => setSelectedEmployeeId(event.target.value)}
-                              fullWidth
-                            >
-                              {employees.map((employee) => (
-                                <MenuItem key={employee.id} value={employee.id}>
-                                  {employee.full_name} ({employee.email})
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                            {selectedEmployee && (
-                              <Typography sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                                Managing compensation for {selectedEmployee.full_name}
-                              </Typography>
-                            )}
-                          </Stack>
+            <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
+              <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+                <Stack spacing={2}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <WorkOutlineIcon sx={{ color: '#2563eb' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                      Choose Employee
+                    </Typography>
+                  </Stack>
+                  <TextField
+                    select
+                    label="Employee"
+                    value={selectedEmployeeId}
+                    onChange={(event) => setSelectedEmployeeId(event.target.value)}
+                    fullWidth
+                  >
+                    {employees.map((employee) => (
+                      <MenuItem key={employee.id} value={employee.id}>
+                        {employee.full_name} ({employee.email})
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  {selectedEmployee && (
+                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                      Managing compensation for {selectedEmployee.full_name}
+                    </Typography>
+                  )}
+                </Stack>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
+              <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+                <Stack spacing={3}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+                    <Stack spacing={0.5}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                        Salary Structure Editor
+                      </Typography>
+                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.95rem' }}>
+                        Update the base package and compliance rates used for payroll processing.
+                      </Typography>
+                    </Stack>
+                    <Button
+                      variant="contained"
+                      startIcon={<SavingsIcon />}
+                      onClick={saveSalaryStructure}
+                      disabled={savingStructure || !selectedEmployeeId}
+                      sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+                    >
+                      {savingStructure ? 'Saving...' : 'Save Structure'}
+                    </Button>
+                  </Stack>
+
+                  <Grid container spacing={2.5}>
+                    {[
+                      { label: 'Base Salary', key: 'base_salary', prefix: '₹' },
+                      { label: 'HRA', key: 'hra', prefix: '₹' },
+                      { label: 'DA', key: 'da', prefix: '₹' },
+                      { label: 'Special Allowance', key: 'special_allowance', prefix: '₹' },
+                      { label: 'PF %', key: 'pf_percentage', suffix: '%' },
+                      { label: 'ESI %', key: 'esi_percentage', suffix: '%' },
+                      { label: 'Tax Bracket %', key: 'tax_bracket_percentage', suffix: '%' },
+                    ].map((field) => (
+                      <Grid item xs={12} sm={6} md={4} key={field.key}>
+                        <TextField
+                          label={field.label}
+                          type="number"
+                          value={salaryForm[field.key as keyof SalaryStructure]}
+                          onChange={(event) =>
+                            setSalaryForm((current) => ({
+                              ...current,
+                              [field.key]: Number(event.target.value) || 0,
+                            }))
+                          }
+                          fullWidth
+                          InputProps={{
+                            startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: '#6b7280' }}>{field.prefix}</Typography> : undefined,
+                            endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: '#6b7280' }}>{field.suffix}</Typography> : undefined,
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+
+                  <Divider />
+
+                  <Grid container spacing={2.5}>
+                    <Grid item xs={12} md={4}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
+                        <CardContent>
+                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Monthly Gross</Typography>
+                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
+                            ₹{monthlyGross.toLocaleString()}
+                          </Typography>
+                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Base + allowance components</Typography>
                         </CardContent>
                       </Card>
-                    )}
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
+                        <CardContent>
+                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Estimated Take Home</Typography>
+                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#16a34a', mt: 1 }}>
+                            ₹{estimatedTakeHome.toLocaleString()}
+                          </Typography>
+                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>After PF, ESI and tax</Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
+                        <CardContent>
+                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Annual Gross</Typography>
+                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mt: 1 }}>
+                            ₹{annualGross.toLocaleString()}
+                          </Typography>
+                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Projected yearly payroll cost</Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </Grid>
 
-                    <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-                      <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-                        <Stack spacing={3}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
-                            <Stack spacing={0.5}>
-                              <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
-                                Salary Structure Editor
-                              </Typography>
-                              <Typography sx={{ color: '#5b5f7a', fontSize: '0.95rem' }}>
-                                Update the base package and compliance rates used for payroll processing.
-                              </Typography>
-                            </Stack>
-                            {canManagePayroll && (
-                              <Button
-                                variant="contained"
-                                startIcon={<SavingsIcon />}
-                                onClick={saveSalaryStructure}
-                                disabled={savingStructure || !selectedEmployeeId}
-                                sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
-                              >
-                                {savingStructure ? 'Saving...' : 'Save Structure'}
-                              </Button>
-                            )}
-                          </Stack>
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                      <CardContent>
+                        <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
+                        <Stack spacing={1.25}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>PF deduction</Typography>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{pfDeduction.toLocaleString()}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>ESI deduction</Typography>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{esiDeduction.toLocaleString()}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>Estimated tax</Typography>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{estimatedTax.toLocaleString()}</Typography>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Card>
 
-                          <Grid container spacing={2.5}>
-                            {[
-                              { label: 'Base Salary', key: 'base_salary', prefix: '₹' },
-                              { label: 'HRA', key: 'hra', prefix: '₹' },
-                              { label: 'DA', key: 'da', prefix: '₹' },
-                              { label: 'Special Allowance', key: 'special_allowance', prefix: '₹' },
-                              { label: 'PF %', key: 'pf_percentage', suffix: '%' },
-                              { label: 'ESI %', key: 'esi_percentage', suffix: '%' },
-                              { label: 'Tax Bracket %', key: 'tax_bracket_percentage', suffix: '%' },
-                            ].map((field) => (
-                              <Grid item xs={12} sm={6} md={4} key={field.key}>
-                                <TextField
-                                  label={field.label}
-                                  type="number"
-                                  value={salaryForm[field.key as keyof SalaryStructure]}
-                                  onChange={(event) =>
-                                    setSalaryForm((current) => ({
-                                      ...current,
-                                      [field.key]: Number(event.target.value) || 0,
-                                    }))
-                                  }
-                                  fullWidth
-                                  disabled={!canManagePayroll}
-                                  InputProps={{
-                                    startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: '#6b7280' }}>{field.prefix}</Typography> : undefined,
-                                    endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: '#6b7280' }}>{field.suffix}</Typography> : undefined,
-                                  }}
-                                />
-                              </Grid>
-                            ))}
-                          </Grid>
-
-                          <Divider />
-
-                          <Grid container spacing={2.5}>
-                            <Grid item xs={12} md={4}>
-                              <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                                <CardContent>
-                                  <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Monthly Gross</Typography>
-                                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
-                                    ₹{monthlyGross.toLocaleString()}
-                                  </Typography>
-                                  <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Base + allowance components</Typography>
-                                </CardContent>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                              <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                                <CardContent>
-                                  <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Estimated Take Home</Typography>
-                                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#16a34a', mt: 1 }}>
-                                    ₹{estimatedTakeHome.toLocaleString()}
-                                  </Typography>
-                                  <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>After PF, ESI and tax</Typography>
-                                </CardContent>
-                              </Card>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                              <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                                <CardContent>
-                                  <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Annual Gross</Typography>
-                                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mt: 1 }}>
-                                    ₹{annualGross.toLocaleString()}
-                                  </Typography>
-                                  <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Projected yearly payroll cost</Typography>
-                                </CardContent>
-                              </Card>
-                            </Grid>
-                          </Grid>
-
-                          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                            <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                              <CardContent>
-                                <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
-                                <Stack spacing={1.25}>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>PF deduction</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{pfDeduction.toLocaleString()}</Typography>
-                                  </Box>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>ESI deduction</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{esiDeduction.toLocaleString()}</Typography>
-                                  </Box>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>Estimated tax</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{estimatedTax.toLocaleString()}</Typography>
-                                  </Box>
-                                </Stack>
-                              </CardContent>
-                            </Card>
-
-                            <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                              <CardContent>
-                                <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
-                                <Stack spacing={1.25}>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>Employee</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>
-                                      {selectedEmployee?.full_name || user?.full_name || 'Current user'}
-                                    </Typography>
-                                  </Box>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>Structure status</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: salaryStructure ? '#16a34a' : '#f59e0b' }}>
-                                      {salaryStructure ? 'Saved' : 'Draft'}
-                                    </Typography>
-                                  </Box>
-                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                                    <Typography sx={{ color: '#334155' }}>PF / ESI / Tax</Typography>
-                                    <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>
-                                      {salaryForm.pf_percentage}% / {salaryForm.esi_percentage}% / {salaryForm.tax_bracket_percentage}%
-                                    </Typography>
-                                  </Box>
-                                </Stack>
-                              </CardContent>
-                            </Card>
-                          </Stack>
-
-                          {!canManagePayroll && (
-                            <Alert severity="info">This view is read-only for your role. HR and Admin can update salary structures and compliance rates.</Alert>
-                          )}
+                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                      <CardContent>
+                        <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
+                        <Stack spacing={1.25}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>Employee</Typography>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>
+                              {selectedEmployee?.full_name || user?.full_name || 'Current user'}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>Structure status</Typography>
+                            <Typography sx={{ fontWeight: 700, color: salaryStructure ? '#16a34a' : '#f59e0b' }}>
+                              {salaryStructure ? 'Saved' : 'Draft'}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography sx={{ color: '#334155' }}>PF / ESI / Tax</Typography>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>
+                              {salaryForm.pf_percentage}% / {salaryForm.esi_percentage}% / {salaryForm.tax_bracket_percentage}%
+                            </Typography>
+                          </Box>
                         </Stack>
                       </CardContent>
                     </Card>
                   </Stack>
+
+                  <Alert severity="info">Your salary structure and compliance rates are configured here.</Alert>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+        ) : (
+          <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
+            <CardContent>
+              {salaryStructure ? (
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 2 }}>Current Salary Structure</Typography>
+                  <Stack spacing={1.5} sx={{ mb: 4 }}>
+                    <Chip label="Compensation" sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', color: '#2563eb', fontWeight: 700, alignSelf: 'flex-start' }} />
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
+                      Salary Structure, Tax, PF & ESI
+                    </Typography>
+                    <Typography sx={{ color: '#5b5f7a', lineHeight: 1.8, maxWidth: 900 }}>
+                      Your compensation bands, statutory deductions, and salary components.
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Base Salary:</Typography><Typography fontWeight={600}>₹{salaryStructure.base_salary?.toLocaleString()}</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>HRA:</Typography><Typography fontWeight={600}>₹{salaryStructure.hra?.toLocaleString()}</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>DA:</Typography><Typography fontWeight={600}>₹{salaryStructure.da?.toLocaleString()}</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Special Allowance:</Typography><Typography fontWeight={600}>₹{salaryStructure.special_allowance?.toLocaleString()}</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>PF Contribution:</Typography><Typography fontWeight={600}>{salaryStructure.pf_percentage}%</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>ESI Contribution:</Typography><Typography fontWeight={600}>{salaryStructure.esi_percentage}%</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Tax Bracket:</Typography><Typography fontWeight={600}>{salaryStructure.tax_bracket_percentage}%</Typography></Box>
+                  </Stack>
+                </Box>
+              ) : (
+                <Alert severity="info">No salary structure defined for your profile yet.</Alert>
+              )}
+            </CardContent>
+          </Card>
+        )
+      ) : activeTab === 1 ? (
+        <Box>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenReimModal(true)} sx={{ mb: 2, bgcolor: '#3b82f6', textTransform: 'none' }}>Claim Reimbursement</Button>
+          <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
+            <Table>
+              <TableHead sx={{ bgcolor: '#f9fafb' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Applied On</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {reimbursements.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: '#6b7280' }}>No claims found.</TableCell></TableRow>
+                ) : (
+                  reimbursements.map(r => (
+                    <TableRow key={r.id}>
+                      <TableCell>{r.expense_type}</TableCell>
+                      <TableCell>₹{r.amount?.toLocaleString()}</TableCell>
                       <TableCell>{r.status}</TableCell>
                       <TableCell>{new Date(r.applied_on).toLocaleDateString()}</TableCell>
                     </TableRow>
@@ -532,9 +560,9 @@ export default function FinancialsPage() {
                   loans.map(l => (
                     <TableRow key={l.id}>
                       <TableCell>{l.loan_type}</TableCell>
-                      <TableCell>₹{l.amount}</TableCell>
-                      <TableCell>₹{l.emi_amount}</TableCell>
-                      <TableCell>₹{l.remaining_balance}</TableCell>
+                      <TableCell>₹{l.amount?.toLocaleString()}</TableCell>
+                      <TableCell>₹{l.emi_amount?.toLocaleString()}</TableCell>
+                      <TableCell>₹{l.remaining_balance?.toLocaleString()}</TableCell>
                       <TableCell>{l.status}</TableCell>
                     </TableRow>
                   ))
