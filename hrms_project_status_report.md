@@ -1,6 +1,6 @@
 # HRMS Project Status Report
 
-As of 2026-05-07, this report summarizes what is already implemented in the current codebase and what still remains.
+As of 2026-05-10, this report summarizes what is already implemented in the current codebase and what still remains.
 
 ## Done
 
@@ -32,6 +32,10 @@ The following areas are present in the backend and/or frontend and are working a
 - Announcements and internal communications
 - Gate pass management system
 - Employee grievance filing and management
+- Performance appraisals and goal tracking
+- KPI management with weighted scoring
+- Training courses and employee enrollments
+- Certifications management with expiry tracking
 
 ## Partially Done / Scaffolded
 
@@ -40,9 +44,9 @@ These areas have some backend models, routes, or frontend pages, but they still 
 - Biometric device integration and sync
 - Recruitment and ATS core flow (job postings, candidate intake, resume parsing, applications, interviews)
 - Offer management, onboarding/probation, exit handling, and asset inventory lifecycle hub
-- Engagement-related features (performance, KPI, training, surveys - models only)
-- File upload and document handling improvements
 - Org hierarchy visualization
+- Employee engagement surveys and feedback automation (models only)
+- File upload and document handling improvements
 
 ## Remaining
 
@@ -50,9 +54,8 @@ These are the larger modules that are still mostly roadmap items or only partial
 - Biometric device integrations and device sync flows
 - Geo-fencing, GPS tracking, QR, and face recognition attendance
 - Roster management
-- Performance management, KPI, and OKR tracking (models exist, needs backend services/routes and frontend UI)
-- LMS, training, certification, and skill matrix features (models exist, needs backend services/routes and frontend UI)
-- Employee engagement surveys and feedback automation (models exist)
+- LMS advanced features (courses creation, delivery, certifications)
+- Employee engagement surveys and feedback automation
 - Grievance investigation workflow enhancements
 - Dynamic workflow engine and form builder
 - Document management, OCR, and e-signatures
@@ -65,4 +68,4 @@ These are the larger modules that are still mostly roadmap items or only partial
 
 ## Short Summary
 
-The project is strongest in the core HR foundation: auth, employees, org structure, dashboarding, attendance, leave, payroll, and support systems. The platform now includes comprehensive helpdesk ticketing, internal announcements, gate pass management, and employee grievance systems. The next big gaps are advanced lifecycle HR modules like recruitment, onboarding, exit, performance management, and deeper automation/integrations.
+The project now includes comprehensive performance management with goals, KPIs, appraisals, and training tracking. The core HR foundation is strong with auth, employees, org structure, dashboarding, attendance, leave, payroll, and support systems all fully implemented. Key remaining gaps are advanced automation (notifications, dynamic workflows), biometric/geo-fencing for attendance, multi-tenancy, and advanced analytics.

@@ -42,6 +42,7 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { generateSidebarItems, type SidebarItem } from '@/components/shell/sidebarConfig';
@@ -68,7 +69,8 @@ const iconMap = {
   leaves: DirectionsRunRoundedIcon,
   profile: PersonRoundedIcon,
   settings: SettingsRoundedIcon,
-  calendar: TodayRoundedIcon
+  calendar: TodayRoundedIcon,
+  performance: TrendingUpRoundedIcon
 };
 
 function getInitials(name: string) {

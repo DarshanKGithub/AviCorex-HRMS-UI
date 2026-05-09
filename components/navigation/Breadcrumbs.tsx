@@ -96,6 +96,11 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   '/profile': [{ label: 'Profile', href: '/profile' }],
   '/settings': [{ label: 'Settings', href: '/settings' }],
   '/todo': [{ label: 'To Do', href: '/todo' }],
+  '/performance': [{ label: 'Performance & KPI', href: '/performance' }],
+  '/performance/training': [
+    { label: 'Performance & KPI', href: '/performance' },
+    { label: 'Training & Certifications' },
+  ],
   '/admin/audit-logs': [
     { label: 'Admin', href: '#admin' },
     { label: 'Audit Logs' },

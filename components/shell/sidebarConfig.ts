@@ -1,7 +1,7 @@
 export type SidebarItem = {
   label: string;
   href: string;
-  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar';
+  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar' | 'performance';
   requiredAnyPermissions?: string[];
   children?: SidebarItem[];
 };
@@ -113,6 +113,23 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
         href: '/attendance/biometrics',
         icon: 'attendance',
         requiredAnyPermissions: ['manage_attendance']
+      }
+    ]
+  },
+  {
+    label: 'Performance',
+    href: '/performance',
+    icon: 'performance',
+    children: [
+      {
+        label: 'Goals & KPIs',
+        href: '/performance',
+        icon: 'performance',
+      },
+      {
+        label: 'Training & Certifications',
+        href: '/performance/training',
+        icon: 'performance',
       }
     ]
   },
