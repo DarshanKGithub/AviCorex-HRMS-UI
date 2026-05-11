@@ -1,0 +1,42 @@
+import type { ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
+import ThemeToggle from '@/components/ThemeToggle';
+
+interface SaaSShellProps {
+  children: ReactNode;
+  title?: string;
+  subtitle?: string;
+}
+
+export function SaaSShell({ children, title = 'HRMS Platform', subtitle = 'Calm, enterprise-ready HR workflows' }: SaaSShellProps) {
+  return (
+    <Box sx={{ minHeight: '100vh', width: '100%', background: 'linear-gradient(180deg,#fcfcfe 0%,#f3f5ff 100%)', py: { xs: 3, md: 5 } }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4, lg: 6 } }}>
+        <Stack spacing={4}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 3, flexWrap: 'wrap' }}>
+            <Box sx={{ maxWidth: 760 }}>
+              <Chip label="SaaS Workspace" sx={{ bgcolor: '#eef2ff', color: '#3730a3', fontWeight: 800, mb: 1.5 }} />
+              <Typography variant="h4" sx={{ fontWeight: 950, color: '#0f172a', letterSpacing: '-0.04em' }}>{title}</Typography>
+              <Typography sx={{ color: '#64748b', mt: 0.75, fontSize: '1rem' }}>{subtitle}</Typography>
+            </Box>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ pt: 0.5 }}>
+              <ThemeToggle />
+              <InsightsRoundedIcon sx={{ color: '#8b5cf6' }} />
+            </Stack>
+          </Box>
+
+          <Box sx={{ width: '100%' }}>
+            {children}
+          </Box>
+        </Stack>
+      </Container>
+    </Box>
+  );
+}
+
+export default SaaSShell;

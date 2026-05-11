@@ -24,6 +24,7 @@ import {
   TextField,
   Alert,
   Chip,
+  Skeleton,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
@@ -362,9 +363,19 @@ export default function ProfilePage() {
 
   if (authContext?.status === 'loading' || loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="md">
+        <Box sx={{ mt: 6 }}>
+          <Skeleton variant="circular" width={80} height={80} sx={{ mb: 2 }} />
+          <Skeleton variant="rounded" height={28} width="40%" sx={{ mb: 1 }} />
+          <Skeleton variant="rounded" height={14} width="60%" sx={{ mb: 3 }} />
+
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            {[1,2,3,4].map((i) => (
+              <Skeleton key={i} variant="rounded" height={56} sx={{ borderRadius: 2 }} />
+            ))}
+          </Box>
+        </Box>
+      </Container>
     );
   }
 

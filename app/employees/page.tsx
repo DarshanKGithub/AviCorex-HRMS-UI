@@ -40,8 +40,7 @@ import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 type Employee = {
   id: string;
@@ -99,9 +98,14 @@ export default function EmployeesPage() {
 
   async function fetchLookups() {
     try {
+      const headers: Record<string, string> = {};
+      if (auth.token) {
+        headers.Authorization = `Bearer ${auth.token}`;
+      }
+
       const [dres, rres] = await Promise.all([
-        fetch(`${API_BASE_URL}/org/departments`),
-        fetch(`${API_BASE_URL}/org/designations`),
+        fetch(`${API_BASE_URL}/org/departments`, { headers }),
+        fetch(`${API_BASE_URL}/org/designations`, { headers }),
       ]);
       if (dres.ok) setDepartments(await dres.json());
       if (rres.ok) setDesignations(await rres.json());
@@ -153,7 +157,11 @@ export default function EmployeesPage() {
     let current: string | null = startId;
     try {
       while (current) {
-        const response: Response = await fetch(`${API_BASE_URL}/employees/${current}`);
+        const headers: Record<string, string> = {};
+        if (auth.token) {
+          headers.Authorization = `Bearer ${auth.token}`;
+        }
+        const response: Response = await fetch(`${API_BASE_URL}/employees/${current}`, { headers });
         if (!response.ok) break;
         const data = await response.json();
         chain.push(`${data.full_name} (${data.email})`);
@@ -174,13 +182,28 @@ export default function EmployeesPage() {
       params.set('page', String(usedPage));
       params.set('size', String(size));
       if (q) params.set('q', q);
-      const res = await fetch(`${API_BASE_URL}/employees/?${params.toString()}`);
+
+      const headers: Record<string, string> = {};
+      if (auth.token) {
+        headers.Authorization = `Bearer ${auth.token}`;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/employees/?${params.toString()}`, { headers });
       if (res.ok) {
         const body = await res.json();
         setEmployees(body.items || []);
         setTotal(body.total || 0);
         setPage(body.page || usedPage);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setToastMsg((body && body.detail) || `Unable to fetch employees (${res.status})`);
+        setToastSeverity('error');
+        setToastOpen(true);
       }
+    } catch (err: any) {
+      setToastMsg(err?.message || 'Failed to fetch employees');
+      setToastSeverity('error');
+      setToastOpen(true);
     } finally {
       setLoading(false);
     }

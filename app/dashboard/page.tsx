@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import {
   CheckCircle, InfoOutlined, Circle, TrendingUp, Bolt,
-  MoreHoriz, CalendarMonth, LocalBar
+  MoreHoriz, CalendarMonth, LocalBar, AutoAwesome, Insights, Psychology, ArrowForward
 } from '@mui/icons-material';
 import { useAuth } from '@/components/auth/AuthContext';
 
@@ -25,11 +25,54 @@ const DESIGN = {
     boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)'
   },
   text: {
+
     primary: '#0f172a',
     secondary: '#64748b',
     blue: '#3b82f6'
   }
 };
+
+const DASHBOARD_METRICS = [
+  {
+    label: 'Performance Pulse',
+    value: '92.4%',
+    delta: '+12.1%',
+    icon: TrendingUp,
+    accent: '#3b82f6',
+    soft: 'rgba(59, 130, 246, 0.12)'
+  },
+  {
+    label: 'AI Insights',
+    value: '18',
+    delta: '6 generated today',
+    icon: AutoAwesome,
+    accent: '#8b5cf6',
+    soft: 'rgba(139, 92, 246, 0.12)'
+  },
+  {
+    label: 'Focus Hours',
+    value: '6h 42m',
+    delta: 'above target',
+    icon: Bolt,
+    accent: '#10b981',
+    soft: 'rgba(16, 185, 129, 0.12)'
+  },
+  {
+    label: 'Manager Signals',
+    value: '24',
+    delta: 'actionable items',
+    icon: Insights,
+    accent: '#f97316',
+    soft: 'rgba(249, 115, 22, 0.12)'
+  }
+];
+
+const AI_PROMPTS = [
+  'Summarize today\'s risks',
+  'Who needs attention?',
+  'Show late check-ins',
+  'Generate team brief'
+];
 
 export default function MuiXDashboard() {
   const { user } = useAuth();
@@ -47,23 +90,153 @@ export default function MuiXDashboard() {
   const userLocation = (user as any)?.location ;
 
   return (
-    <Box sx={{ p: { xs: 2, md: 5 }, bgcolor: '#f8fafc', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        p: { xs: 2, md: 5 },
+        bgcolor: '#f8fafc',
+        minHeight: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 32%), radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.12), transparent 25%), radial-gradient(circle at 90% 75%, rgba(16, 185, 129, 0.12), transparent 22%)',
+          pointerEvents: 'none'
+        }
+      }}
+    >
+      <Box sx={{ position: 'absolute', top: 64, right: 32, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, rgba(139,92,246,0) 70%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
+      <Box sx={{ position: 'absolute', bottom: 40, left: 24, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.10) 0%, rgba(59,130,246,0) 72%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
 
       {/* 1. HEADER SECTION - Dynamic */}
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 4 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 900, color: DESIGN.text.primary, letterSpacing: '-0.04em' }}>
-            Workforce Insights
+          <Chip
+            icon={<Psychology sx={{ fontSize: 18 }} />}
+            label="AI Copilot Active"
+            size="small"
+            sx={{
+              bgcolor: 'rgba(15, 23, 42, 0.92)',
+              color: '#fff',
+              mb: 1.5,
+              fontWeight: 700,
+              px: 0.75,
+              '& .MuiChip-icon': { color: '#93c5fd' }
+            }}
+          />
+          <Typography variant="h4" sx={{ fontWeight: 950, color: DESIGN.text.primary, letterSpacing: '-0.05em', lineHeight: 1 }}>
+            AI Workforce Command Center
           </Typography>
-          <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 500 }}>
-            {formattedDate}
+          <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 500, mt: 1 }}>
+            {formattedDate} · {userLocation || 'Global workspace'}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Button startIcon={<CalendarMonth />} sx={{ textTransform: 'none', fontWeight: 600, color: DESIGN.text.primary }}>Schedule</Button>
-          <IconButton sx={{ border: '1px solid #e2e8f0' }}><MoreHoriz /></IconButton>
+          <Button startIcon={<CalendarMonth />} sx={{ textTransform: 'none', fontWeight: 700, color: DESIGN.text.primary, bgcolor: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 8px 24px -12px rgba(15, 23, 42, 0.15)' }}>
+            Schedule
+          </Button>
+          <IconButton sx={{ border: '1px solid #e2e8f0', bgcolor: '#fff', boxShadow: '0 8px 24px -12px rgba(15, 23, 42, 0.15)' }}>
+            <MoreHoriz />
+          </IconButton>
         </Stack>
       </Stack>
+
+      <Grid container spacing={2.5} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+        {DASHBOARD_METRICS.map((metric) => {
+          const MetricIcon = metric.icon;
+
+          return (
+            <Grid item xs={12} sm={6} lg={3} key={metric.label}>
+              <Card sx={{ ...DESIGN.glass, height: '100%', position: 'relative', overflow: 'hidden' }}>
+                <Box sx={{ position: 'absolute', inset: 'auto -24px -24px auto', width: 88, height: 88, borderRadius: '50%', bgcolor: metric.soft, filter: 'blur(6px)' }} />
+                <CardContent sx={{ p: 2.5, position: 'relative' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.5 }}>
+                    <Box sx={{ width: 44, height: 44, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: metric.soft, color: metric.accent }}>
+                      <MetricIcon />
+                    </Box>
+                    <Chip label={metric.delta} size="small" sx={{ bgcolor: '#f8fafc', color: metric.accent, fontWeight: 700 }} />
+                  </Stack>
+                  <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 600, fontSize: 13, mb: 0.5 }}>{metric.label}</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: DESIGN.text.primary, letterSpacing: '-0.04em' }}>{metric.value}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
+
+      <Card
+        sx={{
+          mb: 3,
+          borderRadius: 5,
+          overflow: 'hidden',
+          position: 'relative',
+          color: '#fff',
+          background: 'linear-gradient(135deg, #0f172a 0%, #111827 46%, #1d4ed8 100%)',
+          boxShadow: '0 24px 48px -20px rgba(15, 23, 42, 0.45)'
+        }}
+      >
+        <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 26%), radial-gradient(circle at bottom left, rgba(255,255,255,0.10), transparent 30%)' }} />
+        <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={7}>
+              <Chip
+                icon={<AutoAwesome sx={{ fontSize: 18 }} />}
+                label="AI-Generated Brief"
+                size="small"
+                sx={{ bgcolor: 'rgba(255,255,255,0.14)', color: '#dbeafe', mb: 2, fontWeight: 800, '& .MuiChip-icon': { color: '#fde68a' } }}
+              />
+              <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.03, mb: 1.5 }}>
+                Clean, predictive HR operations in one place.
+              </Typography>
+              <Typography sx={{ maxWidth: 620, color: 'rgba(255,255,255,0.78)', fontWeight: 500, mb: 3 }}>
+                Surface anomalies, track attendance patterns, and guide managers with a calm SaaS workspace that feels intelligent instead of noisy.
+              </Typography>
+              <Stack direction="row" spacing={1.25} sx={{ flexWrap: 'wrap', rowGap: 1.25 }}>
+                {AI_PROMPTS.map((prompt) => (
+                  <Chip
+                    key={prompt}
+                    label={prompt}
+                    icon={<ArrowForward sx={{ fontSize: 16 }} />}
+                    sx={{
+                      bgcolor: 'rgba(255,255,255,0.10)',
+                      color: '#fff',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      '& .MuiChip-icon': { color: '#93c5fd' }
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <Card sx={{ background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(14px)', borderRadius: 4 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                    <Box>
+                      <Typography sx={{ fontWeight: 800, color: '#fff' }}>AI snapshot</Typography>
+                      <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.68)' }}>Focus signals for today</Typography>
+                    </Box>
+                    <Chip label="Live" size="small" sx={{ bgcolor: 'rgba(34,197,94,0.18)', color: '#86efac', fontWeight: 800 }} />
+                  </Stack>
+                  <Stack spacing={1.5}>
+                    {[
+                      'Two employees have repeated late check-ins this week.',
+                      'Team throughput is up 12% versus last month.',
+                      'One manager needs follow-up on pending approvals.'
+                    ].map((item) => (
+                      <Stack key={item} direction="row" spacing={1.25} alignItems="flex-start">
+                        <CheckCircle sx={{ color: '#93c5fd', fontSize: 18, mt: 0.2 }} />
+                        <Typography sx={{ color: 'rgba(255,255,255,0.82)', fontSize: 14, lineHeight: 1.5 }}>{item}</Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       <Grid container spacing={3}>
         {/* LEFT COLUMN */}
@@ -105,8 +278,8 @@ export default function MuiXDashboard() {
 
             {/* PRODUCTIVITY BAR CHART (MUI X) */}
             <Card sx={DESIGN.glass}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Attendance & Hours</Typography>
+              <CardContent sx={{ p: 3}}>
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>Attendance & Hours</Typography>
                 <Box sx={{ width: '100%', height: 300 }}>
                   <BarChart
                     series={[

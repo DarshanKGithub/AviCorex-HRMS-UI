@@ -1,7 +1,7 @@
 export type SidebarItem = {
   label: string;
   href: string;
-  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar' | 'performance';
+  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar' | 'performance' | 'notifications';
   requiredAnyPermissions?: string[];
   children?: SidebarItem[];
 };
@@ -65,14 +65,8 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       },
       {
         label: 'Leave Calendar',
-        href: '#leave-calendar',
-        icon: 'calendar',
-      },
-      {
-        label: 'Holiday Calendar',
         href: '/leaves/holidays',
         icon: 'calendar',
-        requiredAnyPermissions: ['view_leave', 'view_leave_own', 'request_leave']
       }
     ]
   },
@@ -157,7 +151,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     ]
   },
   {
-    label: 'Helpdesk',
+    label: 'Request Hub',
     href: '/helpdesk',
     icon: 'helpdesk',
     children: [
@@ -184,14 +178,21 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     ]
   },
   {
-    label: 'Request Hub',
-    href: '#requests',
-    icon: 'requests',
-  },
-  {
-    label: 'Workflow Delegates',
-    href: '#workflow',
-    icon: 'workflow',
+    label: 'Notifications',
+    href: '/notifications',
+    icon: 'notifications',
+    children: [
+      {
+        label: 'Notification Center',
+        href: '/notifications',
+        icon: 'notifications',
+      },
+      {
+        label: 'Settings',
+        href: '/settings/notifications',
+        icon: 'settings',
+      }
+    ]
   }
 ];
 

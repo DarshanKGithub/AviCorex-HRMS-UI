@@ -80,16 +80,16 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   ],
   '/helpdesk': [{ label: 'Support Tickets', href: '/helpdesk' }],
   '/announcements': [
-    { label: 'Helpdesk', href: '/helpdesk' },
+    { label: 'Request Hub', href: '/helpdesk' },
     { label: 'Announcements' },
   ],
   '/engage': [{ label: 'Engage', href: '/engage' }],
   '/gate-pass': [
-    { label: 'Helpdesk', href: '/helpdesk' },
+    { label: 'Request Hub', href: '/helpdesk' },
     { label: 'Gate Pass' },
   ],
   '/grievance': [
-    { label: 'Helpdesk', href: '/helpdesk' },
+    { label: 'Request Hub', href: '/helpdesk' },
     { label: 'Grievances' },
   ],
   '/my-worklife': [{ label: 'My Worklife', href: '/my-worklife' }],
@@ -112,6 +112,13 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   '/org/designations': [
     { label: 'Organization', href: '#org' },
     { label: 'Designations' },
+  ],
+  '/notifications': [
+    { label: 'Notifications', href: '/notifications' },
+  ],
+  '/settings/notifications': [
+    { label: 'Settings', href: '/settings' },
+    { label: 'Notification Settings' },
   ],
 };
 

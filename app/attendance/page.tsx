@@ -8,6 +8,7 @@ import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import Skeleton from '@mui/material/Skeleton';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -19,6 +20,8 @@ import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
@@ -269,37 +272,82 @@ export default function AttendancePage() {
     }
   };
 
+  const attendanceStats = [
+    { label: 'Today status', value: todayAttendance?.status || 'Pending', accent: '#3b82f6' },
+    { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
+    { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f97316' },
+  ];
+
   if (auth.status === 'loading' || loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress />
+      <Box sx={{ minHeight: '100vh', bgcolor: '#f8fafc', p: { xs: 2, md: 4 } }}>
+        <Box sx={{ mx: 'auto', maxWidth: 1120 }}>
+          <Stack spacing={3}>
+            <Skeleton variant="rounded" height={140} sx={{ borderRadius: 5 }} />
+            <Grid container spacing={2.5}>
+              {[1, 2, 3, 4].map((item) => (
+                <Grid item xs={12} sm={6} lg={3} key={item}>
+                  <Skeleton variant="rounded" height={128} sx={{ borderRadius: 4 }} />
+                </Grid>
+              ))}
+            </Grid>
+            <Grid container spacing={2.5}>
+              <Grid item xs={12} md={6}>
+                <Skeleton variant="rounded" height={220} sx={{ borderRadius: 4 }} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Skeleton variant="rounded" height={220} sx={{ borderRadius: 4 }} />
+              </Grid>
+            </Grid>
+            <Skeleton variant="rounded" height={320} sx={{ borderRadius: 4 }} />
+          </Stack>
+        </Box>
       </Box>
     );
   }
 
   return (
     <Box className="min-h-screen bg-[linear-gradient(180deg,#fcfcfe_0%,#f6f7ff_100%)] p-4 sm:p-6 lg:p-8">
-      <Box className="mx-auto max-w-4xl">
+      <Box className="mx-auto max-w-5xl">
         <Breadcrumbs />
         <Stack spacing={3}>
-          {/* Header */}
-          <Box className="rounded-[28px] border border-line/70 bg-white/85 px-6 py-6 shadow-soft backdrop-blur-sm">
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between">
-              <Box>
-                <Chip
-                  icon={<ScheduleIcon sx={{ color: '#4f4b9c !important' }} />}
-                  label="Attendance"
-                  sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800 }}
-                />
-                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 800, letterSpacing: '-0.03em', color: '#15162c' }}>
-                  Check-in / Check-out
-                </Typography>
-                <Typography sx={{ mt: 0.8, color: '#5b5f7a' }}>
-                  Record your daily attendance with accurate timestamps and status tracking.
-                </Typography>
-              </Box>
-            </Stack>
-          </Box>
+          <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+            <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
+              <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 22%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 25%)' }} />
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
+                <Box sx={{ maxWidth: 720 }}>
+                  <Chip
+                    icon={<ScheduleIcon sx={{ color: '#93c5fd !important' }} />}
+                    label="Attendance Command Center"
+                    sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#e2e8f0', fontWeight: 800, border: '1px solid rgba(255,255,255,0.12)' }}
+                  />
+                  <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05 }}>
+                    Check-in / Check-out with a premium, AI-friendly flow.
+                  </Typography>
+                  <Typography sx={{ mt: 1, color: 'rgba(226,232,240,0.78)', maxWidth: 600 }}>
+                    View your shift status, see insights in context, and keep every attendance action calm and easy to scan.
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#93c5fd !important' }} />} label="Live sync" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
+                  <Chip icon={<InsightsRoundedIcon sx={{ color: '#86efac !important' }} />} label="AI signals" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+
+          <Grid container spacing={2.5}>
+            {attendanceStats.map((stat) => (
+              <Grid item xs={12} sm={4} key={stat.label}>
+                <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
+                  <CardContent>
+                    <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
+                    <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: stat.accent }}>{stat.value}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
 
           {/* Error Alert */}
           {error && <Alert severity="error">{error}</Alert>}
@@ -437,7 +485,13 @@ export default function AttendancePage() {
                   </Table>
                 </Box>
               ) : (
-                <Alert severity="info">No attendance records yet. Check in to get started!</Alert>
+                <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
+                  <CardContent sx={{ py: 5, textAlign: 'center' }}>
+                    <InsightsRoundedIcon sx={{ fontSize: 44, color: '#cbd5e1', mb: 1.5 }} />
+                    <Typography sx={{ color: '#15162c', fontWeight: 800, mb: 0.5 }}>No attendance records yet</Typography>
+                    <Typography sx={{ color: '#64748b' }}>Check in to populate your timeline and attendance analytics.</Typography>
+                  </CardContent>
+                </Card>
               )}
             </CardContent>
           </Card>

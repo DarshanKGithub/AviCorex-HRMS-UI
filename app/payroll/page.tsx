@@ -20,10 +20,13 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import Skeleton from '@mui/material/Skeleton';
 import PaymentIcon from '@mui/icons-material/Payment';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import EmailIcon from '@mui/icons-material/Email';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import { useAuth } from '../../components/auth/AuthContext';
 import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
@@ -76,6 +79,11 @@ export default function PayrollPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const canProcessPayroll = hasPermission('process_payroll');
+  const payrollHighlights = [
+    { label: 'Payroll cycle', value: 'Monthly', accent: '#3b82f6' },
+    { label: 'Payslips', value: `${payslips.length}`, accent: '#10b981' },
+    { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#8b5cf6' },
+  ];
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -199,24 +207,49 @@ export default function PayrollPage() {
     <Box className="mx-auto max-w-6xl px-4 py-6">
       <Breadcrumbs />
       <Stack spacing={4}>
-        {/* Header */}
-        <Box>
-          <Chip label="Compensation" sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800, mb: 2 }} />
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
-            Payroll & Compensation
-          </Typography>
-          <Typography sx={{ mt: 1, color: '#5b5f7a', lineHeight: 1.8 }}>
-            View your salary structure and payslips
-          </Typography>
-        </Box>
+        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+          <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
+            <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 24%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 28%)' }} />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
+              <Box sx={{ maxWidth: 700 }}>
+                <Chip label="Compensation Command Center" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#e2e8f0', fontWeight: 800, border: '1px solid rgba(255,255,255,0.12)' }} />
+                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05 }}>
+                  Payroll & Compensation, presented like a premium SaaS workspace.
+                </Typography>
+                <Typography sx={{ mt: 1, color: 'rgba(226,232,240,0.78)', maxWidth: 620 }}>
+                  See salary structure, download payslips, and keep finance workflows calm, precise, and easy to scan.
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#93c5fd !important' }} />} label="Live summaries" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
+                <Chip icon={<InsightsRoundedIcon sx={{ color: '#86efac !important' }} />} label="AI-ready insights" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        <Grid container spacing={2.5}>
+          {payrollHighlights.map((item) => (
+            <Grid item xs={12} sm={4} key={item.label}>
+              <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
+                <CardContent>
+                  <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
+                  <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: item.accent }}>{item.value}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
         {/* Alerts */}
         {success && <Alert severity="success" onClose={() => setSuccess(null)}>{success}</Alert>}
         {error && <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress />
+          <Box sx={{ display: 'grid', gap: 2.5 }}>
+            <Skeleton variant="rounded" height={180} sx={{ borderRadius: 4 }} />
+            <Skeleton variant="rounded" height={64} sx={{ borderRadius: 4 }} />
+            <Skeleton variant="rounded" height={320} sx={{ borderRadius: 4 }} />
           </Box>
         ) : (
           <>
@@ -377,7 +410,8 @@ export default function PayrollPage() {
                 <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
                   <CardContent sx={{ py: 4, textAlign: 'center' }}>
                     <ReceiptIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                    <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No payslips available yet</Typography>
+                    <Typography sx={{ color: '#15162c', fontWeight: 800, mb: 0.5 }}>No payslips available yet</Typography>
+                    <Typography sx={{ color: '#64748b' }}>Once payroll is processed, your latest slips will appear here.</Typography>
                   </CardContent>
                 </Card>
               )}

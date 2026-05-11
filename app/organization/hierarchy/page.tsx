@@ -5,8 +5,7 @@ import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert } fr
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 interface OrgNode {
   id: string;
@@ -74,12 +73,14 @@ export default function OrganizationHierarchyPage() {
   useEffect(() => {
     if (token) {
       fetchHierarchy();
+    } else {
+      setLoading(false);
     }
   }, [token]);
 
   async function fetchHierarchy() {
     try {
-      const res = await fetch(`${API_BASE}/org/hierarchy`, {
+      const res = await fetch(`${API_BASE_URL}/org/hierarchy`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

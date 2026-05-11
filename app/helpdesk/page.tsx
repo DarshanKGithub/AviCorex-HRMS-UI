@@ -14,6 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
+import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -26,8 +27,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 type Ticket = {
   id: string;
@@ -76,7 +76,7 @@ export default function HelpdeskPage() {
     setLoading(true);
     try {
       const endpoint = isAdmin ? '/engagement/tickets' : '/engagement/tickets';
-      const res = await fetch(`${API_BASE}${endpoint}`, {
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -98,7 +98,7 @@ export default function HelpdeskPage() {
     }
     
     try {
-      const res = await fetch(`${API_BASE}/engagement/tickets`, {
+      const res = await fetch(`${API_BASE_URL}/engagement/tickets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function HelpdeskPage() {
 
   async function updateTicketStatus(ticketId: string, newStatus: string) {
     try {
-      const res = await fetch(`${API_BASE}/engagement/tickets/${ticketId}/status`, {
+      const res = await fetch(`${API_BASE_URL}/engagement/tickets/${ticketId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ export default function HelpdeskPage() {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
           <SupportAgentRoundedIcon color="primary" /> 
-          {isAdmin ? 'Helpdesk Management' : 'My Helpdesk Tickets'}
+          {isAdmin ? 'Request Hub Management' : 'My Request Hub'}
         </Typography>
         <Button 
           variant="contained" 
@@ -222,11 +222,19 @@ export default function HelpdeskPage() {
       <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
         <CardContent sx={{ p: 0 }}>
           {loading ? (
-            <Typography sx={{ p: 3, textAlign: 'center' }}>Loading tickets...</Typography>
+            <Box sx={{ p: 3 }}>
+              <Skeleton variant="rounded" height={44} sx={{ mb: 1 }} />
+              <Skeleton variant="rounded" height={12} width="60%" sx={{ mb: 2 }} />
+              <Skeleton variant="rounded" height={200} sx={{ borderRadius: 2 }} />
+            </Box>
           ) : tickets.length === 0 ? (
-            <Typography sx={{ p: 4, textAlign: 'center', color: '#6b7280' }}>
-              {isAdmin ? 'No tickets yet.' : 'You have not submitted any helpdesk tickets.'}
-            </Typography>
+            <Card sx={{ borderRadius: 2, boxShadow: 'none' }}>
+              <CardContent sx={{ py: 6, textAlign: 'center' }}>
+                <SupportAgentRoundedIcon sx={{ fontSize: 40, color: '#cbd5e1', mb: 1 }} />
+                <Typography sx={{ fontWeight: 800, color: '#15162c' }}>{isAdmin ? 'No tickets yet.' : 'You have not submitted any helpdesk tickets.'}</Typography>
+                <Typography sx={{ color: '#64748b' }}>Create the first ticket to get support started.</Typography>
+              </CardContent>
+            </Card>
           ) : (
             <Table>
               <TableHead sx={{ bgcolor: '#f9fafb' }}>

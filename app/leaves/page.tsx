@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Skeleton from '@mui/material/Skeleton';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -25,6 +26,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
+import Checkbox from '@mui/material/Checkbox';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
@@ -35,8 +37,7 @@ import { useAuth } from '../../components/auth/AuthContext';
 import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 type LeaveBalance = {
   id: string;
@@ -102,6 +103,10 @@ export default function LeavesPage() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [pendingSearch, setPendingSearch] = useState('');
+  const [pendingTypeFilter, setPendingTypeFilter] = useState<string>('all');
+  const [selectedPendingRequestIds, setSelectedPendingRequestIds] = useState<string[]>([]);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({ 
@@ -116,6 +121,15 @@ export default function LeavesPage() {
 
   const canRequestLeave = hasPermission('request_leave');
   const canApproveLeave = hasPermission('approve_leave');
+  const leaveTypeNameById = useMemo(
+    () => new Map(leaveTypes.map((type) => [type.id, type.name])),
+    [leaveTypes]
+  );
+  const leaveTypeIdByName = useMemo(
+    () => new Map(leaveTypes.map((type) => [type.name.toLowerCase(), type.id])),
+    [leaveTypes]
+  );
+  const leaveOptions = useMemo(() => leaveTypes.map((type) => type.name), [leaveTypes]);
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -126,7 +140,7 @@ export default function LeavesPage() {
       fetchBalancesWithDetails();
       fetchRequests();
     }
-  }, [auth.status, auth.token, router]);
+  }, [auth.status, auth.token, router, canApproveLeave]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -141,10 +155,21 @@ export default function LeavesPage() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!balancesWithDetails.length) {
+      return;
+    }
+
+    const availableYears = [...new Set(balancesWithDetails.map((balance) => balance.year))].sort((a, b) => b - a);
+    if (!availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [balancesWithDetails, selectedYear]);
+
   async function fetchLeaveTypes() {
     if (!auth.token) return;
     try {
-      const res = await fetch(`${API_BASE}/leave/types`, {
+      const res = await fetch(`${API_BASE_URL}/leave/types`, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       if (res.ok) {
@@ -164,7 +189,7 @@ export default function LeavesPage() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/leave/balances`, {
+      const res = await fetch(`${API_BASE_URL}/leave/balances`, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       if (res.ok) {
@@ -183,7 +208,7 @@ export default function LeavesPage() {
   async function fetchBalancesWithDetails() {
     if (!auth.token) return;
     try {
-      const res = await fetch(`${API_BASE}/leave/balances/with-details`, {
+      const res = await fetch(`${API_BASE_URL}/leave/balances/with-details`, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       if (res.ok) {
@@ -200,8 +225,8 @@ export default function LeavesPage() {
   async function fetchRequests() {
     if (!auth.token) return;
     try {
-      const url = new URL(`${API_BASE}/leave/requests`);
-      if (auth.user?.id) {
+      const url = new URL(`${API_BASE_URL}/leave/requests`);
+      if (!canApproveLeave && auth.user?.id) {
         url.searchParams.set('employee_id', auth.user.id);
       }
       const res = await fetch(url.toString(), { 
@@ -230,13 +255,19 @@ export default function LeavesPage() {
       return;
     }
 
+    const validationError = validateLeaveForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     setSuccess(null);
 
     try {
       // Step 1: Create the leave request
-      const res = await fetch(`${API_BASE}/leave/requests`, {
+      const res = await fetch(`${API_BASE_URL}/leave/requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -270,7 +301,7 @@ export default function LeavesPage() {
           formData.append('file', file);
 
           try {
-            const uploadRes = await fetch(`${API_BASE}/leave/requests/${leaveRequest.id}/upload`, {
+            const uploadRes = await fetch(`${API_BASE_URL}/leave/requests/${leaveRequest.id}/upload`, {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${auth.token}`,
@@ -309,7 +340,7 @@ export default function LeavesPage() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/leave/requests/${requestId}/approve`, {
+      const res = await fetch(`${API_BASE_URL}/leave/requests/${requestId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${auth.token}` },
         body: JSON.stringify({ approve }),
@@ -328,8 +359,53 @@ export default function LeavesPage() {
     }
   }
 
+  async function bulkApprove(approve: boolean) {
+    if (!auth.token || !canApproveLeave) {
+      return;
+    }
+    if (selectedPendingRequestIds.length === 0) {
+      setError('Select at least one pending request first.');
+      return;
+    }
+
+    setBulkActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/leave/requests/bulk-approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({ request_ids: selectedPendingRequestIds, approve }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        setError(err?.detail || 'Unable to process bulk action');
+        return;
+      }
+
+      const payload = await res.json();
+      setSuccess(
+        approve
+          ? `Bulk approve completed: ${payload.approved} approved, ${payload.failed} failed.`
+          : `Bulk reject completed: ${payload.rejected} rejected, ${payload.failed} failed.`
+      );
+      setSelectedPendingRequestIds([]);
+      await fetchRequests();
+    } catch (err) {
+      console.error(err);
+      setError('Network error while processing bulk action');
+    } finally {
+      setBulkActionLoading(false);
+    }
+  }
+
+  const normalizeStatus = (status: string) => status.toLowerCase();
+
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (normalizeStatus(status)) {
       case 'approved':
         return '#10b981';
       case 'rejected':
@@ -342,7 +418,7 @@ export default function LeavesPage() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    switch (normalizeStatus(status)) {
       case 'approved':
         return <CheckCircleIcon sx={{ fontSize: 16 }} />;
       case 'rejected':
@@ -354,20 +430,61 @@ export default function LeavesPage() {
     }
   };
 
-  const leaveOptions = [
-    'Restricted Holiday',
-    'Leave Cancel',
-    'Comp Off Grant'
-  ];
+  const resolveLeaveTypeLabel = (leaveTypeId: string) => leaveTypeNameById.get(leaveTypeId) ?? leaveTypeId;
+
+  const validateLeaveForm = () => {
+    const start = new Date(form.start_date);
+    const end = new Date(form.end_date);
+    if (!form.leave_type_id) {
+      return 'Please select a leave type.';
+    }
+    if (!form.start_date || Number.isNaN(start.getTime())) {
+      return 'Please provide a valid start date.';
+    }
+    if (!form.end_date || Number.isNaN(end.getTime())) {
+      return 'Please provide a valid end date.';
+    }
+    if (end < start) {
+      return 'End date cannot be before start date.';
+    }
+    if (
+      form.start_date === form.end_date &&
+      form.session_from === 'Session 2' &&
+      form.session_to === 'Session 1'
+    ) {
+      return 'For same-day leave, session range is invalid.';
+    }
+    if (ccEmails.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      return 'One or more CC email addresses are invalid.';
+    }
+    return null;
+  };
 
   const handleCategoryClick = (category: string) => {
+    const leaveTypeId = leaveTypeIdByName.get(category.toLowerCase());
+    if (!leaveTypeId) {
+      setError(`Leave type "${category}" is not available right now.`);
+      return;
+    }
+
+    setError(null);
     setSelectedCategory(category);
     setTabValue(0);
-    setForm({ ...form, leave_type_id: category });
+    setForm((prev) => ({ ...prev, leave_type_id: leaveTypeId }));
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
+
+  useEffect(() => {
+    if (!form.leave_type_id) {
+      setSelectedCategory(null);
+      return;
+    }
+    setSelectedCategory(resolveLeaveTypeLabel(form.leave_type_id));
+  }, [form.leave_type_id, leaveTypeNameById]);
+
+  const yearOptions = [...new Set([new Date().getFullYear(), ...balancesWithDetails.map((balance) => balance.year)])].sort((a, b) => b - a);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -376,6 +493,33 @@ export default function LeavesPage() {
   };
 
   const currentYearBalances = balancesWithDetails.filter((b) => b.year === selectedYear);
+  const pendingRequests = requests.filter((r) => normalizeStatus(r.status) === 'pending');
+  const historyRequests = requests.filter((r) => normalizeStatus(r.status) !== 'pending');
+  const filteredPendingRequests = pendingRequests.filter((request) => {
+    const leaveTypeName = resolveLeaveTypeLabel(request.leave_type_id).toLowerCase();
+    const statusText = request.status.toLowerCase();
+    const searchTarget = `${leaveTypeName} ${statusText} ${request.start_date} ${request.end_date}`;
+    const matchesSearch = pendingSearch.trim() === '' || searchTarget.includes(pendingSearch.trim().toLowerCase());
+    const matchesType = pendingTypeFilter === 'all' || request.leave_type_id === pendingTypeFilter;
+    return matchesSearch && matchesType;
+  });
+
+  const leaveAnalytics = useMemo(() => {
+    const totalDaysRequested = requests.reduce((acc, request) => acc + (request.days_requested || 0), 0);
+    return {
+      totalRequests: requests.length,
+      pending: pendingRequests.length,
+      approved: requests.filter((request) => normalizeStatus(request.status) === 'approved').length,
+      rejected: requests.filter((request) => normalizeStatus(request.status) === 'rejected').length,
+      totalDaysRequested,
+    };
+  }, [requests]);
+
+  const allVisiblePendingSelected =
+    filteredPendingRequests.length > 0 &&
+    filteredPendingRequests.every((request) => selectedPendingRequestIds.includes(request.id));
+
+  const selectedCount = selectedPendingRequestIds.length;
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#fcfcfe', py: 3, px: { xs: 1, sm: 2, md: 3 } }}>
@@ -394,6 +538,11 @@ export default function LeavesPage() {
                   Leave
                 </Typography>
                 <Stack spacing={1}>
+                  {leaveOptions.length === 0 && (
+                    <Typography sx={{ color: '#9ca3af', fontSize: '0.85rem' }}>
+                      No leave categories available
+                    </Typography>
+                  )}
                   {leaveOptions.map((option) => (
                     <Button
                       key={option}
@@ -427,11 +576,39 @@ export default function LeavesPage() {
           <Grid item xs={12} md={9}>
 
             {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                <CircularProgress />
+              <Box sx={{ py: 2 }}>
+                <Skeleton variant="rounded" height={120} sx={{ borderRadius: 3, mb: 2 }} />
+                <Grid container spacing={2.5}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <Grid item xs={12} sm={6} key={i}>
+                      <Skeleton variant="rounded" height={110} sx={{ borderRadius: 2 }} />
+                    </Grid>
+                  ))}
+                </Grid>
               </Box>
             ) : (
               <Card ref={formRef} sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)', overflow: 'hidden' }}>
+                <Box sx={{ p: 2, borderBottom: '1px solid #eef2f7', bgcolor: '#fcfdff' }}>
+                  <Grid container spacing={1.5}>
+                    {[
+                      { label: 'Total Requests', value: leaveAnalytics.totalRequests, color: '#334155' },
+                      { label: 'Pending', value: leaveAnalytics.pending, color: '#d97706' },
+                      { label: 'Approved', value: leaveAnalytics.approved, color: '#059669' },
+                      { label: 'Rejected', value: leaveAnalytics.rejected, color: '#dc2626' },
+                      { label: 'Requested Days', value: leaveAnalytics.totalDaysRequested, color: '#4f46e5' },
+                    ].map((metric) => (
+                      <Grid key={metric.label} item xs={6} sm={4} md={3} lg={2}>
+                        <Card sx={{ borderRadius: 1.5, boxShadow: 'none', border: '1px solid #eef2f7' }}>
+                          <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
+                            <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>{metric.label}</Typography>
+                            <Typography sx={{ fontSize: '1.1rem', color: metric.color, fontWeight: 800 }}>{metric.value}</Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+
                 {/* Tab Navigation */}
                 <Box sx={{ borderBottom: '1px solid #e7e9ef', bgcolor: '#fafbfd' }}>
                   <Tabs 
@@ -625,7 +802,7 @@ export default function LeavesPage() {
                               {balances.map((b) => (
                                 <Box key={b.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                   <Typography sx={{ fontSize: '0.8rem', color: '#5b5f7a' }}>
-                                    {b.leave_type_id}:
+                                    {resolveLeaveTypeLabel(b.leave_type_id)}:
                                   </Typography>
                                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#928ddd' }}>
                                     {b.balance_days}
@@ -693,8 +870,13 @@ export default function LeavesPage() {
                               />
                               <IconButton
                                 onClick={() => {
-                                  if (ccInput && !ccEmails.includes(ccInput)) {
-                                    setCcEmails([...ccEmails, ccInput]);
+                                  const sanitizedEmail = ccInput.trim().toLowerCase();
+                                  if (
+                                    sanitizedEmail &&
+                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail) &&
+                                    !ccEmails.includes(sanitizedEmail)
+                                  ) {
+                                    setCcEmails([...ccEmails, sanitizedEmail]);
                                     setCcInput('');
                                   }
                                 }}
@@ -879,10 +1061,70 @@ export default function LeavesPage() {
                 {/* Tab Panel: Pending */}
                 <TabPanel value={tabValue} index={1}>
                   <CardContent sx={{ p: 3.5 }}>
-                    {requests.filter(r => r.status === 'pending').length > 0 ? (
+                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+                      <TextField
+                        value={pendingSearch}
+                        onChange={(e) => setPendingSearch(e.target.value)}
+                        placeholder="Search pending requests"
+                        size="small"
+                        fullWidth
+                      />
+                      <FormControl size="small" sx={{ minWidth: 220 }}>
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                          value={pendingTypeFilter}
+                          label="Type"
+                          onChange={(e) => setPendingTypeFilter(e.target.value)}
+                        >
+                          <MenuItem value="all">All types</MenuItem>
+                          {leaveTypes.map((type) => (
+                            <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      {canApproveLeave && (
+                        <Stack direction="row" spacing={1}>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            disabled={bulkActionLoading || selectedCount === 0}
+                            onClick={() => void bulkApprove(true)}
+                            sx={{ textTransform: 'none' }}
+                          >
+                            Bulk Approve ({selectedCount})
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            disabled={bulkActionLoading || selectedCount === 0}
+                            onClick={() => void bulkApprove(false)}
+                            sx={{ textTransform: 'none' }}
+                          >
+                            Bulk Reject ({selectedCount})
+                          </Button>
+                        </Stack>
+                      )}
+                    </Stack>
+
+                    {filteredPendingRequests.length > 0 ? (
                       <Table>
                         <TableHead>
                           <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
+                            {canApproveLeave && (
+                              <TableCell padding="checkbox">
+                                <Checkbox
+                                  checked={allVisiblePendingSelected}
+                                  indeterminate={!allVisiblePendingSelected && selectedPendingRequestIds.length > 0}
+                                  onChange={(event) => {
+                                    if (event.target.checked) {
+                                      setSelectedPendingRequestIds(filteredPendingRequests.map((request) => request.id));
+                                    } else {
+                                      setSelectedPendingRequestIds([]);
+                                    }
+                                  }}
+                                />
+                              </TableCell>
+                            )}
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
@@ -891,9 +1133,23 @@ export default function LeavesPage() {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {requests.filter(r => r.status === 'pending').map((r) => (
+                          {filteredPendingRequests.map((r) => (
                             <TableRow key={r.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
-                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{r.leave_type_id}</TableCell>
+                              {canApproveLeave && (
+                                <TableCell padding="checkbox">
+                                  <Checkbox
+                                    checked={selectedPendingRequestIds.includes(r.id)}
+                                    onChange={(event) => {
+                                      if (event.target.checked) {
+                                        setSelectedPendingRequestIds((current) => [...current, r.id]);
+                                      } else {
+                                        setSelectedPendingRequestIds((current) => current.filter((id) => id !== r.id));
+                                      }
+                                    }}
+                                  />
+                                </TableCell>
+                              )}
+                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{resolveLeaveTypeLabel(r.leave_type_id)}</TableCell>
                               <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
                                 {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
                               </TableCell>
@@ -913,7 +1169,7 @@ export default function LeavesPage() {
                               </TableCell>
                               {canApproveLeave && (
                                 <TableCell sx={{ py: 2 }}>
-                                  {r.status === 'pending' ? (
+                                  {normalizeStatus(r.status) === 'pending' ? (
                                     <Stack direction="row" spacing={1}>
                                       <Button
                                         size="small"
@@ -997,7 +1253,7 @@ export default function LeavesPage() {
                             },
                           }}
                         >
-                          {[2024, 2025, 2026, 2027].map((year) => (
+                          {yearOptions.map((year) => (
                             <MenuItem key={year} value={year}>{year}</MenuItem>
                           ))}
                         </Select>
@@ -1071,41 +1327,43 @@ export default function LeavesPage() {
                 {/* Tab Panel: History */}
                 <TabPanel value={tabValue} index={3}>
                   <CardContent sx={{ p: 3.5 }}>
-                    {requests.filter(r => r.status !== 'pending').length > 0 ? (
-                      <Table>
-                        <TableHead>
-                          <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {requests.filter(r => r.status !== 'pending').map((r) => (
-                            <TableRow key={r.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
-                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{r.leave_type_id}</TableCell>
-                              <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
-                                {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
-                              </TableCell>
-                              <TableCell sx={{ color: '#15162c', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
-                              <TableCell sx={{ py: 2 }}>
-                                <Chip
-                                  icon={getStatusIcon(r.status)}
-                                  label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                                  sx={{
-                                    bgcolor: `${getStatusColor(r.status)}15`,
-                                    color: getStatusColor(r.status),
-                                    fontWeight: 600,
-                                    fontSize: '0.8rem',
-                                    textTransform: 'capitalize',
-                                  }}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                    {historyRequests.length > 0 ? (
+                      <Stack spacing={1.5}>
+                        {historyRequests.map((r) => (
+                          <Box
+                            key={r.id}
+                            sx={{
+                              border: '1px solid #e7e9ef',
+                              borderLeft: `4px solid ${getStatusColor(r.status)}`,
+                              borderRadius: 1.5,
+                              p: 2,
+                              bgcolor: '#fff',
+                            }}
+                          >
+                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
+                              <Box>
+                                <Typography sx={{ fontWeight: 700, color: '#15162c' }}>
+                                  {resolveLeaveTypeLabel(r.leave_type_id)}
+                                </Typography>
+                                <Typography sx={{ color: '#64748b', fontSize: '0.9rem' }}>
+                                  {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
+                                </Typography>
+                              </Box>
+                              <Chip
+                                icon={getStatusIcon(r.status)}
+                                label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                                sx={{
+                                  alignSelf: 'flex-start',
+                                  bgcolor: `${getStatusColor(r.status)}15`,
+                                  color: getStatusColor(r.status),
+                                  fontWeight: 700,
+                                  textTransform: 'capitalize',
+                                }}
+                              />
+                            </Stack>
+                          </Box>
+                        ))}
+                      </Stack>
                     ) : (
                       <Box sx={{ py: 4, textAlign: 'center' }}>
                         <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />

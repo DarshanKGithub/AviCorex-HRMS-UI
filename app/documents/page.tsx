@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from '@mui/material';
+import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Skeleton } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 interface DocumentWithEmployee {
   id: string;
@@ -28,12 +27,14 @@ export default function DocumentCenterPage() {
   useEffect(() => {
     if (token) {
       fetchDocuments();
+    } else {
+      setLoading(false);
     }
   }, [token]);
 
   async function fetchDocuments() {
     try {
-      const res = await fetch(`${API_BASE}/documents`, {
+      const res = await fetch(`${API_BASE_URL}/documents`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -52,7 +53,7 @@ export default function DocumentCenterPage() {
   const handleDownload = async (docId: string, fileName: string) => {
     try {
       // Re-using the download endpoint from the employee route since it uses doc_id
-      const res = await fetch(`${API_BASE}/employees/documents/${docId}/download`, {
+      const res = await fetch(`${API_BASE_URL}/employees/documents/${docId}/download`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -99,15 +100,27 @@ export default function DocumentCenterPage() {
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
+              <>
+                {[1,2,3].map((r) => (
+                  <TableRow key={r}>
+                    <TableCell><Skeleton width={160} /></TableCell>
+                    <TableCell><Skeleton width={120} /></TableCell>
+                    <TableCell><Skeleton width={200} /></TableCell>
+                    <TableCell><Skeleton width={100} /></TableCell>
+                    <TableCell align="right"><Skeleton width={48} /></TableCell>
+                  </TableRow>
+                ))}
+              </>
             ) : documents.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 8, color: '#6b7280' }}>
-                  No documents found in the system.
+                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                  <Card sx={{ display: 'inline-block', borderRadius: 2 }}>
+                    <CardContent sx={{ py: 4, px: 6, textAlign: 'center' }}>
+                      <InsertDriveFileIcon sx={{ fontSize: 40, color: '#cbd5e1', mb: 1 }} />
+                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No documents found</Typography>
+                      <Typography sx={{ color: '#64748b' }}>Upload documents to make them available to the team.</Typography>
+                    </CardContent>
+                  </Card>
                 </TableCell>
               </TableRow>
             ) : (

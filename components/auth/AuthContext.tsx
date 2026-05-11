@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 export type AuthUser = {
   id: string;
@@ -37,23 +38,6 @@ type AuthContextValue = AuthState & {
 };
 
 const STORAGE_KEY = 'hrms_auth_session';
-
-function resolveApiBaseUrl() {
-  const raw = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? '';
-  // In development prefer localhost unless NEXT_PUBLIC_API_BASE_URL is explicitly set
-  if (process.env.NODE_ENV === 'development') {
-    return raw || 'http://localhost:8000';
-  }
-
-  // In production, if env var is missing or still the placeholder, fall back to Render URL
-  if (!raw || raw.includes('your-backend-production-url.com')) {
-    return 'https://avicorex-hrms-server.onrender.com';
-  }
-
-  return raw.replace(/\/$/, '');
-}
-
-const API_BASE_URL = resolveApiBaseUrl();
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 

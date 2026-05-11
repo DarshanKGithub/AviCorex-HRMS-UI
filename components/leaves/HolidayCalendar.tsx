@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer, SlotInfo, Event as RbcEvent } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
 import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import FormControl from '@mui/material/FormControl';
@@ -22,6 +21,10 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Alert from '@mui/material/Alert';
+import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 const locales = {
   'en-US': enUS,
@@ -30,6 +33,7 @@ const locales = {
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
 export type HolidayEvent = {
+  id?: string;
   title: string;
   start: Date;
   end: Date;
@@ -37,6 +41,12 @@ export type HolidayEvent = {
 };
 
 export default function HolidayCalendar({ events }: { events?: HolidayEvent[] }) {
+  const { token, status } = useAuth();
+  const { hasPermission } = usePermissions();
+  const canManageHolidays = hasPermission('approve_leave');
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
   // sanitize incoming events and keep local editable copy
   const sanitize = useCallback((src: HolidayEvent[] | undefined) => {
     const now = new Date();
@@ -109,13 +119,16 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
 
   // user can select a range/slot to add a holiday — open modal to enter details
   const onSelectSlot = (slotInfo: SlotInfo) => {
+    if (!canManageHolidays) {
+      return;
+    }
     setSelectedSlot(slotInfo);
     setDialogTitle('');
     setDialogAllDay(false);
     setDialogOpen(true);
   };
 
-  const handleDialogSave = () => {
+  const handleDialogSave = async () => {
     if (!selectedSlot) return setDialogOpen(false);
     const title = dialogTitle.trim();
     if (!title) return; // require title
@@ -123,9 +136,53 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
     const start = selectedSlot.start instanceof Date ? selectedSlot.start : new Date(selectedSlot.start as any);
     const end = selectedSlot.end instanceof Date ? selectedSlot.end : new Date(selectedSlot.end as any);
     const newEvent: HolidayEvent = { title, start, end: end < start ? start : end, allDay: dialogAllDay };
-    setItems((prev) => [...prev, newEvent]);
-    setDialogOpen(false);
-    setSelectedSlot(null);
+
+    if (!token) {
+      setError('Please login again to add holidays.');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/leave/holidays`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newEvent.title,
+          holiday_date: format(newEvent.start, 'yyyy-MM-dd'),
+          is_public: true,
+        }),
+      });
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        setError(payload?.detail || 'Unable to save holiday.');
+        return;
+      }
+
+      const payload = await res.json();
+      setItems((prev) => [
+        ...prev,
+        {
+          id: payload.id,
+          title: payload.name,
+          start: new Date(payload.holiday_date),
+          end: new Date(payload.holiday_date),
+          allDay: true,
+        },
+      ]);
+      setDialogOpen(false);
+      setSelectedSlot(null);
+      setDialogTitle('');
+    } catch (err) {
+      setError('Network error while saving holiday.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDialogCancel = () => {
@@ -135,16 +192,78 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
 
   // selecting an existing event offers deletion (simple inline flow)
   const onSelectEvent = (event: RbcEvent) => {
-    const keep = window.confirm(`Delete event "${(event as any).title}"? Click OK to delete.`);
-    if (keep) {
-      setItems((prev) => prev.filter((e) => !(e.title === (event as any).title && +e.start === +((event as any).start))));
+    if (!canManageHolidays) {
+      return;
     }
+    const keep = window.confirm(`Delete event "${(event as any).title}"? Click OK to delete.`);
+    if (!keep) return;
+
+    const holidayEvent = event as HolidayEvent;
+    if (!holidayEvent.id || !token) {
+      setItems((prev) => prev.filter((e) => !(e.title === (event as any).title && +e.start === +((event as any).start))));
+      return;
+    }
+
+    void (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/leave/holidays/${holidayEvent.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          setError(payload?.detail || 'Unable to delete holiday.');
+          return;
+        }
+        setItems((prev) => prev.filter((e) => e.id !== holidayEvent.id));
+      } catch {
+        setError('Network error while deleting holiday.');
+      }
+    })();
   };
+
+  useEffect(() => {
+    if (status !== 'ready' || !token) {
+      return;
+    }
+
+    const load = async () => {
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE_URL}/leave/holidays?year=${currentDate.getFullYear()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          setError(payload?.detail || 'Unable to load holidays.');
+          return;
+        }
+
+        const payload = await res.json();
+        if (Array.isArray(payload) && payload.length > 0) {
+          setItems(
+            payload.map((holiday) => ({
+              id: holiday.id,
+              title: holiday.name,
+              start: new Date(holiday.holiday_date),
+              end: new Date(holiday.holiday_date),
+              allDay: true,
+            }))
+          );
+        }
+      } catch {
+        setError('Network error while loading holidays.');
+      }
+    };
+
+    void load();
+  }, [token, status, currentDate]);
 
   const sampleEvents = items;
 
   return (
     <Box>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
         <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel id="year-select-label">Year</InputLabel>
@@ -184,6 +303,9 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
         </FormControl>
 
         <Button size="small" onClick={() => setCurrentDate(new Date())}>Today</Button>
+        {!canManageHolidays && (
+          <Box sx={{ fontSize: 12, color: '#94a3b8' }}>Read-only calendar</Box>
+        )}
       </Stack>
 
       <Box sx={{ height: '720px' }}>
@@ -197,7 +319,7 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
         defaultView="month"
         date={currentDate}
         onNavigate={onNavigate}
-        selectable
+        selectable={canManageHolidays}
         onSelectSlot={onSelectSlot}
         onSelectEvent={onSelectEvent}
         showMultiDayTimes
@@ -219,7 +341,9 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogCancel}>Cancel</Button>
-          <Button variant="contained" onClick={handleDialogSave} disabled={!dialogTitle.trim()}>Save</Button>
+          <Button variant="contained" onClick={() => void handleDialogSave()} disabled={!dialogTitle.trim() || saving}>
+            {saving ? 'Saving...' : 'Save'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

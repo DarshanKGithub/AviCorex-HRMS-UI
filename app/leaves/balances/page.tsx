@@ -16,8 +16,7 @@ import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+import { API_BASE_URL } from '@/lib/apiBase';
 
 type LeaveBalance = {
   id: string;
@@ -33,20 +32,22 @@ export default function LeaveBalancesPage() {
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState(2026);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
       router.push('/login');
     } else if (auth.status === 'ready' && auth.token) {
       fetchBalances();
+    } else if (auth.status === 'ready') {
+      setLoading(false);
     }
   }, [auth.status, auth.token, router]);
 
   async function fetchBalances() {
     if (!auth.token) return;
     try {
-      const res = await fetch(`${API_BASE}/leave/balances/with-details`, {
+      const res = await fetch(`${API_BASE_URL}/leave/balances/with-details`, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
       if (res.ok) {
@@ -63,7 +64,50 @@ export default function LeaveBalancesPage() {
     }
   }
 
+  useEffect(() => {
+    if (!balances.length) {
+      return;
+    }
+
+    const availableYears = [...new Set(balances.map((balance) => balance.year))].sort((a, b) => b - a);
+    if (!availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [balances, selectedYear]);
+
+  const yearOptions = [...new Set([new Date().getFullYear(), ...balances.map((balance) => balance.year)])].sort((a, b) => b - a);
+
   const currentYearBalances = balances.filter((b) => b.year === selectedYear);
+
+  function downloadYearBalancesCsv() {
+    if (currentYearBalances.length === 0) {
+      setError('No balances available to export for selected year.');
+      return;
+    }
+
+    const header = ['leave_type', 'year', 'granted_days', 'balance_days', 'consumed_days'];
+    const rows = currentYearBalances.map((balance) => {
+      const consumed = Math.max(balance.granted_days - balance.balance_days, 0);
+      return [
+        JSON.stringify(balance.leave_type_name),
+        String(balance.year),
+        String(balance.granted_days),
+        String(balance.balance_days),
+        String(consumed),
+      ].join(',');
+    });
+
+    const csv = [header.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `leave-balances-${selectedYear}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -95,6 +139,7 @@ export default function LeaveBalancesPage() {
               minWidth: 48,
               p: 1
             }}
+            onClick={downloadYearBalancesCsv}
           >
             <DownloadRoundedIcon />
           </Button>
@@ -110,7 +155,7 @@ export default function LeaveBalancesPage() {
               '& fieldset': { borderColor: '#e5e7eb' }
             }}
           >
-            {[2024, 2025, 2026, 2027].map(year => (
+            {yearOptions.map((year) => (
               <MenuItem key={year} value={year}>{year}</MenuItem>
             ))}
           </Select>
@@ -123,10 +168,13 @@ export default function LeaveBalancesPage() {
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
         </Box>
-      ) : (
+      ) : currentYearBalances.length > 0 ? (
         <Grid container spacing={3}>
           {currentYearBalances.map((balance) => {
             const consumed = balance.granted_days - balance.balance_days;
+            const utilization = balance.granted_days > 0
+              ? Math.min(Math.max((consumed / balance.granted_days) * 100, 0), 100)
+              : 0;
             return (
               <Grid item xs={12} sm={6} md={3} key={balance.id}>
                 <Card 
@@ -176,7 +224,7 @@ export default function LeaveBalancesPage() {
                     {balance.granted_days > 0 ? (
                       <Box sx={{ mt: 'auto' }}>
                         <Box sx={{ height: 4, bgcolor: '#e5e7eb', borderRadius: 2, mb: 1, overflow: 'hidden' }}>
-                          <Box sx={{ width: `${(consumed / balance.granted_days) * 100}%`, height: '100%', bgcolor: '#d1d5db' }} />
+                          <Box sx={{ width: `${utilization}%`, height: '100%', bgcolor: '#d1d5db' }} />
                         </Box>
                         <Typography sx={{ color: '#9ca3af', fontSize: '0.75rem' }}>
                           {consumed} of {balance.granted_days} Consumed
@@ -191,6 +239,13 @@ export default function LeaveBalancesPage() {
             );
           })}
         </Grid>
+      ) : (
+        <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e5e7eb' }}>
+          <CardContent sx={{ py: 6, textAlign: 'center' }}>
+            <Typography sx={{ fontWeight: 700, color: '#15162c' }}>No leave balances for selected year</Typography>
+            <Typography sx={{ color: '#9ca3af' }}>Try another year or wait until balances are generated.</Typography>
+          </CardContent>
+        </Card>
       )}
     </Box>
   );
