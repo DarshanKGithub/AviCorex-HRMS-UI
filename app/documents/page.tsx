@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Skeleton } from '@mui/material';
+import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Skeleton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { API_BASE_URL } from '@/lib/apiBase';
@@ -23,6 +24,10 @@ export default function DocumentCenterPage() {
   const [documents, setDocuments] = useState<DocumentWithEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [uploadForm, setUploadForm] = useState({ employee_id: '', document_type: 'Other' });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -75,6 +80,41 @@ export default function DocumentCenterPage() {
     }
   };
 
+  const handleUpload = async () => {
+    if (!uploadForm.employee_id || !selectedFile) {
+      setError('Please provide employee ID and select a file');
+      return;
+    }
+    setUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append('employee_id', uploadForm.employee_id);
+      formData.append('document_type', uploadForm.document_type);
+      formData.append('file', selectedFile);
+
+      const res = await fetch(`${API_BASE_URL}/documents`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (res.ok) {
+        setOpenUploadModal(false);
+        setUploadForm({ employee_id: '', document_type: 'Other' });
+        setSelectedFile(null);
+        fetchDocuments();
+      } else {
+        const data = await res.json().catch(() => null);
+        setError(data?.detail || 'Failed to upload document');
+      }
+    } catch (e) {
+      setError('Network error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
@@ -83,6 +123,14 @@ export default function DocumentCenterPage() {
           <InsertDriveFileIcon color="primary" /> 
           Document Center
         </Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<UploadFileIcon />} 
+          onClick={() => setOpenUploadModal(true)}
+          sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+        >
+          Upload Document
+        </Button>
       </Stack>
 
       {error && <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>}
@@ -145,6 +193,46 @@ export default function DocumentCenterPage() {
           </TableBody>
         </Table>
       </Card>
+
+      <Dialog open={openUploadModal} onClose={() => setOpenUploadModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800 }}>Upload Document</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField 
+              label="Employee ID" 
+              fullWidth 
+              value={uploadForm.employee_id} 
+              onChange={(e) => setUploadForm({ ...uploadForm, employee_id: e.target.value })} 
+            />
+            <TextField 
+              select 
+              label="Document Type" 
+              fullWidth 
+              value={uploadForm.document_type} 
+              onChange={(e) => setUploadForm({ ...uploadForm, document_type: e.target.value })}
+            >
+              {['ID Proof', 'Offer Letter', 'Resume', 'Certificate', 'Other'].map(type => (
+                <MenuItem key={type} value={type}>{type}</MenuItem>
+              ))}
+            </TextField>
+            <Button variant="outlined" component="label" fullWidth sx={{ textTransform: 'none', py: 1.5 }}>
+              {selectedFile ? selectedFile.name : 'Choose File'}
+              <input type="file" hidden onChange={(e) => setSelectedFile(e.target.files ? e.target.files[0] : null)} />
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenUploadModal(false)}>Cancel</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleUpload} 
+            disabled={!uploadForm.employee_id || !selectedFile || uploading}
+            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+          >
+            {uploading ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -145,7 +145,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyPermissions: ['view_employee'],
     children: [
       { label: 'Directory', href: '/employees', icon: 'people', requiredAnyPermissions: ['view_employee'] },
-      { label: 'Org Hierarchy', href: '/organization/hierarchy', icon: 'people', requiredAnyPermissions: ['view_employee'] },
+      { label: 'Org Hierarchy', href: '/org-chart', icon: 'people', requiredAnyPermissions: ['view_employee'] },
       { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people' },
       { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow' },
     ]

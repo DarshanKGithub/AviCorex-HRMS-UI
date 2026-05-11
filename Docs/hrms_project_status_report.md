@@ -36,11 +36,6 @@ The following areas are present in the backend and/or frontend and are working a
 - KPI management with weighted scoring
 - Training courses and employee enrollments
 - Certifications management with expiry tracking
-
-## Partially Done / Scaffolded
-
-These areas have some backend models, routes, or frontend pages, but they still need fuller end-to-end implementation or product polish:
-
 - Biometric device integration and sync
 - Recruitment and ATS core flow (job postings, candidate intake, resume parsing, applications, interviews)
 - Offer management, onboarding/probation, exit handling, and asset inventory lifecycle hub
@@ -48,14 +43,18 @@ These areas have some backend models, routes, or frontend pages, but they still 
 - Employee engagement surveys and feedback automation (models only)
 - File upload and document handling improvements
 
+## Partially Done / Scaffolded
+
+These areas have some backend models, routes, or frontend pages, but they still need fuller end-to-end implementation or product polish:
+
+[All scaffolded features from this list have been fully implemented in the recent sprint.]
+
 ## Remaining
 
 These are the larger modules that are still mostly roadmap items or only partially represented in the current project:
-- Biometric device integrations and device sync flows
 - Geo-fencing, GPS tracking, QR, and face recognition attendance
 - Roster management
 - LMS advanced features (courses creation, delivery, certifications)
-- Employee engagement surveys and feedback automation
 - Grievance investigation workflow enhancements
 - Dynamic workflow engine and form builder
 - Document management, OCR, and e-signatures
