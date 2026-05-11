@@ -40,6 +40,9 @@ interface Grievance {
   subject: string;
   description: string;
   status: string;
+  investigator_id?: string;
+  investigation_notes?: string;
+  meeting_scheduled_at?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -59,6 +62,7 @@ export default function GrievancePage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [detailModal, setDetailModal] = useState(false);
+  const [investigateModal, setInvestigateModal] = useState(false);
   const [selectedGrievance, setSelectedGrievance] = useState<Grievance | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
@@ -68,6 +72,13 @@ export default function GrievancePage() {
     against_employee_id: '',
     subject: '',
     description: '',
+  });
+
+  const [investigationData, setInvestigationData] = useState({
+    investigator_id: '',
+    investigation_notes: '',
+    meeting_scheduled_at: '',
+    status: 'Investigating',
   });
 
   useEffect(() => {
@@ -132,6 +143,49 @@ export default function GrievancePage() {
   async function openDetails(grievance: Grievance) {
     setSelectedGrievance(grievance);
     setDetailModal(true);
+  }
+
+  function openInvestigation(g: Grievance) {
+    setSelectedGrievance(g);
+    setInvestigationData({
+      investigator_id: g.investigator_id || '',
+      investigation_notes: g.investigation_notes || '',
+      meeting_scheduled_at: g.meeting_scheduled_at ? new Date(g.meeting_scheduled_at).toISOString().slice(0, 16) : '',
+      status: g.status,
+    });
+    setInvestigateModal(true);
+  }
+
+  async function handleInvestigationSubmit() {
+    if (!selectedGrievance) return;
+    try {
+      const payload: any = {
+        status: investigationData.status,
+      };
+      if (investigationData.investigator_id) payload.investigator_id = investigationData.investigator_id;
+      if (investigationData.investigation_notes) payload.investigation_notes = investigationData.investigation_notes;
+      if (investigationData.meeting_scheduled_at) payload.meeting_scheduled_at = new Date(investigationData.meeting_scheduled_at).toISOString();
+
+      const res = await fetch(`${API_BASE}/engagement/grievances/${selectedGrievance.id}/investigate`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSuccess('Investigation updated successfully');
+        setInvestigateModal(false);
+        await fetchGrievances();
+      } else {
+        const err = await res.json();
+        setError(err.detail || 'Failed to update investigation');
+      }
+    } catch (err) {
+      setError('Network error');
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -346,6 +400,14 @@ export default function GrievancePage() {
                   </Box>
                 )}
               </Stack>
+              {selectedGrievance.investigator_id && (
+                <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2 }}>
+                  <Typography sx={{ fontWeight: 600, mb: 1 }}>Investigation Details</Typography>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#4b5563' }}><strong>Investigator:</strong> {selectedGrievance.investigator_id}</Typography>
+                  {selectedGrievance.meeting_scheduled_at && <Typography sx={{ fontSize: '0.875rem', color: '#4b5563' }}><strong>Meeting:</strong> {new Date(selectedGrievance.meeting_scheduled_at).toLocaleString()}</Typography>}
+                  {selectedGrievance.investigation_notes && <Typography sx={{ fontSize: '0.875rem', color: '#4b5563', mt: 1 }}><strong>Notes:</strong><br/>{selectedGrievance.investigation_notes}</Typography>}
+                </Box>
+              )}
               <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
                 Filed: {new Date(selectedGrievance.created_at).toLocaleString()}
                 {selectedGrievance.updated_at && (
@@ -359,7 +421,65 @@ export default function GrievancePage() {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
+          {isAdmin && (
+            <Button onClick={() => { setDetailModal(false); openInvestigation(selectedGrievance!); }} variant="outlined" color="primary">
+              Update Investigation
+            </Button>
+          )}
           <Button onClick={() => setDetailModal(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Investigation Modal */}
+      <Dialog open={investigateModal} onClose={() => setInvestigateModal(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>Update Investigation</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField
+              label="Investigator ID"
+              fullWidth
+              value={investigationData.investigator_id}
+              onChange={(e) => setInvestigationData({ ...investigationData, investigator_id: e.target.value })}
+            />
+            <TextField
+              label="Meeting Scheduled At"
+              type="datetime-local"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={investigationData.meeting_scheduled_at}
+              onChange={(e) => setInvestigationData({ ...investigationData, meeting_scheduled_at: e.target.value })}
+            />
+            <TextField
+              label="Investigation Notes"
+              fullWidth
+              multiline
+              rows={4}
+              value={investigationData.investigation_notes}
+              onChange={(e) => setInvestigationData({ ...investigationData, investigation_notes: e.target.value })}
+            />
+            <TextField
+              select
+              label="Status"
+              fullWidth
+              value={investigationData.status}
+              onChange={(e) => setInvestigationData({ ...investigationData, status: e.target.value })}
+              SelectProps={{ native: true }}
+            >
+              <option value="Submitted">Submitted</option>
+              <option value="Investigating">Investigating</option>
+              <option value="Resolved">Resolved</option>
+            </TextField>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setInvestigateModal(false)}>Cancel</Button>
+          <Button
+            onClick={handleInvestigationSubmit}
+            variant="contained"
+            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+          >
+            Save Updates
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

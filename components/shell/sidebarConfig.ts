@@ -193,6 +193,12 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
         icon: 'settings',
       }
     ]
+  },
+  {
+    label: 'Dynamic Workflows',
+    href: '/workflow',
+    icon: 'workflow',
+    requiredAnyPermissions: ['manage_workflows']
   }
 ];
 

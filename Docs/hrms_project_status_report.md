@@ -49,16 +49,17 @@ These areas have some backend models, routes, or frontend pages, but they still 
 
 [All scaffolded features from this list have been fully implemented in the recent sprint.]
 
+- Dynamic workflow engine and form builder
+- Grievance investigation workflow enhancements
+- Notification automation across email, SMS, WhatsApp, push, and real-time alerts
+
 ## Remaining
 
 These are the larger modules that are still mostly roadmap items or only partially represented in the current project:
 - Geo-fencing, GPS tracking, QR, and face recognition attendance
 - Roster management
 - LMS advanced features (courses creation, delivery, certifications)
-- Grievance investigation workflow enhancements
-- Dynamic workflow engine and form builder
 - Document management, OCR, and e-signatures
-- Notification automation across email, SMS, WhatsApp, push, and real-time alerts
 - API gateway and third-party integrations
 - Multi-company, multi-branch, and multi-tenant support
 - Subscription and billing
