@@ -233,3 +233,5 @@ export function generateSidebarItems(userPermissions: Set<string>): SidebarItem[
       return item.children.length > 0;
     });
 }
+
+export { SIDEBAR_ITEMS };

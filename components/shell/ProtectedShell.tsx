@@ -21,39 +21,16 @@ import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import BusinessCenterRoundedIcon from '@mui/icons-material/BusinessCenterRounded';
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import DirectionsRunRoundedIcon from '@mui/icons-material/DirectionsRunRounded';
-import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
-import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
+import { SIDEBAR_ITEMS } from '@/components/shell/sidebarConfig';
+import { iconMap } from '@/components/shell/iconMapping';
 
 const drawerWidth = 288;
-
-const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: DashboardRoundedIcon },
-  { label: 'Employees', href: '/employees', icon: GroupsRoundedIcon },
-  { label: 'Attendance', href: '/attendance', icon: TodayRoundedIcon },
-  { label: 'Payroll', href: '/payroll', icon: PaymentsRoundedIcon },
-  {
-    label: 'Leaves',
-    href: '/leaves',
-    icon: DirectionsRunRoundedIcon,
-    children: [
-      { label: 'Holiday Calendar', href: '/leaves/holidays', icon: TodayRoundedIcon },
-      { label: 'Apply Leave', href: '/leaves/apply', icon: DirectionsRunRoundedIcon },
-      { label: 'Leave Balance', href: '/leaves/balance', icon: DashboardRoundedIcon }
-    ]
-  },
-  { label: 'My Profile', href: '/profile', icon: PersonRoundedIcon },
-  { label: 'Settings', href: '/settings', icon: SettingsRoundedIcon }
-];
 
 function getInitials(name: string) {
   return name
@@ -74,14 +51,30 @@ function resolveAvatarUrl(avatarUrl?: string | null) {
   return `${base.replace(/\/$/, '')}/${avatarUrl.replace(/^\//, '')}`;
 }
 
+// Helper to check if user has permission for an item
+function canAccessItem(item: any, hasPermission: (perm: string) => boolean): boolean {
+  // If no permissions required, allow access
+  if (!item.requiredAnyPermissions || item.requiredAnyPermissions.length === 0) {
+    return true;
+  }
+  // Check if user has ANY of the required permissions
+  return item.requiredAnyPermissions.some((perm: string) => hasPermission(perm));
+}
+
+// Helper to get icon component
+function getIconComponent(iconName: string) {
+  return iconMap[iconName] || BusinessCenterRoundedIcon;
+}
+
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const { status, isAuthenticated, user, logout } = useAuth();
+  const { permissions, hasPermission } = usePermissions();
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [leavesOpen, setLeavesOpen] = useState(() => pathname?.startsWith('/leaves'));
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (status === 'ready' && !isAuthenticated) {
@@ -93,10 +86,35 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
-  const activeNav = useMemo(
-    () => navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`)),
-    [pathname]
-  );
+  // Filter sidebar items based on permissions
+  const visibleItems = useMemo(() => {
+    const filterItems = (items: any[]): any[] => {
+      return items
+        .filter((item) => canAccessItem(item, hasPermission))
+        .map((item) => ({
+          ...item,
+          children: item.children ? filterItems(item.children) : undefined
+        }))
+        .filter((item) => !item.children || item.children.length > 0);
+    };
+    return filterItems(SIDEBAR_ITEMS);
+  }, [hasPermission]);
+
+  const activeNav = useMemo(() => {
+    const findActive = (items: any[]): any => {
+      for (const item of items) {
+        if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
+          return item;
+        }
+        if (item.children) {
+          const found = findActive(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return findActive(visibleItems);
+  }, [pathname, visibleItems]);
 
   if (status === 'loading' || !isAuthenticated || !user) {
     return (
@@ -108,6 +126,90 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
       </Box>
     );
   }
+
+  const renderNavItem = (item: any, depth = 0): React.ReactNode => {
+    const Icon = getIconComponent(item.icon);
+    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const isExpanded = expandedItems[item.href] ?? active;
+
+    if (!hasChildren) {
+      return (
+        <ListItemButton
+          key={item.href}
+          selected={active}
+          onClick={() => void router.push(item.href as never)}
+          sx={{
+            mb: 0.8,
+            borderRadius: 3,
+            color: active ? '#1f2340' : '#5b5f7a',
+            '&.Mui-selected': {
+              bgcolor: 'rgba(178, 174, 242, 0.2)',
+              color: '#15162c'
+            },
+            '&.Mui-selected:hover': {
+              bgcolor: 'rgba(178, 174, 242, 0.24)'
+            }
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+            <Icon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={item.label}
+            primaryTypographyProps={{ fontWeight: active ? 800 : 600 }}
+          />
+        </ListItemButton>
+      );
+    }
+
+    // Render parent with collapse for children
+    return (
+      <Box key={item.href}>
+        <ListItemButton
+          onClick={() => setExpandedItems((prev) => ({ ...prev, [item.href]: !isExpanded }))}
+          sx={{
+            mb: 0.8,
+            borderRadius: 3,
+            color: active ? '#1f2340' : '#5b5f7a',
+            '&.Mui-selected': {
+              bgcolor: 'rgba(178, 174, 242, 0.2)',
+              color: '#15162c'
+            }
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
+            <Icon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 800 : 600 }} />
+          {isExpanded ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+
+        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {item.children.map((child: any) => {
+              const ChildIcon = getIconComponent(child.icon);
+              const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
+
+              return (
+                <ListItemButton
+                  key={child.href}
+                  sx={{ pl: 6, mb: 0.6, borderRadius: 2 }}
+                  selected={childActive}
+                  onClick={() => void router.push(child.href as never)}
+                >
+                  <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#928ddd' : '#9aa0be' }}>
+                    <ChildIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: childActive ? 800 : 600 }} />
+                </ListItemButton>
+              );
+            })}
+          </List>
+        </Collapse>
+      </Box>
+    );
+  };
 
   const sidebarContent = (
     <Box sx={{ height: '100%', background: 'linear-gradient(180deg, rgba(252,252,254,0.98), rgba(243,244,255,0.92))' }}>
@@ -137,91 +239,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
       <Divider />
 
       <List sx={{ px: 1.5, py: 2 }}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const hasChildren = Array.isArray((item as any).children) && (item as any).children.length > 0;
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-          if (!hasChildren) {
-            return (
-              <ListItemButton
-                key={item.href}
-                selected={active}
-                onClick={() => void router.push(item.href as never)}
-                sx={{
-                  mb: 0.8,
-                  borderRadius: 3,
-                  color: active ? '#1f2340' : '#5b5f7a',
-                  '&.Mui-selected': {
-                    bgcolor: 'rgba(178, 174, 242, 0.2)',
-                    color: '#15162c'
-                  },
-                  '&.Mui-selected:hover': {
-                    bgcolor: 'rgba(178, 174, 242, 0.24)'
-                  }
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
-                  <Icon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{ fontWeight: active ? 800 : 600 }}
-                />
-              </ListItemButton>
-            );
-          }
-
-          // render parent with collapse for children
-          return (
-            <Box key={item.href}>
-              <ListItemButton
-                onClick={() => setLeavesOpen((v) => !v)}
-                sx={{
-                  mb: 0.8,
-                  borderRadius: 3,
-                  color: active ? '#1f2340' : '#5b5f7a',
-                  '&.Mui-selected': {
-                    bgcolor: 'rgba(178, 174, 242, 0.2)',
-                    color: '#15162c'
-                  }
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: active ? '#928ddd' : '#8d90a8' }}>
-                  <Icon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: active ? 800 : 600 }} />
-                {leavesOpen ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-
-              <Collapse in={leavesOpen} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  {(item as any).children.map((child: any) => {
-                    const ChildIcon = child.icon;
-                    const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
-
-                    return (
-                      <ListItemButton
-                        key={child.href}
-                        sx={{ pl: 6, mb: 0.6, borderRadius: 2 }}
-                        selected={childActive}
-                        onClick={() => void router.push(child.href as never)}
-                      >
-                        <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#928ddd' : '#9aa0be' }}>
-                          <ChildIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText primary={child.label} primaryTypographyProps={{ fontWeight: childActive ? 800 : 600 }} />
-                      </ListItemButton>
-                    );
-                  })}
-                </List>
-              </Collapse>
-            </Box>
-          );
-        })}
+        {visibleItems.map((item) => renderNavItem(item))}
       </List>
-
-     
     </Box>
   );
 
