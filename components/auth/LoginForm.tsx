@@ -18,14 +18,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 
-const roleOptions = ['Admin', 'HR', 'Manager', 'Employee'];
-const demoAccounts: Record<string, string> = {
-  Admin: 'admin@hrms.com',
-  HR: 'hr@hrms.com',
-  Manager: 'manager@hrms.com',
-  Employee: 'employee@hrms.com',
-};
-const demoPassword = 'Hrms@12345';
+
 
 function isEmailValid(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -34,29 +27,12 @@ function isEmailValid(value: string) {
 export function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] = useState('HR');
-  const [email, setEmail] = useState(demoAccounts.HR);
-  const [password, setPassword] = useState(demoPassword);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
-
-  const demoEmail = useMemo(() => demoAccounts[selectedRole] ?? demoAccounts.HR, [selectedRole]);
-
-  function handleRoleChange(role: string) {
-    setSelectedRole(role);
-
-    const nextDemoEmail = demoAccounts[role] ?? demoAccounts.HR;
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || Object.values(demoAccounts).includes(normalizedEmail)) {
-      setEmail(nextDemoEmail);
-    }
-
-    if (!password) {
-      setPassword(demoPassword);
-    }
-  }
 
   function validateForm() {
     const nextErrors: { email?: string; password?: string } = {};
@@ -180,35 +156,7 @@ export function LoginForm() {
               }}
             />
 
-            <Stack direction="row" flexWrap="wrap" gap={0.75}>
-              {roleOptions.map((role) => (
-                <Button
-                  key={role}
-                  type="button"
-                  variant={selectedRole === role ? 'contained' : 'outlined'}
-                  onClick={() => handleRoleChange(role)}
-                  sx={{
-                    minWidth: 0,
-                    px: 1.5,
-                    py: 0.55,
-                    borderRadius: 2,
-                    fontSize: '0.8rem',
-                    textTransform: 'none',
-                    fontWeight: 700,
-                    borderColor: selectedRole === role ? 'transparent' : 'divider',
-                    bgcolor: selectedRole === role ? 'text.primary' : 'transparent',
-                    color: selectedRole === role ? 'background.paper' : 'text.secondary',
-                    boxShadow: selectedRole === role ? '0 4px 14px 0 rgba(0, 0, 0, 0.25)' : 'none',
-                    '&:hover': {
-                      bgcolor: selectedRole === role ? 'text.secondary' : 'action.hover',
-                      borderColor: selectedRole === role ? 'transparent' : 'divider',
-                    },
-                  }}
-                >
-                  {role}
-                </Button>
-              ))}
-            </Stack>
+
 
             <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mt: 0.25 }}>
               <FormControlLabel

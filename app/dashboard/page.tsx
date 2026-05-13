@@ -163,17 +163,17 @@ export default function DashboardPage() {
         <Box sx={{ px: { xs: 2, md: 3 }, py: 1.5 }}>
           <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center" justifyContent="space-between">
             <Stack direction="row" spacing={1} flexWrap="wrap">
-            {['Activities', 'Feeds', 'Profile', 'Approvals', 'Leave', 'Attendance', 'Time Logs'].map((tab, i) => (
-              <Chip
-                key={tab}
-                label={tab}
-                sx={{
-                  bgcolor: i === 0 ? alpha('#8b5cf6', 0.2) : alpha('#ffffff', 0.06),
-                  color: i === 0 ? '#c4b5fd' : alpha('#ffffff', 0.86),
-                  border: `1px solid ${i === 0 ? alpha('#a78bfa', 0.5) : alpha('#ffffff', 0.14)}`,
-                }}
-              />
-            ))}
+              {['Activities', 'Feeds', 'Profile', 'Approvals', 'Leave', 'Attendance', 'Time Logs'].map((tab, i) => (
+                <Chip
+                  key={tab}
+                  label={tab}
+                  sx={{
+                    bgcolor: i === 0 ? alpha('#8b5cf6', 0.2) : alpha('#ffffff', 0.06),
+                    color: i === 0 ? '#c4b5fd' : alpha('#ffffff', 0.86),
+                    border: `1px solid ${i === 0 ? alpha('#a78bfa', 0.5) : alpha('#ffffff', 0.14)}`,
+                  }}
+                />
+              ))}
             </Stack>
             <ToggleButtonGroup
               value={density}

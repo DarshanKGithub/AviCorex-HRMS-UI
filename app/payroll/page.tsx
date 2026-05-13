@@ -207,7 +207,7 @@ export default function PayrollPage() {
     <Box className="mx-auto max-w-6xl px-4 py-6">
       <Breadcrumbs />
       <Stack spacing={4}>
-        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: 'text.primary', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
             <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 24%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 28%)' }} />
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>

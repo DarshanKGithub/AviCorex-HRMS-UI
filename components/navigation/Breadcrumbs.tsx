@@ -177,7 +177,7 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
               justifyContent: 'center',
               width: 36,
               height: 36,
-              bgcolor: '#ffffff',
+              bgcolor: 'background.paper',
               border: '1px solid #e2e8f0',
               borderRadius: 2,
               boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',

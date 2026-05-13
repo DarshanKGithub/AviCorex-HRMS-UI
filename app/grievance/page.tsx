@@ -401,7 +401,7 @@ export default function GrievancePage() {
                 )}
               </Stack>
               {selectedGrievance.investigator_id && (
-                <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2 }}>
+                <Box sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
                   <Typography sx={{ fontWeight: 600, mb: 1 }}>Investigation Details</Typography>
                   <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}><strong>Investigator:</strong> {selectedGrievance.investigator_id}</Typography>
                   {selectedGrievance.meeting_scheduled_at && <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}><strong>Meeting:</strong> {new Date(selectedGrievance.meeting_scheduled_at).toLocaleString()}</Typography>}

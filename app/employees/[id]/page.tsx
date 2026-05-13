@@ -97,7 +97,7 @@ export default function EmployeeDetailPage() {
         <IconButton 
           onClick={() => router.back()} 
           sx={{ 
-            bgcolor: '#ffffff', 
+            bgcolor: 'background.paper', 
             border: '1px solid #e2e8f0', 
             borderRadius: 2,
             boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',
@@ -112,7 +112,7 @@ export default function EmployeeDetailPage() {
         </Typography>
       </Stack>
 
-      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)' }}>
+      <Card sx={{ borderRadius: 4, bgcolor: 'background.paper', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)' }}>
         <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
           {loading ? (
             <CircularProgress />

@@ -148,7 +148,7 @@ export default function LeaveBalancesPage() {
             onChange={(e) => setSelectedYear(e.target.value as number)}
             size="small"
             sx={{ 
-              bgcolor: '#fff', 
+              bgcolor: 'background.paper', 
               borderRadius: 2, 
               minWidth: 100,
               fontWeight: 600,

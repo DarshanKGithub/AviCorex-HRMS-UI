@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeRegistry } from '@/components/ThemeRegistry';
-import SaaSShell from '@/components/shell/SaaSShell';
 
 export const metadata: Metadata = {
   title: 'HRMS SaaS',
@@ -17,9 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <SaaSShell>
-            {children}
-          </SaaSShell>
+          {children}
         </ThemeRegistry>
       </body>
     </html>

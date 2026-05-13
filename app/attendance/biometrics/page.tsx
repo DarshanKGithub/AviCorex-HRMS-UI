@@ -83,7 +83,7 @@ export default function BiometricsPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 600 }}>
+      <Card sx={{ borderRadius: 4, bgcolor: 'background.paper', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 600 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'text.primary' }}>Manual Log Synchronization</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>

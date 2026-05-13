@@ -428,7 +428,7 @@ export default function FinancialsPage() {
                   </Grid>
 
                   <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: 'background.default', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                       <CardContent>
                         <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
                         <Stack spacing={1.25}>
@@ -448,7 +448,7 @@ export default function FinancialsPage() {
                       </CardContent>
                     </Card>
 
-                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: 'background.default', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                       <CardContent>
                         <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
                         <Stack spacing={1.25}>

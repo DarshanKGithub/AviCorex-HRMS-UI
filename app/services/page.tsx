@@ -116,7 +116,7 @@ export default function ServicesPage() {
                 }}
               >
                 <Stack alignItems="center" spacing={1}>
-                  <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '1px solid #eef2f7' }}>
+                  <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '1px solid #eef2f7' }}>
                     <Icon sx={{ fontSize: 30, color: '#7c3aed' }} />
                   </Box>
                   <Typography sx={{ fontSize: 13, color: 'text.primary', fontWeight: 600 }}>{service.label}</Typography>
@@ -145,7 +145,7 @@ export default function ServicesPage() {
             }}
           >
             <Stack alignItems="center" spacing={1}>
-              <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '2px solid #7c3aed', color: '#7c3aed', fontSize: 30, fontWeight: 700 }}>
+              <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '2px solid #7c3aed', color: '#7c3aed', fontSize: 30, fontWeight: 700 }}>
                 +
               </Box>
               <Typography sx={{ fontSize: 13, color: '#6d28d9', fontWeight: 700 }}>Add Service</Typography>

@@ -193,7 +193,7 @@ export default function SettingsPage() {
                     }}
                   >
                     <Stack alignItems="center" spacing={1}>
-                      <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '1px solid #eef2f7' }}>
+                      <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '1px solid #eef2f7' }}>
                         <Icon sx={{ fontSize: 28, color: '#7c3aed' }} />
                       </Box>
                       <Box sx={{ fontSize: 13, color: 'text.primary' }}>{s.label}</Box>
@@ -206,7 +206,7 @@ export default function SettingsPage() {
             <Grid item xs={6} sm={4} md={3} lg={2}>
               <Paper elevation={0} onClick={() => router.push('/services/new')} sx={{ cursor: 'pointer', p: 2, borderRadius: 2, textAlign: 'center', '&:hover': { boxShadow: 3 } }}>
                 <Stack alignItems="center" spacing={1}>
-                  <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '1px dashed #cbd5e1' }}>
+                  <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '1px dashed #cbd5e1' }}>
                     <Box sx={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid #7c3aed', display: 'grid', placeItems: 'center', color: '#7c3aed' }}>+</Box>
                   </Box>
                   <Box sx={{ fontSize: 13, color: '#7c3aed' }}>Add Service</Box>

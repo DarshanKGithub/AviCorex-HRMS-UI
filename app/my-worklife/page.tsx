@@ -59,7 +59,7 @@ export default function MyWorklifePage() {
 
         <Grid container spacing={2.5}>
           <Grid item xs={12} md={5}>
-            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: 'text.primary', color: '#fff', height: '100%' }}>
+            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: '#0f172a', color: '#fff', height: '100%' }}>
               <CardContent sx={{ p: 3 }}>
                 <Typography sx={{ color: 'text.secondary', fontWeight: 700, fontSize: 13 }}>Signed in as</Typography>
                 <Typography variant="h5" sx={{ mt: 1, fontWeight: 900 }}>{user?.full_name}</Typography>

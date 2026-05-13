@@ -181,7 +181,7 @@ export default function OrgChartPage() {
           sx={{
             overflowX: 'auto',
             p: 4,
-            bgcolor: '#ffffff',
+            bgcolor: 'background.paper',
             borderRadius: 4,
             border: '1px solid #e2e8f0',
             minHeight: 400,

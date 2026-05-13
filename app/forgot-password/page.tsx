@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
               placeholder="name@company.com" 
               InputLabelProps={{ sx: { color: 'text.secondary', fontWeight: 500 } }}
               InputProps={{
-                sx: { borderRadius: 2, bgcolor: '#f8fafc', '& fieldset': { borderColor: '#e2e8f0' } }
+                sx: { borderRadius: 2, bgcolor: 'background.default', '& fieldset': { borderColor: '#e2e8f0' } }
               }}
             />
             

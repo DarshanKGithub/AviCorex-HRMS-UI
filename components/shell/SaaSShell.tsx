@@ -31,7 +31,7 @@ export function SaaSShell({ children, title = 'HRMS Platform', subtitle = 'Calm,
         <Stack spacing={4}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 3, flexWrap: 'wrap' }}>
             <Box sx={{ maxWidth: 760 }}>
-              <Chip label="SaaS Workspace" sx={{ bgcolor: 'text.primary', color: 'background.paper', fontWeight: 800, mb: 1.5 }} />
+              <Chip label="SaaS Workspace" sx={{ bgcolor: '#0f172a', color: 'background.paper', fontWeight: 800, mb: 1.5 }} />
               <Typography variant="h4" sx={{ fontWeight: 950, color: 'text.primary', letterSpacing: '-0.04em' }}>{title}</Typography>
               <Typography sx={{ color: 'text.secondary', mt: 0.75, fontSize: '1rem' }}>{subtitle}</Typography>
             </Box>

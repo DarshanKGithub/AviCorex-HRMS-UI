@@ -81,7 +81,7 @@ export default function RostersPage() {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-      <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 800 }}>
+      <Card sx={{ borderRadius: 4, bgcolor: 'background.paper', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 800 }}>
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: 'text.primary' }}>Create New Roster</Typography>
           

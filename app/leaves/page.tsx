@@ -1337,7 +1337,7 @@ export default function LeavesPage() {
                               borderLeft: `4px solid ${getStatusColor(r.status)}`,
                               borderRadius: 1.5,
                               p: 2,
-                              bgcolor: '#fff',
+                              bgcolor: 'background.paper',
                             }}
                           >
                             <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>

@@ -138,7 +138,7 @@ export default function EngagePage() {
                 ) : (
                   <Stack spacing={2}>
                     {announcements.map((announcement) => (
-                      <Box key={announcement.id} sx={{ p: 2, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                      <Box key={announcement.id} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.default', border: '1px solid #e2e8f0' }}>
                         <Stack direction="row" justifyContent="space-between" spacing={2} sx={{ mb: 0.8 }}>
                           <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{announcement.title}</Typography>
                           <Chip label={announcement.priority} size="small" sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 700 }} />
@@ -169,7 +169,7 @@ export default function EngagePage() {
                   ) : (
                     <Stack spacing={1.5}>
                       {tickets.map((ticket) => (
-                        <Box key={ticket.id} sx={{ p: 1.8, borderRadius: 2.5, bgcolor: '#fff', border: '1px solid #e2e8f0' }}>
+                        <Box key={ticket.id} sx={{ p: 1.8, borderRadius: 2.5, bgcolor: 'background.paper', border: '1px solid #e2e8f0' }}>
                           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1.5}>
                             <Box>
                               <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>{ticket.subject}</Typography>
@@ -184,7 +184,7 @@ export default function EngagePage() {
                 </CardContent>
               </Card>
 
-              <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: 'text.primary', color: '#fff' }}>
+              <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: '#0f172a', color: '#fff' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800 }}>Quick actions</Typography>
                   <Typography sx={{ mt: 1, color: '#cbd5e1' }}>Jump into the spaces employees use most.</Typography>
