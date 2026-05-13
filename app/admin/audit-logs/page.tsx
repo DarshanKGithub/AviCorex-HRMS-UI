@@ -155,10 +155,10 @@ export default function AuditLogsPage() {
                   label="Audit Logs"
                   sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800 }}
                 />
-                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 800, letterSpacing: '-0.03em', color: '#15162c' }}>
+                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 800, letterSpacing: '-0.03em', color: 'text.primary' }}>
                   System audit trail
                 </Typography>
-                <Typography sx={{ mt: 0.8, color: '#5b5f7a' }}>
+                <Typography sx={{ mt: 0.8, color: 'text.secondary' }}>
                   View all actions performed on the system including employee, department, and organizational changes.
                 </Typography>
               </Box>
@@ -222,18 +222,18 @@ export default function AuditLogsPage() {
                   <Table sx={{ minWidth: 900 }}>
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f8f9fb' }}>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Timestamp</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Action</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Object Type</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Object ID</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Actor ID</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Details</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Timestamp</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Action</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Object Type</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Object ID</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Actor ID</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Details</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {logs.map((log) => (
                         <TableRow key={log.id} sx={{ '&:hover': { bgcolor: '#f8f9fb' } }}>
-                          <TableCell sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>{formatDate(log.created_at)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>{formatDate(log.created_at)}</TableCell>
                           <TableCell>
                             <Chip
                               label={log.action}
@@ -258,11 +258,11 @@ export default function AuditLogsPage() {
                               }}
                             />
                           </TableCell>
-                          <TableCell sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>{log.object_type}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>{log.object_type}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                             <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: '4px' }}>{log.object_id || '-'}</code>
                           </TableCell>
-                          <TableCell sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>
+                          <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                             <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: '4px' }}>{log.actor_id || '-'}</code>
                           </TableCell>
                           <TableCell>
@@ -289,7 +289,7 @@ export default function AuditLogsPage() {
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
               <Stack direction="row" spacing={2} alignItems="center">
                 <Pagination count={Math.ceil(total / pageSize)} page={page} onChange={(_, p) => setPage(p)} />
-                <Typography variant="caption" sx={{ color: '#5b5f7a' }}>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total}
                 </Typography>
               </Stack>

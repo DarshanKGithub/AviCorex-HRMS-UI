@@ -41,10 +41,10 @@ const OrgNodeComponent = ({ node, level = 0 }: { node: OrgNode; level?: number }
         }}
       >
         <CardContent sx={{ p: 2, pb: '16px !important' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#1f2937' }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'text.primary' }}>
             {node.full_name}
           </Typography>
-          <Typography variant="body2" sx={{ color: '#4b5563', fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
             {node.designation || 'No Designation'}
           </Typography>
           <Typography variant="caption" sx={{ display: 'inline-block', mt: 1, px: 1, py: 0.25, bgcolor: '#e0f2fe', color: '#0369a1', borderRadius: 1, fontWeight: 600 }}>
@@ -100,7 +100,7 @@ export default function OrganizationHierarchyPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <AccountTreeIcon color="primary" /> 
           Organization Hierarchy
         </Typography>

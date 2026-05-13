@@ -80,7 +80,7 @@ export default function PayrollPage() {
   const [error, setError] = useState<string | null>(null);
   const canProcessPayroll = hasPermission('process_payroll');
   const payrollHighlights = [
-    { label: 'Payroll cycle', value: 'Monthly', accent: '#3b82f6' },
+    { label: 'Payroll cycle', value: 'Monthly', accent: '#7c3aed' },
     { label: 'Payslips', value: `${payslips.length}`, accent: '#10b981' },
     { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#8b5cf6' },
   ];
@@ -193,7 +193,7 @@ export default function PayrollPage() {
       case 'paid':
         return '#10b981';
       case 'approved':
-        return '#3b82f6';
+        return '#7c3aed';
       case 'draft':
         return '#f59e0b';
       default:
@@ -207,7 +207,7 @@ export default function PayrollPage() {
     <Box className="mx-auto max-w-6xl px-4 py-6">
       <Breadcrumbs />
       <Stack spacing={4}>
-        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: 'text.primary', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
             <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 24%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 28%)' }} />
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
@@ -233,7 +233,7 @@ export default function PayrollPage() {
             <Grid item xs={12} sm={4} key={item.label}>
               <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
                 <CardContent>
-                  <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
                   <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: item.accent }}>{item.value}</Typography>
                 </CardContent>
               </Card>
@@ -260,17 +260,17 @@ export default function PayrollPage() {
                   <Stack spacing={3}>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                       <PaymentIcon sx={{ fontSize: 28, color: '#4f4b9c' }} />
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                         Current Salary Structure
                       </Typography>
                     </Stack>
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={6} md={3}>
                         <Box>
-                          <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600, mb: 0.5 }}>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600, mb: 0.5 }}>
                             Base Salary
                           </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 800, color: '#15162c' }}>
+                          <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
                             {salary.currency} {salary.base_salary.toLocaleString()}
                           </Typography>
                           <Typography sx={{ color: '#9ca3af', fontSize: '0.75rem', mt: 0.5 }}>
@@ -280,10 +280,10 @@ export default function PayrollPage() {
                       </Grid>
                       <Grid item xs={12} sm={6} md={3}>
                         <Box>
-                          <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600, mb: 0.5 }}>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600, mb: 0.5 }}>
                             Grade
                           </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 800, color: '#15162c' }}>
+                          <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>
                             {salary.grade || 'N/A'}
                           </Typography>
                         </Box>
@@ -296,7 +296,7 @@ export default function PayrollPage() {
 
             {/* Payslips Table */}
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 2 }}>
                 Your Payslips
               </Typography>
               {payslips.length > 0 ? (
@@ -304,21 +304,21 @@ export default function PayrollPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f9fafb', borderBottom: '2px solid #e7e9ef' }}>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Month</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'right' }}>Gross Salary</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'right' }}>Deductions</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'right' }}>Net Salary</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Action</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Month</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2, textAlign: 'right' }}>Gross Salary</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2, textAlign: 'right' }}>Deductions</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2, textAlign: 'right' }}>Net Salary</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {payslips.map((p) => (
                         <TableRow key={p.id} sx={{ borderBottom: '1px solid #e7e9ef', '&:hover': { bgcolor: '#f9fafb' } }}>
-                          <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>
+                          <TableCell sx={{ color: 'text.primary', fontWeight: 500, py: 2 }}>
                             {monthNames[p.month - 1]} {p.year}
                           </TableCell>
-                          <TableCell sx={{ color: '#15162c', fontWeight: 600, textAlign: 'right', py: 2 }}>
+                          <TableCell sx={{ color: 'text.primary', fontWeight: 600, textAlign: 'right', py: 2 }}>
                             ₹{p.gross_salary.toLocaleString()}
                           </TableCell>
                           <TableCell sx={{ color: '#ef4444', fontWeight: 500, textAlign: 'right', py: 2 }}>
@@ -365,7 +365,7 @@ export default function PayrollPage() {
                                 variant="outlined"
                                 onClick={() => downloadPayslipPDF(p.id)}
                                 sx={{
-                                  color: '#6b7280',
+                                  color: 'text.secondary',
                                   borderColor: '#d1d5db',
                                   fontWeight: 600,
                                   textTransform: 'none',
@@ -385,7 +385,7 @@ export default function PayrollPage() {
                                   variant="outlined"
                                   onClick={() => sendPayslipEmail(p.id)}
                                   sx={{
-                                    color: '#6b7280',
+                                    color: 'text.secondary',
                                     borderColor: '#d1d5db',
                                     fontWeight: 600,
                                     textTransform: 'none',
@@ -410,8 +410,8 @@ export default function PayrollPage() {
                 <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
                   <CardContent sx={{ py: 4, textAlign: 'center' }}>
                     <ReceiptIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                    <Typography sx={{ color: '#15162c', fontWeight: 800, mb: 0.5 }}>No payslips available yet</Typography>
-                    <Typography sx={{ color: '#64748b' }}>Once payroll is processed, your latest slips will appear here.</Typography>
+                    <Typography sx={{ color: 'text.primary', fontWeight: 800, mb: 0.5 }}>No payslips available yet</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Once payroll is processed, your latest slips will appear here.</Typography>
                   </CardContent>
                 </Card>
               )}
@@ -421,7 +421,7 @@ export default function PayrollPage() {
 
         {/* Payslip Detail Dialog */}
         <Dialog open={!!selectedPayslip} onClose={() => setSelectedPayslip(null)} maxWidth="md" fullWidth>
-          <DialogTitle sx={{ fontWeight: 700, color: '#15162c', pb: 1 }}>
+          <DialogTitle sx={{ fontWeight: 700, color: 'text.primary', pb: 1 }}>
             {selectedPayslip && `Payslip - ${monthNames[selectedPayslip.month - 1]} ${selectedPayslip.year}`}
           </DialogTitle>
           <DialogContent sx={{ pt: 2 }}>
@@ -431,15 +431,15 @@ export default function PayrollPage() {
                 <Box sx={{ bgcolor: '#f9fafb', p: 2, borderRadius: 2 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={6} sm={3}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Gross Salary
                       </Typography>
-                      <Typography sx={{ color: '#15162c', fontWeight: 700, fontSize: '1.1rem', mt: 0.5 }}>
+                      <Typography sx={{ color: 'text.primary', fontWeight: 700, fontSize: '1.1rem', mt: 0.5 }}>
                         ₹{selectedPayslip.gross_salary.toLocaleString()}
                       </Typography>
                     </Grid>
                     <Grid item xs={6} sm={3}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Deductions
                       </Typography>
                       <Typography sx={{ color: '#ef4444', fontWeight: 700, fontSize: '1.1rem', mt: 0.5 }}>
@@ -447,7 +447,7 @@ export default function PayrollPage() {
                       </Typography>
                     </Grid>
                     <Grid item xs={6} sm={3}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Tax
                       </Typography>
                       <Typography sx={{ color: '#f59e0b', fontWeight: 700, fontSize: '1.1rem', mt: 0.5 }}>
@@ -455,7 +455,7 @@ export default function PayrollPage() {
                       </Typography>
                     </Grid>
                     <Grid item xs={6} sm={3}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Net Salary
                       </Typography>
                       <Typography sx={{ color: '#10b981', fontWeight: 700, fontSize: '1.1rem', mt: 0.5 }}>
@@ -469,18 +469,18 @@ export default function PayrollPage() {
                 <Box sx={{ bgcolor: '#f9fafb', p: 2, borderRadius: 2 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Days Worked
                       </Typography>
-                      <Typography sx={{ color: '#15162c', fontWeight: 700, mt: 0.5 }}>
+                      <Typography sx={{ color: 'text.primary', fontWeight: 700, mt: 0.5 }}>
                         {selectedPayslip.days_worked}
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 600 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
                         Days Absent
                       </Typography>
-                      <Typography sx={{ color: '#15162c', fontWeight: 700, mt: 0.5 }}>
+                      <Typography sx={{ color: 'text.primary', fontWeight: 700, mt: 0.5 }}>
                         {selectedPayslip.days_absent}
                       </Typography>
                     </Grid>
@@ -489,7 +489,7 @@ export default function PayrollPage() {
 
                 {/* Components Breakdown */}
                 <Box>
-                  <Typography sx={{ color: '#15162c', fontWeight: 700, mb: 2 }}>
+                  <Typography sx={{ color: 'text.primary', fontWeight: 700, mb: 2 }}>
                     Components Breakdown
                   </Typography>
                   {selectedPayslip.components && selectedPayslip.components.length > 0 ? (
@@ -506,7 +506,7 @@ export default function PayrollPage() {
                           }}
                         >
                           <Stack>
-                            <Typography sx={{ color: '#15162c', fontWeight: 500, fontSize: '0.9rem' }}>
+                            <Typography sx={{ color: 'text.primary', fontWeight: 500, fontSize: '0.9rem' }}>
                               {comp.component_name}
                             </Typography>
                             <Chip

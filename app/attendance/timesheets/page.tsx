@@ -151,14 +151,14 @@ export default function TimesheetsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
           Timesheets
         </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setOpenModal(true)}
-          sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+          sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
         >
           New Timesheet
         </Button>
@@ -182,7 +182,7 @@ export default function TimesheetsPage() {
             <TableBody>
               {timesheets.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} sx={{ textAlign: 'center', py: 3, color: '#6b7280' }}>
+                  <TableCell colSpan={5} sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
                     No timesheets found
                   </TableCell>
                 </TableRow>
@@ -253,7 +253,7 @@ export default function TimesheetsPage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             Create
           </Button>

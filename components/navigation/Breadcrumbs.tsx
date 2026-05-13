@@ -95,6 +95,15 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   '/my-worklife': [{ label: 'My Worklife', href: '/my-worklife' }],
   '/profile': [{ label: 'Profile', href: '/profile' }],
   '/settings': [{ label: 'Settings', href: '/settings' }],
+  '/services': [{ label: 'Services', href: '/services' }],
+  '/services/new': [
+    { label: 'Services', href: '/services' },
+    { label: 'Add Service' },
+  ],
+  '/services/[key]': [
+    { label: 'Services', href: '/services' },
+    { label: 'Edit Service' },
+  ],
   '/todo': [{ label: 'To Do', href: '/todo' }],
   '/performance': [{ label: 'Performance & KPI', href: '/performance' }],
   '/performance/training': [
@@ -172,17 +181,17 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
               border: '1px solid #e2e8f0',
               borderRadius: 2,
               boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',
-              color: '#64748b',
+              color: 'text.secondary',
               cursor: 'pointer',
               transition: 'all 0.2s',
-              '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' }
+              '&:hover': { bgcolor: '#f1f5f9', color: 'text.primary' }
             }}
           >
             <ArrowBackIcon sx={{ fontSize: 18 }} />
           </Box>
         )}
         <MuiBreadcrumbs
-          separator={<NavigateNextIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
+          separator={<NavigateNextIcon sx={{ fontSize: 18, color: 'text.secondary' }} />}
           aria-label="breadcrumb"
         >
         {allItems.map((item, index) => {

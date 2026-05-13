@@ -304,7 +304,7 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
 
         <Button size="small" onClick={() => setCurrentDate(new Date())}>Today</Button>
         {!canManageHolidays && (
-          <Box sx={{ fontSize: 12, color: '#94a3b8' }}>Read-only calendar</Box>
+          <Box sx={{ fontSize: 12, color: 'text.secondary' }}>Read-only calendar</Box>
         )}
       </Stack>
 
@@ -333,7 +333,7 @@ export default function HolidayCalendar({ events }: { events?: HolidayEvent[] })
             <TextField label="Title" value={dialogTitle} onChange={(e) => setDialogTitle(e.target.value)} fullWidth />
             <FormControlLabel control={<Checkbox checked={dialogAllDay} onChange={(e) => setDialogAllDay(e.target.checked)} />} label="All day" />
             {selectedSlot ? (
-              <div style={{ color: '#6b7280', fontSize: 13 }}>
+              <div style={{ color: 'text.secondary', fontSize: 13 }}>
                 Dates: {new Date(selectedSlot.start).toLocaleString()} → {new Date(selectedSlot.end).toLocaleString()}
               </div>
             ) : null}

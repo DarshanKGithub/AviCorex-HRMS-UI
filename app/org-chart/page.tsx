@@ -73,16 +73,16 @@ function OrgNodeComponent({ node, level = 0 }: { node: OrgNode; level?: number }
                 bgcolor: '#f1f5f9',
                 display: 'grid',
                 placeItems: 'center',
-                color: '#64748b',
+                color: 'text.secondary',
               }}
             >
               <PersonIcon />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+              <Typography sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.2 }}>
                 {node.full_name}
               </Typography>
-              <Typography sx={{ fontSize: 13, color: '#64748b', mt: 0.5 }}>
+              <Typography sx={{ fontSize: 13, color: 'text.secondary', mt: 0.5 }}>
                 {node.designation || 'Employee'}
                 {node.department ? ` • ${node.department}` : ''}
               </Typography>
@@ -161,10 +161,10 @@ export default function OrgChartPage() {
           <AccountTreeIcon />
         </Box>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a' }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary' }}>
             Organization Chart
           </Typography>
-          <Typography sx={{ color: '#64748b' }}>
+          <Typography sx={{ color: 'text.secondary' }}>
             Visualize the reporting structure of your company.
           </Typography>
         </Box>
@@ -188,7 +188,7 @@ export default function OrgChartPage() {
           }}
         >
           {hierarchy.length === 0 ? (
-            <Typography sx={{ color: '#64748b', textAlign: 'center', mt: 4 }}>
+            <Typography sx={{ color: 'text.secondary', textAlign: 'center', mt: 4 }}>
               No organizational data available. Assign managers to employees to build the hierarchy.
             </Typography>
           ) : (

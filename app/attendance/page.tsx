@@ -273,7 +273,7 @@ export default function AttendancePage() {
   };
 
   const attendanceStats = [
-    { label: 'Today status', value: todayAttendance?.status || 'Pending', accent: '#3b82f6' },
+    { label: 'Today status', value: todayAttendance?.status || 'Pending', accent: '#7c3aed' },
     { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
     { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f97316' },
   ];
@@ -311,7 +311,7 @@ export default function AttendancePage() {
       <Box className="mx-auto max-w-5xl">
         <Breadcrumbs />
         <Stack spacing={3}>
-          <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+          <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: 'text.primary', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
             <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
               <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 22%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 25%)' }} />
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
@@ -341,7 +341,7 @@ export default function AttendancePage() {
               <Grid item xs={12} sm={4} key={stat.label}>
                 <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
                   <CardContent>
-                    <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
+                    <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
                     <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: stat.accent }}>{stat.value}</Typography>
                   </CardContent>
                 </Card>
@@ -362,7 +362,7 @@ export default function AttendancePage() {
             <Grid item xs={12} md={6}>
               <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef', height: '100%' }}>
                 <CardContent>
-                  <Typography sx={{ color: '#5b5f7a', fontWeight: 700, mb: 2 }}>Check In</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 700, mb: 2 }}>Check In</Typography>
                   {todayAttendance?.check_in_time ? (
                     <Stack spacing={1.5}>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: '#4caf50' }}>
@@ -374,7 +374,7 @@ export default function AttendancePage() {
                           sx={{ bgcolor: 'rgba(255, 152, 0, 0.16)', color: '#ff9800', width: 'fit-content' }}
                         />
                       )}
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem' }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                         {formatDate(todayAttendance.attendance_date)}
                       </Typography>
                     </Stack>
@@ -408,7 +408,7 @@ export default function AttendancePage() {
             <Grid item xs={12} md={6}>
               <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef', height: '100%' }}>
                 <CardContent>
-                  <Typography sx={{ color: '#5b5f7a', fontWeight: 700, mb: 2 }}>Check Out</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontWeight: 700, mb: 2 }}>Check Out</Typography>
                   {todayAttendance?.check_out_time ? (
                     <Stack spacing={1.5}>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: '#f44336' }}>
@@ -443,7 +443,7 @@ export default function AttendancePage() {
           {/* Recent Attendance Records */}
           <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef' }}>
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#15162c', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 2 }}>
                 Recent Attendance
               </Typography>
 
@@ -452,19 +452,19 @@ export default function AttendancePage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f8f9fb' }}>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Date</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Check In</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Check Out</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Status</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Late</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Date</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Check In</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Check Out</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Late</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {recentRecords.map((record) => (
                         <TableRow key={record.id} sx={{ '&:hover': { bgcolor: '#f8f9fb' } }}>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{formatDate(record.attendance_date)}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{formatTime(record.check_in_time)}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{formatTime(record.check_out_time)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{formatDate(record.attendance_date)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(record.check_in_time)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(record.check_out_time)}</TableCell>
                           <TableCell>
                             <Chip
                               label={record.status}
@@ -476,7 +476,7 @@ export default function AttendancePage() {
                               }}
                             />
                           </TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>
+                          <TableCell sx={{ color: 'text.secondary' }}>
                             {record.is_late ? `${record.late_minutes} min` : '-'}
                           </TableCell>
                         </TableRow>
@@ -488,8 +488,8 @@ export default function AttendancePage() {
                 <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
                   <CardContent sx={{ py: 5, textAlign: 'center' }}>
                     <InsightsRoundedIcon sx={{ fontSize: 44, color: '#cbd5e1', mb: 1.5 }} />
-                    <Typography sx={{ color: '#15162c', fontWeight: 800, mb: 0.5 }}>No attendance records yet</Typography>
-                    <Typography sx={{ color: '#64748b' }}>Check in to populate your timeline and attendance analytics.</Typography>
+                    <Typography sx={{ color: 'text.primary', fontWeight: 800, mb: 0.5 }}>No attendance records yet</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Check in to populate your timeline and attendance analytics.</Typography>
                   </CardContent>
                 </Card>
               )}

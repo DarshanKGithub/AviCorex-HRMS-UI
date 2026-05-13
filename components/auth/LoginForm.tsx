@@ -2,26 +2,20 @@
 
 import { useMemo, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Box from '@mui/material/Box';
+import Link from 'next/link';
 import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from 'next/link';
+import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import InputAdornment from '@mui/material/InputAdornment';
-import Chip from '@mui/material/Chip';
-import LinearProgress from '@mui/material/LinearProgress';
-import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import BusinessCenterRoundedIcon from '@mui/icons-material/BusinessCenterRounded';
-import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
+import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 
 const roleOptions = ['Admin', 'HR', 'Manager', 'Employee'];
@@ -29,7 +23,7 @@ const demoAccounts: Record<string, string> = {
   Admin: 'admin@hrms.com',
   HR: 'hr@hrms.com',
   Manager: 'manager@hrms.com',
-  Employee: 'employee@hrms.com'
+  Employee: 'employee@hrms.com',
 };
 const demoPassword = 'Hrms@12345';
 
@@ -49,12 +43,6 @@ export function LoginForm() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   const demoEmail = useMemo(() => demoAccounts[selectedRole] ?? demoAccounts.HR, [selectedRole]);
-
-  const accessCues = [
-    { label: 'AI summaries', value: 'live' },
-    { label: 'Adaptive RBAC', value: 'secure' },
-    { label: 'Enterprise UX', value: 'clean' }
-  ];
 
   function handleRoleChange(role: string) {
     setSelectedRole(role);
@@ -103,7 +91,7 @@ export function LoginForm() {
       await login(
         {
           email: email.trim(),
-          password
+          password,
         },
         { remember: rememberMe }
       );
@@ -116,95 +104,83 @@ export function LoginForm() {
   }
 
   return (
-    <Card sx={{ borderRadius: 4, border: '1px solid rgba(226,232,240,0.8)', boxShadow: '0 20px 50px -24px rgba(15, 23, 42, 0.25)', overflow: 'hidden', position: 'relative', background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(18px)' }}>
-      <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
-        <Stack spacing={1.5}>
-          <Chip
-            icon={<AutoAwesomeRoundedIcon sx={{ color: '#2563eb !important' }} />}
-            label="Premium workspace access"
-            size="small"
-            sx={{ width: 'fit-content', bgcolor: 'rgba(59,130,246,0.10)', color: '#1d4ed8', fontWeight: 800 }}
-          />
-          <Typography variant="h4" component="h2" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a', lineHeight: 1.05 }}>
-          Welcome back
-        </Typography>
-        <Typography sx={{ color: '#64748b', fontSize: '0.98rem', maxWidth: 360, lineHeight: 1.6 }}>
-          Please enter your details to sign in.
-        </Typography>
-      </Stack>
+    <Card
+      sx={{
+        borderRadius: 5,
+        border: '1px solid',
+        borderColor: 'divider',
+        boxShadow: '0 22px 60px -30px rgba(15, 23, 42, 0.22)',
+        overflow: 'hidden',
+        position: 'relative',
+        bgcolor: 'background.paper',
+        backdropFilter: 'blur(16px)',
+      }}
+    >
+      <CardContent sx={{ p: { xs: 2.5, sm: 3.5 }, '&:last-child': { pb: { xs: 2.5, sm: 3.5 } } }}>
+        <Stack spacing={0.75}>
+          <Typography variant="h4" component="h2" sx={{ fontWeight: 900, letterSpacing: '-0.05em', color: 'text.primary', lineHeight: 1.05 }}>
+            Welcome back
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.96rem', maxWidth: 360, lineHeight: 1.55 }}>
+            Enter your details to access your account.
+          </Typography>
+        </Stack>
 
-      <Stack direction="row" spacing={1} sx={{ mt: 2.5, flexWrap: 'wrap', rowGap: 1 }}>
-        {accessCues.map((cue) => (
-          <Chip
-            key={cue.label}
-            label={`${cue.label} · ${cue.value}`}
-            size="small"
-            sx={{ bgcolor: '#f8fafc', color: '#475569', fontWeight: 700, border: '1px solid #e2e8f0' }}
-          />
-        ))}
-      </Stack>
+        {formError ? (
+          <Alert severity="error" sx={{ mt: 3, borderRadius: 2 }}>
+            {formError}
+          </Alert>
+        ) : null}
 
-      <Box sx={{ mt: 3 }}>
-        <LinearProgress
-          variant="determinate"
-          value={84}
-          sx={{ height: 8, borderRadius: 999, bgcolor: '#e2e8f0', '& .MuiLinearProgress-bar': { borderRadius: 999, background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' } }}
-        />
-        <Typography sx={{ mt: 1, color: '#64748b', fontSize: 12, fontWeight: 600 }}>Secure session readiness</Typography>
-      </Box>
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2.25 }}>
+          <Stack spacing={1.6}>
+            <TextField
+              fullWidth
+              label="Work email"
+              placeholder="name@company.com"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setFieldErrors((current) => ({ ...current, email: undefined }));
+              }}
+              error={Boolean(fieldErrors.email)}
+              helperText={fieldErrors.email}
+              InputLabelProps={{ sx: { color: 'text.secondary', fontWeight: 500 } }}
+              InputProps={{
+                sx: { borderRadius: 2, bgcolor: 'background.default', '& fieldset': { borderColor: 'divider' } },
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <MailOutlineRoundedIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setFieldErrors((current) => ({ ...current, password: undefined }));
+              }}
+              error={Boolean(fieldErrors.password)}
+              helperText={fieldErrors.password}
+              InputLabelProps={{ sx: { color: 'text.secondary', fontWeight: 500 } }}
+              InputProps={{
+                sx: { borderRadius: 2, bgcolor: 'background.default', '& fieldset': { borderColor: 'divider' } },
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-      {formError ? <Alert severity="error" sx={{ mt: 3, borderRadius: 2 }}>{formError}</Alert> : null}
-
-      <Box component="form" noValidate onSubmit={handleSubmit}>
-        <Stack spacing={2.5} sx={{ mt: 4 }}>
-          <TextField
-            fullWidth
-            label="Work email"
-            placeholder="name@company.com"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setFieldErrors((current) => ({ ...current, email: undefined }));
-            }}
-            error={Boolean(fieldErrors.email)}
-            helperText={fieldErrors.email}
-            InputLabelProps={{ sx: { color: '#64748b', fontWeight: 500 } }}
-            InputProps={{
-              sx: { borderRadius: 2, bgcolor: '#f8fafc', '& fieldset': { borderColor: '#e2e8f0' } },
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MailOutlineRoundedIcon fontSize="small" sx={{ color: '#94a3b8' }} />
-                </InputAdornment>
-              )
-            }}
-          />
-          <TextField
-            fullWidth
-            type="password"
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              setFieldErrors((current) => ({ ...current, password: undefined }));
-            }}
-            error={Boolean(fieldErrors.password)}
-            InputLabelProps={{ sx: { color: '#64748b', fontWeight: 500 } }}
-            InputProps={{
-              sx: { borderRadius: 2, bgcolor: '#f8fafc', '& fieldset': { borderColor: '#e2e8f0' } },
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockOutlinedIcon fontSize="small" sx={{ color: '#94a3b8' }} />
-                </InputAdornment>
-              )
-            }}
-          />
-
-          <Box sx={{ mt: 1 }}>
-            <Typography sx={{ mb: 1.5, fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Quick Login Roles
-            </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={1}>
+            <Stack direction="row" flexWrap="wrap" gap={0.75}>
               {roleOptions.map((role) => (
                 <Button
                   key={role}
@@ -214,76 +190,70 @@ export function LoginForm() {
                   sx={{
                     minWidth: 0,
                     px: 1.5,
-                    py: 0.5,
+                    py: 0.55,
                     borderRadius: 2,
                     fontSize: '0.8rem',
                     textTransform: 'none',
-                    fontWeight: 600,
-                    borderColor: selectedRole === role ? 'transparent' : '#e2e8f0',
-                    bgcolor: selectedRole === role ? '#3b82f6' : 'transparent',
-                    color: selectedRole === role ? '#ffffff' : '#475569',
-                    boxShadow: selectedRole === role ? '0 4px 14px 0 rgba(59, 130, 246, 0.39)' : 'none',
+                    fontWeight: 700,
+                    borderColor: selectedRole === role ? 'transparent' : 'divider',
+                    bgcolor: selectedRole === role ? 'text.primary' : 'transparent',
+                    color: selectedRole === role ? 'background.paper' : 'text.secondary',
+                    boxShadow: selectedRole === role ? '0 4px 14px 0 rgba(0, 0, 0, 0.25)' : 'none',
                     '&:hover': {
-                      bgcolor: selectedRole === role ? '#2563eb' : '#f1f5f9',
-                      borderColor: selectedRole === role ? 'transparent' : '#cbd5e1',
-                    }
+                      bgcolor: selectedRole === role ? 'text.secondary' : 'action.hover',
+                      borderColor: selectedRole === role ? 'transparent' : 'divider',
+                    },
                   }}
                 >
                   {role}
                 </Button>
               ))}
             </Stack>
-          </Box>
 
-          <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mt: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch 
-                  checked={rememberMe} 
-                  onChange={(event) => setRememberMe(event.target.checked)} 
-                  sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#3b82f6' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#3b82f6' } }}
-                />
-              }
-              label={<Typography sx={{ fontSize: '0.9rem', color: '#475569', fontWeight: 500 }}>Remember me</Typography>}
-            />
-            <Link href="/forgot-password" style={{ color: '#3b82f6', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
-              Forgot password?
-            </Link>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} sx={{ mt: 0.25 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': { color: '#7c3aed' },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#7c3aed' },
+                    }}
+                  />
+                }
+                label={<Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', fontWeight: 500 }}>Remember me</Typography>}
+              />
+              <Link href="/forgot-password" style={{ color: '#7c3aed', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
+                Forgot password?
+              </Link>
+            </Stack>
+
+            <Button
+              fullWidth
+              type="submit"
+              size="large"
+              variant="contained"
+              disabled={submitting}
+              sx={{
+                mt: 0.5,
+                py: 1.25,
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 700,
+                boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                  boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)',
+                },
+              }}
+            >
+              {submitting ? 'Signing in...' : 'Access secure workspace'}
+            </Button>
           </Stack>
-
-          <Button
-            fullWidth
-            type="submit"
-            size="large"
-            variant="contained"
-            disabled={submitting}
-            sx={{
-              mt: 2,
-              py: 1.5,
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              borderRadius: 2,
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
-              position: 'relative',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
-              }
-            }}
-          >
-            {submitting ? 'Signing in...' : 'Access secure workspace'}
-          </Button>
-
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ justifyContent: 'center', mt: 0.5, color: '#64748b' }}>
-            <ShieldRoundedIcon sx={{ fontSize: 16, color: '#10b981' }} />
-            <Typography sx={{ fontSize: 12, fontWeight: 600 }}>Encrypted session, role-aware access, no noisy setup.</Typography>
-          </Stack>
-
-          {/* Registration is handled by Admin/HR; self-registration removed */}
-        </Stack>
-      </Box>
+        </Box>
       </CardContent>
     </Card>
   );

@@ -168,10 +168,10 @@ export default function ShiftsPage() {
                   label="Shift Management"
                   sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800 }}
                 />
-                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 800, letterSpacing: '-0.03em', color: '#15162c' }}>
+                <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 800, letterSpacing: '-0.03em', color: 'text.primary' }}>
                   Manage Shifts
                 </Typography>
-                <Typography sx={{ mt: 0.8, color: '#5b5f7a' }}>
+                <Typography sx={{ mt: 0.8, color: 'text.secondary' }}>
                   Create and manage work shifts for your organization.
                 </Typography>
               </Box>
@@ -199,20 +199,20 @@ export default function ShiftsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f8f9fb' }}>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Shift Name</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Start Time</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>End Time</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Grace Period</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#15162c' }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Shift Name</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Start Time</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>End Time</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Grace Period</TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Status</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {shifts.map((shift) => (
                         <TableRow key={shift.id} sx={{ '&:hover': { bgcolor: '#f8f9fb' } }}>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{shift.name}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{formatTime(shift.start_time)}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{formatTime(shift.end_time)}</TableCell>
-                          <TableCell sx={{ color: '#5b5f7a' }}>{shift.grace_period_minutes} min</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{shift.name}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(shift.start_time)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(shift.end_time)}</TableCell>
+                          <TableCell sx={{ color: 'text.secondary' }}>{shift.grace_period_minutes} min</TableCell>
                           <TableCell>
                             <Chip
                               label={shift.is_active ? 'Active' : 'Inactive'}

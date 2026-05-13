@@ -140,7 +140,7 @@ export default function AnnouncementsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <CampaignIcon color="primary" />
           Announcements & Updates
         </Typography>
@@ -149,7 +149,7 @@ export default function AnnouncementsPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
           >
             Post Announcement
           </Button>
@@ -163,7 +163,7 @@ export default function AnnouncementsPage() {
         <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb' }}>
           <CardContent sx={{ textAlign: 'center', py: 6 }}>
             <CampaignIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 1 }} />
-            <Typography sx={{ color: '#6b7280' }}>
+            <Typography sx={{ color: 'text.secondary' }}>
               No announcements at the moment. Check back later!
             </Typography>
           </CardContent>
@@ -213,7 +213,7 @@ export default function AnnouncementsPage() {
 
                     <Typography
                       sx={{
-                        color: '#4b5563',
+                        color: 'text.secondary',
                         whiteSpace: 'pre-wrap',
                         mb: 1.5,
                         lineHeight: 1.6,
@@ -278,7 +278,7 @@ export default function AnnouncementsPage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             Post Announcement
           </Button>

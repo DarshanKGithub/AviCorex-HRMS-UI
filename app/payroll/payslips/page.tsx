@@ -96,7 +96,7 @@ export default function PayslipsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
           My Payslips
         </Typography>
       </Stack>
@@ -112,7 +112,7 @@ export default function PayslipsPage() {
           ) : payslips.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <PaymentsRoundedIcon sx={{ fontSize: 48, color: '#9ca3af', mb: 2 }} />
-              <Typography sx={{ color: '#6b7280' }}>No payslips found.</Typography>
+              <Typography sx={{ color: 'text.secondary' }}>No payslips found.</Typography>
             </Box>
           ) : (
             <Table>

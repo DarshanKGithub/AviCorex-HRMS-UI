@@ -72,7 +72,7 @@ export default function RostersPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <CalendarMonthIcon color="primary" />
           Roster Management
         </Typography>
@@ -83,7 +83,7 @@ export default function RostersPage() {
 
       <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 800 }}>
         <CardContent sx={{ p: 4 }}>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: '#0f172a' }}>Create New Roster</Typography>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: 'text.primary' }}>Create New Roster</Typography>
           
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
             <TextField 
@@ -118,14 +118,14 @@ export default function RostersPage() {
             disabled={loading}
             size="large"
             sx={{ 
-              bgcolor: '#3b82f6', 
+              bgcolor: '#7c3aed', 
               borderRadius: 2,
               fontWeight: 600,
               textTransform: 'none',
-              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+              boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
               '&:hover': {
-                bgcolor: '#2563eb',
-                boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+                bgcolor: '#6d28d9',
+                boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)'
               }
             }}
           >

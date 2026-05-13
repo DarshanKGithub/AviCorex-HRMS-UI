@@ -116,7 +116,7 @@ export default function RecruitmentPage() {
 
   const isAdminOrHR = ['Admin', 'HR'].includes(user?.role || '');
   const recruitmentStats = [
-    { label: 'Open roles', value: jobs.length, accent: '#2563eb' },
+    { label: 'Open roles', value: jobs.length, accent: '#6d28d9' },
     { label: 'Candidates', value: candidates.length, accent: '#16a34a' },
     { label: 'Applications', value: applications.length, accent: '#7c3aed' },
     { label: 'Interviews', value: interviews.length, accent: '#dc2626' },
@@ -301,7 +301,7 @@ export default function RecruitmentPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack spacing={3}>
-        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
+        <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: 'text.primary', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
           <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
             <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 24%), radial-gradient(circle at bottom left, rgba(124,58,237,0.16), transparent 28%)' }} />
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
@@ -325,13 +325,13 @@ export default function RecruitmentPage() {
                 <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={parseResume} sx={{ textTransform: 'none', fontWeight: 700, color: '#fff', borderColor: 'rgba(255,255,255,0.18)' }}>
                   Parse resume text
                 </Button>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenJobModal(true)} sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenJobModal(true)} sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 700 }}>
                   New job
                 </Button>
-                <Button variant="contained" startIcon={<PeopleIcon />} onClick={() => setOpenCandidateModal(true)} sx={{ bgcolor: '#0f172a', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<PeopleIcon />} onClick={() => setOpenCandidateModal(true)} sx={{ bgcolor: 'text.primary', textTransform: 'none', fontWeight: 700 }}>
                   New candidate
                 </Button>
-                <Button variant="contained" startIcon={<AssignmentIndIcon />} onClick={() => setOpenApplicationModal(true)} sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<AssignmentIndIcon />} onClick={() => setOpenApplicationModal(true)} sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700 }}>
                   New application
                 </Button>
                 <Button variant="contained" startIcon={<EventNoteIcon />} onClick={() => setOpenInterviewModal(true)} sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 700 }}>
@@ -347,7 +347,7 @@ export default function RecruitmentPage() {
             <Grid item xs={12} sm={6} lg={3} key={item.label}>
               <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
                 <CardContent>
-                  <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
                   <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: item.accent }}>{item.value}</Typography>
                 </CardContent>
               </Card>
@@ -368,8 +368,8 @@ export default function RecruitmentPage() {
           <Grid item xs={12} sm={6} lg={3} key={item.label}>
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent>
-                <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
-                <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: '#0f172a' }}>{item.value}</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{item.label}</Typography>
+                <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: 'text.primary' }}>{item.value}</Typography>
                 <Box sx={{ mt: 1.5, width: 56, height: 8, borderRadius: 999, bgcolor: item.color }} />
               </CardContent>
             </Card>
@@ -407,8 +407,8 @@ export default function RecruitmentPage() {
                   <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
                     <Stack spacing={1} alignItems="center">
                       <WorkIcon sx={{ color: '#cbd5e1' }} />
-                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No active job postings.</Typography>
-                      <Typography sx={{ color: '#64748b' }}>Post a role to start building the pipeline.</Typography>
+                      <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>No active job postings.</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>Post a role to start building the pipeline.</Typography>
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -446,8 +446,8 @@ export default function RecruitmentPage() {
                   <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
                     <Stack spacing={1} alignItems="center">
                       <PeopleIcon sx={{ color: '#cbd5e1' }} />
-                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No candidates in the pool yet.</Typography>
-                      <Typography sx={{ color: '#64748b' }}>Import a profile or create the first candidate card.</Typography>
+                      <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>No candidates in the pool yet.</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>Import a profile or create the first candidate card.</Typography>
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -493,8 +493,8 @@ export default function RecruitmentPage() {
                   <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
                     <Stack spacing={1} alignItems="center">
                       <AssignmentIndIcon sx={{ color: '#cbd5e1' }} />
-                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No applications yet.</Typography>
-                      <Typography sx={{ color: '#64748b' }}>Connect a candidate to a job to start tracking progress.</Typography>
+                      <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>No applications yet.</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>Connect a candidate to a job to start tracking progress.</Typography>
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -532,8 +532,8 @@ export default function RecruitmentPage() {
                   <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
                     <Stack spacing={1} alignItems="center">
                       <EventNoteIcon sx={{ color: '#cbd5e1' }} />
-                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No interviews scheduled.</Typography>
-                      <Typography sx={{ color: '#64748b' }}>Once interviews are booked, they’ll show up here.</Typography>
+                      <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>No interviews scheduled.</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>Once interviews are booked, they’ll show up here.</Typography>
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -573,7 +573,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenJobModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createJob} sx={{ bgcolor: '#3b82f6', textTransform: 'none' }} disabled={!jobForm.title || !jobForm.description}>
+          <Button variant="contained" onClick={createJob} sx={{ bgcolor: '#7c3aed', textTransform: 'none' }} disabled={!jobForm.title || !jobForm.description}>
             Create Job
           </Button>
         </DialogActions>
@@ -617,7 +617,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenCandidateModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createCandidate} sx={{ bgcolor: '#0f172a', textTransform: 'none' }} disabled={!candidateForm.first_name || !candidateForm.last_name || !candidateForm.email}>
+          <Button variant="contained" onClick={createCandidate} sx={{ bgcolor: 'text.primary', textTransform: 'none' }} disabled={!candidateForm.first_name || !candidateForm.last_name || !candidateForm.email}>
             Save Candidate
           </Button>
         </DialogActions>
@@ -646,7 +646,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenApplicationModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createApplication} sx={{ bgcolor: '#2563eb', textTransform: 'none' }} disabled={!applicationForm.job_id || !applicationForm.candidate_id}>
+          <Button variant="contained" onClick={createApplication} sx={{ bgcolor: '#6d28d9', textTransform: 'none' }} disabled={!applicationForm.job_id || !applicationForm.candidate_id}>
             Save Application
           </Button>
         </DialogActions>

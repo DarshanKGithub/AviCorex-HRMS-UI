@@ -1,22 +1,19 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import Tooltip from '@mui/material/Tooltip';
+import { useThemeMode } from '@/components/ThemeRegistry';
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => (typeof window !== 'undefined' && document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'));
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    document.documentElement.dataset.theme = theme === 'dark' ? 'dark' : 'light';
-    document.documentElement.style.transition = 'background-color 240ms ease, color 240ms ease';
-  }, [theme]);
+  const { mode, toggleMode } = useThemeMode();
 
   return (
-    <IconButton aria-label="Toggle theme" onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))} size="small">
-      {theme === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-    </IconButton>
+    <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
+      <IconButton aria-label="Toggle theme" onClick={toggleMode} size="small" color="inherit">
+        {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+      </IconButton>
+    </Tooltip>
   );
 }

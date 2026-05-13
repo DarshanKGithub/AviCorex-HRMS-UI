@@ -113,7 +113,7 @@ export default function LeaveBalancesPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
           Leave Balances
         </Typography>
         <Stack direction="row" spacing={2} alignItems="center">
@@ -121,8 +121,8 @@ export default function LeaveBalancesPage() {
             variant="outlined" 
             sx={{ 
               borderRadius: 2, 
-              borderColor: '#60a5fa', 
-              color: '#3b82f6', 
+              borderColor: '#a78bfa', 
+              color: '#7c3aed', 
               textTransform: 'none', 
               fontWeight: 600,
               px: 3 
@@ -135,7 +135,7 @@ export default function LeaveBalancesPage() {
             variant="contained" 
             sx={{ 
               borderRadius: 2, 
-              bgcolor: '#3b82f6', 
+              bgcolor: '#7c3aed', 
               minWidth: 48,
               p: 1
             }}
@@ -189,16 +189,16 @@ export default function LeaveBalancesPage() {
                 >
                   <CardContent sx={{ p: 2.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
-                      <Typography sx={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: 500 }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>
                         {balance.leave_type_name}
                       </Typography>
-                      <Typography sx={{ color: '#6b7280', fontSize: '0.9rem' }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
                         Granted: {balance.granted_days}
                       </Typography>
                     </Stack>
                     
                     <Box sx={{ textAlign: 'center', my: 2, flex: 1 }}>
-                      <Typography variant="h3" sx={{ fontWeight: 400, color: '#111827', mb: 0.5 }}>
+                      <Typography variant="h3" sx={{ fontWeight: 400, color: 'text.primary', mb: 0.5 }}>
                         {balance.balance_days.toString().padStart(2, '0')}
                       </Typography>
                       <Typography sx={{ color: '#9ca3af', fontSize: '0.85rem' }}>
@@ -211,7 +211,7 @@ export default function LeaveBalancesPage() {
                           sx={{ 
                             mt: 2, 
                             textTransform: 'none', 
-                            color: '#3b82f6', 
+                            color: '#7c3aed', 
                             fontWeight: 600,
                             fontSize: '0.9rem'
                           }}
@@ -242,7 +242,7 @@ export default function LeaveBalancesPage() {
       ) : (
         <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e5e7eb' }}>
           <CardContent sx={{ py: 6, textAlign: 'center' }}>
-            <Typography sx={{ fontWeight: 700, color: '#15162c' }}>No leave balances for selected year</Typography>
+            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>No leave balances for selected year</Typography>
             <Typography sx={{ color: '#9ca3af' }}>Try another year or wait until balances are generated.</Typography>
           </CardContent>
         </Card>

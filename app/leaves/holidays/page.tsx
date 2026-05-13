@@ -13,10 +13,10 @@ export default function HolidaysPage() {
     <Box className="mx-auto max-w-6xl px-4 py-6">
       <Breadcrumbs />
       <Chip label="Holiday Calendar" sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800, mb: 2 }} />
-      <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c', mb: 1 }}>
+      <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: 'text.primary', mb: 1 }}>
         Holiday Calendar
       </Typography>
-      <Typography sx={{ mt: 0, color: '#5b5f7a', lineHeight: 1.6, mb: 4 }}>
+      <Typography sx={{ mt: 0, color: 'text.secondary', lineHeight: 1.6, mb: 4 }}>
         View company holidays and important dates.
       </Typography>
 

@@ -55,12 +55,12 @@ export default function WorkflowFormsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <ExtensionIcon color="primary" />
           Dynamic Workflows & Forms
         </Typography>
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" startIcon={<AddIcon />} sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}>
+          <Button variant="contained" startIcon={<AddIcon />} sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}>
             New Template
           </Button>
         </Stack>
@@ -89,7 +89,7 @@ export default function WorkflowFormsPage() {
                 <TableRow><TableCell colSpan={4} align="center"><CircularProgress /></TableCell></TableRow>
               ) : workflows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: '#6b7280' }}>
+                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                     No workflow templates found.
                   </TableCell>
                 </TableRow>
@@ -124,7 +124,7 @@ export default function WorkflowFormsPage() {
                 <TableRow><TableCell colSpan={4} align="center"><CircularProgress /></TableCell></TableRow>
               ) : forms.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: '#6b7280' }}>
+                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                     No dynamic forms found.
                   </TableCell>
                 </TableRow>

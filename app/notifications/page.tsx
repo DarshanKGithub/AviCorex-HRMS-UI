@@ -104,7 +104,7 @@ export default function NotificationsPage() {
       <Breadcrumbs sx={{ mb: 2 }} />
 
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5} sx={{ mb: 2.5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <NotificationsRoundedIcon color="primary" />
           Notifications
         </Typography>
@@ -121,8 +121,8 @@ export default function NotificationsPage() {
         <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
           <CardContent sx={{ py: 5, textAlign: 'center' }}>
             <NotificationsRoundedIcon sx={{ fontSize: 40, color: '#cbd5e1', mb: 1 }} />
-            <Typography sx={{ fontWeight: 700, color: '#15162c' }}>No notifications yet</Typography>
-            <Typography sx={{ color: '#64748b' }}>You will see alerts here when new activity happens.</Typography>
+            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>No notifications yet</Typography>
+            <Typography sx={{ color: 'text.secondary' }}>You will see alerts here when new activity happens.</Typography>
           </CardContent>
         </Card>
       ) : (
@@ -132,9 +132,9 @@ export default function NotificationsPage() {
               <CardContent>
                 <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
                   <Box>
-                    <Typography sx={{ fontWeight: 700, color: '#15162c' }}>{item.subject || 'Notification'}</Typography>
-                    <Typography sx={{ color: '#64748b', mt: 0.5 }}>{item.message}</Typography>
-                    <Typography sx={{ color: '#94a3b8', mt: 1, fontSize: 12 }}>
+                    <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>{item.subject || 'Notification'}</Typography>
+                    <Typography sx={{ color: 'text.secondary', mt: 0.5 }}>{item.message}</Typography>
+                    <Typography sx={{ color: 'text.secondary', mt: 1, fontSize: 12 }}>
                       {new Date(item.created_at).toLocaleString()}
                     </Typography>
                   </Box>

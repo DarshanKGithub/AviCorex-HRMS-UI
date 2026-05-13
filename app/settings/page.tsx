@@ -17,6 +17,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import { iconMap } from '@/components/shell/iconMapping';
+import BusinessCenterRoundedIcon from '@mui/icons-material/BusinessCenterRounded';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -30,6 +35,30 @@ export default function SettingsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const canEditProfile = hasPermission('edit_profile');
+
+  const isAdmin = hasPermission('manage_services') || (authContext?.user?.role ?? '').toLowerCase().includes('admin');
+
+  const SERVICES = [
+    { key: 'manage-accounts', label: 'Manage Accounts', icon: 'people' },
+    { key: 'onboarding', label: 'Onboarding', icon: 'engage' },
+    { key: 'employee-info', label: 'Employee Information', icon: 'employees' },
+    { key: 'leave-tracker', label: 'Leave Tracker', icon: 'leave' },
+    { key: 'attendance', label: 'Attendance', icon: 'attendance' },
+    { key: 'shifts', label: 'Shifts', icon: 'calendar' },
+    { key: 'time-tracker', label: 'Time Tracker', icon: 'time' },
+    { key: 'performance', label: 'Performance', icon: 'performance' },
+    { key: 'files', label: 'Files', icon: 'docs' },
+    { key: 'engagement', label: 'Employee Engagement', icon: 'engagement' },
+    { key: 'hr-letters', label: 'HR Letters', icon: 'docs' },
+    { key: 'travel', label: 'Travel', icon: 'worklife' },
+    { key: 'tasks', label: 'Tasks', icon: 'todo' },
+    { key: 'compensation', label: 'Compensation', icon: 'payroll' },
+    { key: 'general', label: 'General', icon: 'settings' },
+    { key: 'offboarding', label: 'Offboarding', icon: 'workflow' },
+    { key: 'marketplace', label: 'Marketplace', icon: 'dashboard' },
+    { key: 'developer-space', label: 'Developer Space', icon: 'helpdesk' },
+    { key: 'zia', label: 'Zia', icon: 'worklife' }
+  ];
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -142,8 +171,51 @@ export default function SettingsPage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Breadcrumbs />
+      {isAdmin && (
+        <Box sx={{ mb: 3 }}>
+          <Box sx={{ fontSize: '1rem', fontWeight: 600, mb: 2 }}>Services</Box>
+          <Grid container spacing={2}>
+            {SERVICES.map((s) => {
+              const Icon = iconMap[s.icon] || BusinessCenterRoundedIcon;
+              return (
+                <Grid item xs={6} sm={4} md={3} lg={2} key={s.key}>
+                  <Paper
+                    elevation={0}
+                    onClick={() => router.push(`/services/${s.key}`)}
+                    sx={{
+                      cursor: 'pointer',
+                      p: 2,
+                      borderRadius: 2,
+                      textAlign: 'center',
+                      '&:hover': { boxShadow: 3 }
+                    }}
+                  >
+                    <Stack alignItems="center" spacing={1}>
+                      <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '1px solid #eef2f7' }}>
+                        <Icon sx={{ fontSize: 28, color: '#7c3aed' }} />
+                      </Box>
+                      <Box sx={{ fontSize: 13, color: 'text.primary' }}>{s.label}</Box>
+                    </Stack>
+                  </Paper>
+                </Grid>
+              );
+            })}
+
+            <Grid item xs={6} sm={4} md={3} lg={2}>
+              <Paper elevation={0} onClick={() => router.push('/services/new')} sx={{ cursor: 'pointer', p: 2, borderRadius: 2, textAlign: 'center', '&:hover': { boxShadow: 3 } }}>
+                <Stack alignItems="center" spacing={1}>
+                  <Box sx={{ width: 72, height: 72, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#fff', border: '1px dashed #cbd5e1' }}>
+                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid #7c3aed', display: 'grid', placeItems: 'center', color: '#7c3aed' }}>+</Box>
+                  </Box>
+                  <Box sx={{ fontSize: 13, color: '#7c3aed' }}>Add Service</Box>
+                </Stack>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
       <Card>
         <CardHeader title="Settings" />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

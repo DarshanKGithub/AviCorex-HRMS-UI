@@ -92,10 +92,10 @@ export default function EngagePage() {
       <Stack spacing={3}>
         <Box>
           <Chip label="Engage" sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 700 }} />
-          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
+          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>
             Engagement hub
           </Typography>
-          <Typography sx={{ color: '#64748b', maxWidth: 820 }}>
+          <Typography sx={{ color: 'text.secondary', maxWidth: 820 }}>
             Keep up with announcements, support tickets, and the latest workplace updates from a single place.
           </Typography>
         </Box>
@@ -107,8 +107,8 @@ export default function EngagePage() {
             <Grid item xs={12} md={4} key={item.label}>
               <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', boxShadow: '0 12px 24px rgba(15, 23, 42, 0.04)' }}>
                 <CardContent>
-                  <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 600 }}>{item.label}</Typography>
-                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: '#0f172a' }}>{item.value}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 600 }}>{item.label}</Typography>
+                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: 'text.primary' }}>{item.value}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -121,8 +121,8 @@ export default function EngagePage() {
               <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>Announcements</Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: 14 }}>Latest messages from leadership and HR.</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Announcements</Typography>
+                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>Latest messages from leadership and HR.</Typography>
                   </Box>
                   <Button component={Link} href="/announcements" variant="outlined" sx={{ textTransform: 'none', fontWeight: 700 }}>
                     Open full feed
@@ -134,17 +134,17 @@ export default function EngagePage() {
                 {loading ? (
                   <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 220 }}><CircularProgress /></Box>
                 ) : announcements.length === 0 ? (
-                  <Typography sx={{ color: '#64748b' }}>No announcements available yet.</Typography>
+                  <Typography sx={{ color: 'text.secondary' }}>No announcements available yet.</Typography>
                 ) : (
                   <Stack spacing={2}>
                     {announcements.map((announcement) => (
                       <Box key={announcement.id} sx={{ p: 2, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         <Stack direction="row" justifyContent="space-between" spacing={2} sx={{ mb: 0.8 }}>
-                          <Typography sx={{ fontWeight: 800, color: '#0f172a' }}>{announcement.title}</Typography>
+                          <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{announcement.title}</Typography>
                           <Chip label={announcement.priority} size="small" sx={{ bgcolor: '#dbeafe', color: '#1d4ed8', fontWeight: 700 }} />
                         </Stack>
-                        <Typography sx={{ color: '#475569', lineHeight: 1.7 }}>{announcement.content}</Typography>
-                        <Typography sx={{ mt: 1, color: '#94a3b8', fontSize: 12 }}>
+                        <Typography sx={{ color: 'text.secondary', lineHeight: 1.7 }}>{announcement.content}</Typography>
+                        <Typography sx={{ mt: 1, color: 'text.secondary', fontSize: 12 }}>
                           {new Date(announcement.created_at).toLocaleString()}
                         </Typography>
                       </Box>
@@ -159,21 +159,21 @@ export default function EngagePage() {
             <Stack spacing={3}>
               <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
                 <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 1 }}>My tickets</Typography>
-                  <Typography sx={{ color: '#64748b', fontSize: 14, mb: 2 }}>Track support requests and work items.</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 1 }}>My tickets</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Track support requests and work items.</Typography>
                   <Divider sx={{ mb: 2.5 }} />
                   {loading ? (
                     <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 180 }}><CircularProgress size={24} /></Box>
                   ) : tickets.length === 0 ? (
-                    <Typography sx={{ color: '#64748b' }}>No tickets submitted yet.</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>No tickets submitted yet.</Typography>
                   ) : (
                     <Stack spacing={1.5}>
                       {tickets.map((ticket) => (
                         <Box key={ticket.id} sx={{ p: 1.8, borderRadius: 2.5, bgcolor: '#fff', border: '1px solid #e2e8f0' }}>
                           <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1.5}>
                             <Box>
-                              <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>{ticket.subject}</Typography>
-                              <Typography sx={{ color: '#64748b', fontSize: 13 }}>{ticket.category}</Typography>
+                              <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>{ticket.subject}</Typography>
+                              <Typography sx={{ color: 'text.secondary', fontSize: 13 }}>{ticket.category}</Typography>
                             </Box>
                             <Chip label={ticket.status} size="small" sx={{ fontWeight: 700 }} />
                           </Stack>
@@ -184,12 +184,12 @@ export default function EngagePage() {
                 </CardContent>
               </Card>
 
-              <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: '#0f172a', color: '#fff' }}>
+              <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: 'text.primary', color: '#fff' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800 }}>Quick actions</Typography>
                   <Typography sx={{ mt: 1, color: '#cbd5e1' }}>Jump into the spaces employees use most.</Typography>
                   <Stack spacing={1.25} sx={{ mt: 2 }}>
-                    <Button component={Link} href="/announcements" variant="contained" sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700 }}>
+                    <Button component={Link} href="/announcements" variant="contained" sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700 }}>
                       Read announcements
                     </Button>
                     <Button component={Link} href="/helpdesk" variant="outlined" sx={{ borderColor: 'rgba(255,255,255,0.25)', color: '#fff', textTransform: 'none', fontWeight: 700 }}>

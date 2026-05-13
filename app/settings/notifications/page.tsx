@@ -110,7 +110,7 @@ export default function NotificationSettingsPage() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       <Breadcrumbs sx={{ mb: 2 }} />
-      <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c', mb: 2.5 }}>
+      <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mb: 2.5 }}>
         Notification Settings
       </Typography>
 

@@ -12,23 +12,51 @@
   --accent: #928ddd;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #080b13;
+  --foreground: #e2e8f0;
+  --panel: rgba(15, 23, 42, 0.85);
+  --line: #243044;
+  --accent: #a78bfa;
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(252, 252, 254, 0.92)),
-    radial-gradient(circle at top right, rgba(178, 174, 242, 0.26), transparent 32%),
-    radial-gradient(circle at bottom left, rgba(202, 200, 249, 0.35), transparent 38%);
+    linear-gradient(135deg, color-mix(in srgb, var(--background) 92%, #ffffff 8%), var(--background)),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 26%, transparent), transparent 32%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--accent) 18%, transparent), transparent 38%);
   color: var(--foreground);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background-color 220ms ease, color 220ms ease;
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 a {

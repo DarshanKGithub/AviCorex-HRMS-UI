@@ -13,10 +13,10 @@ export default function ForgotPasswordPage() {
     <AuthShell>
       <Box>
         <Stack spacing={1}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary' }}>
             Reset password
           </Typography>
-          <Typography sx={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem', lineHeight: 1.6 }}>
             Enter your email and we'll send you instructions to reset your password.
           </Typography>
         </Stack>
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
               fullWidth 
               label="Work email" 
               placeholder="name@company.com" 
-              InputLabelProps={{ sx: { color: '#64748b', fontWeight: 500 } }}
+              InputLabelProps={{ sx: { color: 'text.secondary', fontWeight: 500 } }}
               InputProps={{
                 sx: { borderRadius: 2, bgcolor: '#f8fafc', '& fieldset': { borderColor: '#e2e8f0' } }
               }}
@@ -40,24 +40,24 @@ export default function ForgotPasswordPage() {
               sx={{ 
                 mt: 2,
                 py: 1.5,
-                bgcolor: '#3b82f6', 
+                bgcolor: '#7c3aed', 
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '1rem',
                 fontWeight: 600,
-                boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
                 '&:hover': {
-                  bgcolor: '#2563eb',
-                  boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+                  bgcolor: '#6d28d9',
+                  boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)'
                 }
               }}
             >
               Send reset link
             </Button>
 
-            <Typography sx={{ textAlign: 'center', color: '#64748b', fontSize: '0.9rem', mt: 2 }}>
+            <Typography sx={{ textAlign: 'center', color: 'text.secondary', fontSize: '0.9rem', mt: 2 }}>
               Remembered it?{' '}
-              <Link href="/login" style={{ color: '#3b82f6', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/login" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none' }}>
                 Back to sign in
               </Link>
             </Typography>

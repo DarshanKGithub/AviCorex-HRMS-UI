@@ -534,7 +534,7 @@ export default function LeavesPage() {
           <Grid item xs={12} md={3}>
             <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)' }}>
               <CardContent sx={{ p: 2 }}>
-                <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 2.5, fontSize: '0.95rem' }}>
+                <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 2.5, fontSize: '0.95rem' }}>
                   Leave
                 </Typography>
                 <Stack spacing={1}>
@@ -591,7 +591,7 @@ export default function LeavesPage() {
                 <Box sx={{ p: 2, borderBottom: '1px solid #eef2f7', bgcolor: '#fcfdff' }}>
                   <Grid container spacing={1.5}>
                     {[
-                      { label: 'Total Requests', value: leaveAnalytics.totalRequests, color: '#334155' },
+                      { label: 'Total Requests', value: leaveAnalytics.totalRequests, color: 'text.primary' },
                       { label: 'Pending', value: leaveAnalytics.pending, color: '#d97706' },
                       { label: 'Approved', value: leaveAnalytics.approved, color: '#059669' },
                       { label: 'Rejected', value: leaveAnalytics.rejected, color: '#dc2626' },
@@ -600,7 +600,7 @@ export default function LeavesPage() {
                       <Grid key={metric.label} item xs={6} sm={4} md={3} lg={2}>
                         <Card sx={{ borderRadius: 1.5, boxShadow: 'none', border: '1px solid #eef2f7' }}>
                           <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
-                            <Typography sx={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>{metric.label}</Typography>
+                            <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>{metric.label}</Typography>
                             <Typography sx={{ fontSize: '1.1rem', color: metric.color, fontWeight: 800 }}>{metric.value}</Typography>
                           </CardContent>
                         </Card>
@@ -623,7 +623,7 @@ export default function LeavesPage() {
                         textTransform: 'none',
                         fontWeight: 500,
                         fontSize: '0.95rem',
-                        color: '#5b5f7a',
+                        color: 'text.secondary',
                         py: 1.5,
                         '&.Mui-selected': {
                           color: '#928ddd',
@@ -641,7 +641,7 @@ export default function LeavesPage() {
                 {/* Tab Panel: Apply */}
                 <TabPanel value={tabValue} index={0}>
                   <CardContent sx={{ p: 3.5 }}>
-                    <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 3.5, fontSize: '1.1rem' }}>
+                    <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 3.5, fontSize: '1.1rem' }}>
                       Applying for Leave
                     </Typography>
                     {!canRequestLeave && (
@@ -654,7 +654,7 @@ export default function LeavesPage() {
                         {/* Leave Type */}
                         <Box>
                           <FormControl fullWidth size="small">
-                            <InputLabel sx={{ color: '#5b5f7a' }}>Leave type *</InputLabel>
+                            <InputLabel sx={{ color: 'text.secondary' }}>Leave type *</InputLabel>
                             <Select
                               value={form.leave_type_id}
                               label="Leave type *"
@@ -687,7 +687,7 @@ export default function LeavesPage() {
                         {/* Date Range Row */}
                         <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               From date *
                             </Typography>
                             <TextField
@@ -710,7 +710,7 @@ export default function LeavesPage() {
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               Session
                             </Typography>
                             <FormControl fullWidth size="small">
@@ -741,7 +741,7 @@ export default function LeavesPage() {
                         {/* To Date Row */}
                         <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               To date *
                             </Typography>
                             <TextField
@@ -764,7 +764,7 @@ export default function LeavesPage() {
                             />
                           </Grid>
                           <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               Session
                             </Typography>
                             <FormControl fullWidth size="small">
@@ -795,13 +795,13 @@ export default function LeavesPage() {
                         {/* Leave Balance Info */}
                         {balances.length > 0 && (
                           <Box sx={{ p: 2.5, bgcolor: 'rgba(146, 141, 221, 0.06)', borderRadius: 1.5, border: '1px solid rgba(146, 141, 221, 0.12)' }}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
                               Leave Balance:
                             </Typography>
                             <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
                               {balances.map((b) => (
                                 <Box key={b.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <Typography sx={{ fontSize: '0.8rem', color: '#5b5f7a' }}>
+                                  <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
                                     {resolveLeaveTypeLabel(b.leave_type_id)}:
                                   </Typography>
                                   <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#928ddd' }}>
@@ -822,7 +822,7 @@ export default function LeavesPage() {
                             <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 500 }}>
                               Applying to
                             </Typography>
-                            <Typography sx={{ fontSize: '0.95rem', color: '#15162c', fontWeight: 600 }}>
+                            <Typography sx={{ fontSize: '0.95rem', color: 'text.primary', fontWeight: 600 }}>
                               {auth.user?.full_name}
                             </Typography>
                           </Box>
@@ -830,7 +830,7 @@ export default function LeavesPage() {
 
                         {/* CC To */}
                         <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
                             CC to
                           </Typography>
                           <Stack spacing={1.5}>
@@ -894,7 +894,7 @@ export default function LeavesPage() {
 
                         {/* Contact Details */}
                         <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                             Contact details
                           </Typography>
                           <TextField
@@ -918,7 +918,7 @@ export default function LeavesPage() {
 
                         {/* Reason */}
                         <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1 }}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                             Reason
                           </Typography>
                           <TextField
@@ -942,7 +942,7 @@ export default function LeavesPage() {
 
                         {/* File Upload */}
                         <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#5b5f7a', mb: 1.5 }}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
                             Attach File
                           </Typography>
                           <Button
@@ -951,7 +951,7 @@ export default function LeavesPage() {
                             startIcon={<CloudUploadIcon />}
                             sx={{
                               borderColor: '#e7e9ef',
-                              color: '#5b5f7a',
+                              color: 'text.secondary',
                               textTransform: 'none',
                               fontWeight: 500,
                               borderRadius: 1.5,
@@ -981,7 +981,7 @@ export default function LeavesPage() {
                                   key={idx}
                                   sx={{
                                     fontSize: '0.85rem',
-                                    color: '#5b5f7a',
+                                    color: 'text.secondary',
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
@@ -1036,7 +1036,7 @@ export default function LeavesPage() {
                               setAttachments([]);
                             }}
                             sx={{
-                              color: '#5b5f7a',
+                              color: 'text.secondary',
                               borderColor: '#e7e9ef',
                               fontWeight: 600,
                               px: 3,
@@ -1125,11 +1125,11 @@ export default function LeavesPage() {
                                 />
                               </TableCell>
                             )}
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Leave Type</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Date Range</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2, textAlign: 'center' }}>Days</TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Status</TableCell>
-                            {canApproveLeave && <TableCell sx={{ fontWeight: 700, color: '#15162c', py: 2 }}>Actions</TableCell>}
+                            <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Leave Type</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Date Range</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2, textAlign: 'center' }}>Days</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Status</TableCell>
+                            {canApproveLeave && <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Actions</TableCell>}
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1149,11 +1149,11 @@ export default function LeavesPage() {
                                   />
                                 </TableCell>
                               )}
-                              <TableCell sx={{ color: '#15162c', fontWeight: 500, py: 2 }}>{resolveLeaveTypeLabel(r.leave_type_id)}</TableCell>
-                              <TableCell sx={{ color: '#5b5f7a', py: 2 }}>
+                              <TableCell sx={{ color: 'text.primary', fontWeight: 500, py: 2 }}>{resolveLeaveTypeLabel(r.leave_type_id)}</TableCell>
+                              <TableCell sx={{ color: 'text.secondary', py: 2 }}>
                                 {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
                               </TableCell>
-                              <TableCell sx={{ color: '#15162c', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
+                              <TableCell sx={{ color: 'text.primary', fontWeight: 500, textAlign: 'center', py: 2 }}>{r.days_requested}</TableCell>
                               <TableCell sx={{ py: 2 }}>
                                 <Chip
                                   icon={getStatusIcon(r.status)}
@@ -1230,11 +1230,11 @@ export default function LeavesPage() {
                 <TabPanel value={tabValue} index={2}>
                   <CardContent sx={{ p: 3.5 }}>
                     <Box sx={{ mb: 3 }}>
-                      <Typography sx={{ fontWeight: 700, color: '#15162c', mb: 2, fontSize: '1.1rem' }}>
+                      <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 2, fontSize: '1.1rem' }}>
                         Leave Balance
                       </Typography>
                       <FormControl sx={{ minWidth: 120 }}>
-                        <InputLabel sx={{ color: '#5b5f7a' }}>Year</InputLabel>
+                        <InputLabel sx={{ color: 'text.secondary' }}>Year</InputLabel>
                         <Select
                           value={selectedYear}
                           label="Year"
@@ -1273,7 +1273,7 @@ export default function LeavesPage() {
                               <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 2px 8px rgba(146, 141, 221, 0.05)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 4px 12px rgba(146, 141, 221, 0.12)', borderColor: '#928ddd' } }}>
                                 <CardContent sx={{ p: 2.5 }}>
                                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ mb: 2 }}>
-                                    <Typography sx={{ fontWeight: 700, color: '#15162c', fontSize: '1rem' }}>{balance.leave_type_name || 'Leave'}</Typography>
+                                    <Typography sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1rem' }}>{balance.leave_type_name || 'Leave'}</Typography>
                                     <Chip
                                       label={isTaken ? 'Taken' : 'Not Taken'}
                                       size="small"
@@ -1287,19 +1287,19 @@ export default function LeavesPage() {
                                   </Stack>
                                   <Stack spacing={2}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Granted</Typography>
-                                      <Typography sx={{ color: '#15162c', fontWeight: 700, fontSize: '0.95rem' }}>{balance.granted_days}</Typography>
+                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Granted</Typography>
+                                      <Typography sx={{ color: 'text.primary', fontWeight: 700, fontSize: '0.95rem' }}>{balance.granted_days}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Taken</Typography>
-                                      <Typography sx={{ color: '#15162c', fontWeight: 700, fontSize: '0.95rem' }}>{takenDays}</Typography>
+                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Taken</Typography>
+                                      <Typography sx={{ color: 'text.primary', fontWeight: 700, fontSize: '0.95rem' }}>{takenDays}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Available</Typography>
+                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Available</Typography>
                                       <Typography sx={{ color: '#10b981', fontWeight: 700, fontSize: '0.95rem' }}>{balance.balance_days}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.9rem', fontWeight: 500 }}>Used</Typography>
+                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Used</Typography>
                                       <Typography sx={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.95rem' }}>{percentageUsed}%</Typography>
                                     </Box>
                                     <Box sx={{ width: '100%', height: 6, bgcolor: '#e7e9ef', borderRadius: 10, overflow: 'hidden', mt: 1 }}>
@@ -1342,10 +1342,10 @@ export default function LeavesPage() {
                           >
                             <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
                               <Box>
-                                <Typography sx={{ fontWeight: 700, color: '#15162c' }}>
+                                <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
                                   {resolveLeaveTypeLabel(r.leave_type_id)}
                                 </Typography>
-                                <Typography sx={{ color: '#64748b', fontSize: '0.9rem' }}>
+                                <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
                                   {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
                                 </Typography>
                               </Box>

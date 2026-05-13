@@ -18,10 +18,10 @@ export function SectionPage({ label, title, description, bullets }: SectionPageP
       <Stack spacing={3}>
         <Box>
           <Chip label={label} sx={{ bgcolor: 'rgba(178, 174, 242, 0.16)', color: '#4f4b9c', fontWeight: 800 }} />
-          <Typography variant="h4" sx={{ mt: 2, fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
+          <Typography variant="h4" sx={{ mt: 2, fontWeight: 800, letterSpacing: '-0.04em', color: 'text.primary' }}>
             {title}
           </Typography>
-          <Typography sx={{ mt: 1, color: '#5b5f7a', lineHeight: 1.8 }}>
+          <Typography sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.8 }}>
             {description}
           </Typography>
         </Box>
@@ -32,7 +32,7 @@ export function SectionPage({ label, title, description, bullets }: SectionPageP
               {bullets.map((bullet) => (
                 <Box key={bullet} sx={{ display: 'flex', gap: 1.2, alignItems: 'flex-start' }}>
                   <Box sx={{ mt: 0.9, width: 10, height: 10, borderRadius: 999, bgcolor: '#928ddd' }} />
-                  <Typography sx={{ color: '#1f2340', lineHeight: 1.8 }}>{bullet}</Typography>
+                  <Typography sx={{ color: 'text.primary', lineHeight: 1.8 }}>{bullet}</Typography>
                 </Box>
               ))}
             </Stack>

@@ -1,8 +1,45 @@
 export type SidebarItem = {
   label: string;
   href: string;
-  icon: 'home' | 'engage' | 'worklife' | 'todo' | 'salary' | 'leave' | 'attendance' | 'expense' | 'docs' | 'people' | 'helpdesk' | 'requests' | 'workflow' | 'dashboard' | 'employees' | 'payroll' | 'leaves' | 'profile' | 'settings' | 'calendar' | 'performance' | 'notifications';
+  icon:
+    | 'home'
+    | 'engage'
+    | 'worklife'
+    | 'todo'
+    | 'salary'
+    | 'leave'
+    | 'attendance'
+    | 'expense'
+    | 'docs'
+    | 'receipt'
+    | 'savings'
+    | 'people'
+    | 'helpdesk'
+    | 'requests'
+    | 'workflow'
+    | 'dashboard'
+    | 'employees'
+    | 'payroll'
+    | 'leaves'
+    | 'profile'
+    | 'settings'
+    | 'calendar'
+    | 'performance'
+    | 'notifications'
+    | 'services'
+    | 'leaveApply'
+    | 'balance'
+    | 'timesheet'
+    | 'overtime'
+    | 'compOff'
+    | 'regularization'
+    | 'roster'
+    | 'biometrics'
+    | 'campaign'
+    | 'badge'
+    | 'problem';
   requiredAnyPermissions?: string[];
+  adminOnly?: boolean;
   children?: SidebarItem[];
 };
 
@@ -34,15 +71,15 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     icon: 'salary',
     requiredAnyPermissions: ['view_payroll', 'view_payslip_own'],
     children: [
-      { label: 'Payslips', href: '/payroll/payslips', icon: 'salary', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
-      { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'salary' },
-      { label: 'YTD Reports', href: '#ytd', icon: 'salary' },
-      { label: 'IT Statement', href: '#it-statement', icon: 'salary' },
-      { label: 'IT Declaration', href: '#it-declaration', icon: 'salary' },
-      { label: 'Loans and Advances', href: '#loans', icon: 'salary' },
-      { label: 'Reimbursement', href: '#reimbursement', icon: 'salary' },
-      { label: 'Proof Of Investment', href: '#poi', icon: 'salary' },
-      { label: 'Salary Revision', href: '#revision', icon: 'salary' },
+      { label: 'Payslips', href: '/payroll/payslips', icon: 'receipt', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
+      { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'expense' },
+      { label: 'YTD Reports', href: '#ytd', icon: 'dashboard' },
+      { label: 'IT Statement', href: '#it-statement', icon: 'docs' },
+      { label: 'IT Declaration', href: '#it-declaration', icon: 'settings' },
+      { label: 'Loans and Advances', href: '#loans', icon: 'savings' },
+      { label: 'Reimbursement', href: '#reimbursement', icon: 'expense' },
+      { label: 'Proof Of Investment', href: '#poi', icon: 'worklife' },
+      { label: 'Salary Revision', href: '#revision', icon: 'performance' },
     ]
   },
   {
@@ -54,13 +91,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Leave Apply',
         href: '/leaves',
-        icon: 'leave',
+        icon: 'leaveApply',
         requiredAnyPermissions: ['request_leave']
       },
       {
         label: 'Leave Balances',
         href: '/leaves/balances',
-        icon: 'dashboard',
+        icon: 'balance',
         requiredAnyPermissions: ['view_leave', 'view_leave_own']
       },
       {
@@ -79,33 +116,33 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Timesheets',
         href: '/attendance/timesheets',
-        icon: 'attendance',
+        icon: 'timesheet',
       },
       {
         label: 'Overtime',
         href: '/attendance/overtime',
-        icon: 'attendance',
+        icon: 'overtime',
       },
       {
         label: 'Comp-Off',
         href: '/attendance/comp-off',
-        icon: 'attendance',
+        icon: 'compOff',
       },
       {
         label: 'Regularization',
         href: '/attendance/info',
-        icon: 'attendance',
+        icon: 'regularization',
       },
       {
         label: 'Shift Roster',
         href: '/attendance/rosters',
-        icon: 'attendance',
+        icon: 'roster',
         requiredAnyPermissions: ['manage_attendance']
       },
       {
         label: 'Biometrics Sync',
         href: '/attendance/biometrics',
-        icon: 'attendance',
+        icon: 'biometrics',
         requiredAnyPermissions: ['manage_attendance']
       }
     ]
@@ -163,17 +200,17 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Announcements',
         href: '/announcements',
-        icon: 'engage',
+        icon: 'campaign',
       },
       {
         label: 'Gate Pass',
         href: '/gate-pass',
-        icon: 'requests',
+        icon: 'badge',
       },
       {
         label: 'Grievances',
         href: '/grievance',
-        icon: 'requests',
+        icon: 'problem',
       }
     ]
   },
@@ -193,6 +230,12 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
         icon: 'settings',
       }
     ]
+  },
+  {
+    label: 'Services',
+    href: '/services',
+    icon: 'services',
+    adminOnly: true,
   },
   {
     label: 'Dynamic Workflows',

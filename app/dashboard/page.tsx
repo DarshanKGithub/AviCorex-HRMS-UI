@@ -1,290 +1,304 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Box, Typography, Grid, Card, CardContent, Stack,
-  Button, Avatar, Divider, Chip, List, ListItem,
-  ListItemAvatar, ListItemText, IconButton, Snackbar, Alert
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Snackbar,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from '@mui/material';
-import {
-  CheckCircle, InfoOutlined, Circle, TrendingUp, Bolt,
-  MoreHoriz, CalendarMonth, LocalBar, AutoAwesome, Insights, Psychology, ArrowForward
-} from '@mui/icons-material';
+import { alpha, useTheme } from '@mui/material/styles';
+import WbTwilightRoundedIcon from '@mui/icons-material/WbTwilightRounded';
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
+import CampaignRoundedIcon from '@mui/icons-material/CampaignRounded';
+import EventNoteRoundedIcon from '@mui/icons-material/EventNoteRounded';
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { useAuth } from '@/components/auth/AuthContext';
 
-// MUI X Charts Imports
-import { BarChart } from '@mui/x-charts/BarChart';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
-
-const DESIGN = {
-  glass: {
-    background: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: 4,
-    boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)'
-  },
-  text: {
-
-    primary: '#0f172a',
-    secondary: '#64748b',
-    blue: '#3b82f6'
-  }
+type Metric = {
+  label: string;
+  value: string;
+  delta: string;
+  icon: React.ElementType;
 };
 
-const DASHBOARD_METRICS = [
-  {
-    label: 'Performance Pulse',
-    value: '92.4%',
-    delta: '+12.1%',
-    icon: TrendingUp,
-    accent: '#3b82f6',
-    soft: 'rgba(59, 130, 246, 0.12)'
-  },
-  {
-    label: 'AI Insights',
-    value: '18',
-    delta: '6 generated today',
-    icon: AutoAwesome,
-    accent: '#8b5cf6',
-    soft: 'rgba(139, 92, 246, 0.12)'
-  },
-  {
-    label: 'Focus Hours',
-    value: '6h 42m',
-    delta: 'above target',
-    icon: Bolt,
-    accent: '#10b981',
-    soft: 'rgba(16, 185, 129, 0.12)'
-  },
-  {
-    label: 'Manager Signals',
-    value: '24',
-    delta: 'actionable items',
-    icon: Insights,
-    accent: '#f97316',
-    soft: 'rgba(249, 115, 22, 0.12)'
-  }
+const METRICS: Metric[] = [
+  { label: 'Attendance', value: '94.1%', delta: '+3.2%', icon: TrendingUpRoundedIcon },
+  { label: 'AI Alerts', value: '12', delta: '4 critical', icon: AutoAwesomeRoundedIcon },
+  { label: 'Productive Hours', value: '6h 28m', delta: '+42m', icon: BoltRoundedIcon },
 ];
 
-const AI_PROMPTS = [
-  'Summarize today\'s risks',
-  'Who needs attention?',
-  'Show late check-ins',
-  'Generate team brief'
-];
+function resolveApiBaseUrl() {
+  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
+  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
+  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
+  return raw.replace(/\/$/, '');
+}
 
-export default function MuiXDashboard() {
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+}
+
+function getGreeting(hour: number) {
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+export default function DashboardPage() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const { user } = useAuth();
-
-  // Dynamic Date Formatting
   const today = new Date();
-  const formattedDate = today.toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  const greeting = getGreeting(today.getHours());
 
-  // Dynamic Location with Fallback
-  const userLocation = (user as any)?.location ;
+  const formattedDate = useMemo(
+    () =>
+      today.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+    [today]
+  );
+
+  const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
+  const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
+  const [density, setDensity] = useState<'compact' | 'comfortable'>('comfortable');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = window.localStorage.getItem('hrms_dashboard_density');
+    if (stored === 'compact' || stored === 'comfortable') {
+      setDensity(stored);
+    }
+  }, []);
+
+  const cardPadding = density === 'compact' ? 1.5 : 2.5;
+  const gridGap = density === 'compact' ? 1.5 : 2;
+  const chartHeight = density === 'compact' ? 220 : 280;
+
+  const handleDensityChange = (_: React.MouseEvent<HTMLElement>, value: 'compact' | 'comfortable' | null) => {
+    if (!value) return;
+    setDensity(value);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('hrms_dashboard_density', value);
+    }
+  };
 
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 5 },
-        bgcolor: '#f8fafc',
-        minHeight: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 32%), radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.12), transparent 25%), radial-gradient(circle at 90% 75%, rgba(16, 185, 129, 0.12), transparent 22%)',
-          pointerEvents: 'none'
-        }
-      }}
-    >
-      <Box sx={{ position: 'absolute', top: 64, right: 32, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, rgba(139,92,246,0) 70%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
-      <Box sx={{ position: 'absolute', bottom: 40, left: 24, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.10) 0%, rgba(59,130,246,0) 72%)', filter: 'blur(8px)', pointerEvents: 'none' }} />
-
-      {/* 1. HEADER SECTION - Dynamic */}
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-end" sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
-        <Box>
-          <Chip
-            icon={<Psychology sx={{ fontSize: 18 }} />}
-            label="AI Copilot Active"
-            size="small"
-            sx={{
-              bgcolor: 'rgba(15, 23, 42, 0.92)',
-              color: '#fff',
-              mb: 1.5,
-              fontWeight: 700,
-              px: 0.75,
-              '& .MuiChip-icon': { color: '#93c5fd' }
-            }}
-          />
-          <Typography variant="h4" sx={{ fontWeight: 950, color: DESIGN.text.primary, letterSpacing: '-0.05em', lineHeight: 1 }}>
-            AI Workforce Command Center
-          </Typography>
-          <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 500, mt: 1 }}>
-            {formattedDate} · {userLocation || 'Global workspace'}
-          </Typography>
-        </Box>
-        <Stack direction="row" spacing={1}>
-          <Button startIcon={<CalendarMonth />} sx={{ textTransform: 'none', fontWeight: 700, color: DESIGN.text.primary, bgcolor: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 8px 24px -12px rgba(15, 23, 42, 0.15)' }}>
-            Schedule
-          </Button>
-          <IconButton sx={{ border: '1px solid #e2e8f0', bgcolor: '#fff', boxShadow: '0 8px 24px -12px rgba(15, 23, 42, 0.15)' }}>
-            <MoreHoriz />
-          </IconButton>
-        </Stack>
-      </Stack>
-
-      <Grid container spacing={2.5} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
-        {DASHBOARD_METRICS.map((metric) => {
-          const MetricIcon = metric.icon;
-
-          return (
-            <Grid item xs={12} sm={6} lg={3} key={metric.label}>
-              <Card sx={{ ...DESIGN.glass, height: '100%', position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', inset: 'auto -24px -24px auto', width: 88, height: 88, borderRadius: '50%', bgcolor: metric.soft, filter: 'blur(6px)' }} />
-                <CardContent sx={{ p: 2.5, position: 'relative' }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.5 }}>
-                    <Box sx={{ width: 44, height: 44, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: metric.soft, color: metric.accent }}>
-                      <MetricIcon />
-                    </Box>
-                    <Chip label={metric.delta} size="small" sx={{ bgcolor: '#f8fafc', color: metric.accent, fontWeight: 700 }} />
-                  </Stack>
-                  <Typography sx={{ color: DESIGN.text.secondary, fontWeight: 600, fontSize: 13, mb: 0.5 }}>{metric.label}</Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: DESIGN.text.primary, letterSpacing: '-0.04em' }}>{metric.value}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
-
-      <Card
+    <Box sx={{ width: '100%' }}>
+      <Box
         sx={{
-          mb: 3,
-          borderRadius: 5,
+          borderRadius: 3,
           overflow: 'hidden',
-          position: 'relative',
-          color: '#fff',
-          background: 'linear-gradient(135deg, #0f172a 0%, #111827 46%, #1d4ed8 100%)',
-          boxShadow: '0 24px 48px -20px rgba(15, 23, 42, 0.45)'
+          mb: 2,
+          border: `1px solid ${panelBorder}`,
+          background:
+            'linear-gradient(120deg, #000000 0%, #09090b 45%, #18181b 100%)',
         }}
       >
-        <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 26%), radial-gradient(circle at bottom left, rgba(255,255,255,0.10), transparent 30%)' }} />
-        <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
-          <Grid container spacing={3} alignItems="center">
-            <Grid item xs={12} md={7}>
+        <Box sx={{ px: { xs: 2, md: 3 }, pt: 1.5, pb: 0.9, borderBottom: `1px solid ${alpha('#ffffff', 0.1)}` }}>
+          <Stack direction="row" spacing={3.5} sx={{ mb: 1.2 }}>
+            {['My Space', 'Organization'].map((section, i) => (
+              <Typography
+                key={section}
+                sx={{
+                  fontWeight: i === 0 ? 800 : 600,
+                  color: i === 0 ? '#ffffff' : alpha('#ffffff', 0.72),
+                  borderBottom: i === 0 ? '2px solid #a78bfa' : '2px solid transparent',
+                  pb: 0.5,
+                  fontSize: 15,
+                }}
+              >
+                {section}
+              </Typography>
+            ))}
+          </Stack>
+          <Stack direction="row" spacing={2} flexWrap="wrap">
+            {['Overview', 'Dashboard', 'Calendar', 'Delegation'].map((tab, i) => (
+              <Typography
+                key={tab}
+                sx={{
+                  fontWeight: i === 0 ? 800 : 500,
+                  color: i === 0 ? '#c4b5fd' : alpha('#ffffff', 0.78),
+                  borderBottom: i === 0 ? '2px solid #a78bfa' : '2px solid transparent',
+                  pb: 0.6,
+                }}
+              >
+                {tab}
+              </Typography>
+            ))}
+          </Stack>
+        </Box>
+        <Box sx={{ px: { xs: 2, md: 3 }, py: 1.5 }}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+            {['Activities', 'Feeds', 'Profile', 'Approvals', 'Leave', 'Attendance', 'Time Logs'].map((tab, i) => (
               <Chip
-                icon={<AutoAwesome sx={{ fontSize: 18 }} />}
-                label="AI-Generated Brief"
-                size="small"
-                sx={{ bgcolor: 'rgba(255,255,255,0.14)', color: '#dbeafe', mb: 2, fontWeight: 800, '& .MuiChip-icon': { color: '#fde68a' } }}
+                key={tab}
+                label={tab}
+                sx={{
+                  bgcolor: i === 0 ? alpha('#8b5cf6', 0.2) : alpha('#ffffff', 0.06),
+                  color: i === 0 ? '#c4b5fd' : alpha('#ffffff', 0.86),
+                  border: `1px solid ${i === 0 ? alpha('#a78bfa', 0.5) : alpha('#ffffff', 0.14)}`,
+                }}
               />
-              <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.03, mb: 1.5 }}>
-                Clean, predictive HR operations in one place.
-              </Typography>
-              <Typography sx={{ maxWidth: 620, color: 'rgba(255,255,255,0.78)', fontWeight: 500, mb: 3 }}>
-                Surface anomalies, track attendance patterns, and guide managers with a calm SaaS workspace that feels intelligent instead of noisy.
-              </Typography>
-              <Stack direction="row" spacing={1.25} sx={{ flexWrap: 'wrap', rowGap: 1.25 }}>
-                {AI_PROMPTS.map((prompt) => (
-                  <Chip
-                    key={prompt}
-                    label={prompt}
-                    icon={<ArrowForward sx={{ fontSize: 16 }} />}
-                    sx={{
-                      bgcolor: 'rgba(255,255,255,0.10)',
-                      color: '#fff',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      '& .MuiChip-icon': { color: '#93c5fd' }
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={5}>
-              <Card sx={{ background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(14px)', borderRadius: 4 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-                    <Box>
-                      <Typography sx={{ fontWeight: 800, color: '#fff' }}>AI snapshot</Typography>
-                      <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.68)' }}>Focus signals for today</Typography>
-                    </Box>
-                    <Chip label="Live" size="small" sx={{ bgcolor: 'rgba(34,197,94,0.18)', color: '#86efac', fontWeight: 800 }} />
-                  </Stack>
-                  <Stack spacing={1.5}>
-                    {[
-                      'Two employees have repeated late check-ins this week.',
-                      'Team throughput is up 12% versus last month.',
-                      'One manager needs follow-up on pending approvals.'
-                    ].map((item) => (
-                      <Stack key={item} direction="row" spacing={1.25} alignItems="flex-start">
-                        <CheckCircle sx={{ color: '#93c5fd', fontSize: 18, mt: 0.2 }} />
-                        <Typography sx={{ color: 'rgba(255,255,255,0.82)', fontSize: 14, lineHeight: 1.5 }}>{item}</Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+            ))}
+            </Stack>
+            <ToggleButtonGroup
+              value={density}
+              exclusive
+              onChange={handleDensityChange}
+              size="small"
+              sx={{
+                '& .MuiToggleButton-root': {
+                  color: alpha('#ffffff', 0.78),
+                  borderColor: alpha('#ffffff', 0.16),
+                  px: 1.25,
+                },
+                '& .Mui-selected': {
+                  color: '#c4b5fd !important',
+                  bgcolor: alpha('#8b5cf6', 0.2),
+                }
+              }}
+            >
+              <ToggleButton value="comfortable">Comfortable</ToggleButton>
+              <ToggleButton value="compact">Compact</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+        </Box>
+      </Box>
 
-      <Grid container spacing={3}>
-        {/* LEFT COLUMN */}
-        <Grid item xs={12} lg={8}>
-          <Stack spacing={3}>
+      <Grid container spacing={gridGap}>
+        <Grid item xs={12} md={3}>
+          <AttendanceWidget panelBg={panelBg} panelBorder={panelBorder} density={density} />
+        </Grid>
 
-            {/* HERO BANNER WITH INTEGRATED SPARKLINE */}
-            <Card sx={{
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              color: '#fff', borderRadius: 4, overflow: 'hidden', position: 'relative',
-              boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.25)'
-            }}>
-              <CardContent sx={{ p: 4 }}>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={12} md={7}>
-                    <Chip label="Live Metrics" size="small" sx={{ bgcolor: 'rgba(59, 132, 246, 0.3)', color: '#60a5fa', mb: 2, fontWeight: 700 }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>92.4% Performance</Typography>
-                    <Typography sx={{ opacity: 0.7, mb: 3 }}>Your team's productivity is up 12% from last month.</Typography>
-                    <Button variant="contained" sx={{ bgcolor: '#3b82f6', borderRadius: 2, px: 4, py: 1.2, fontWeight: 700, textTransform: 'none' }}>
-                      View Full Audit
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} md={5}>
-                    {/* MUI X Sparkline Chart */}
-                    <Box sx={{ height: 100 }}>
-                      <Typography sx={{ fontSize: '0.7rem', opacity: 0.5, mb: 1, textAlign: 'right' }}>30-DAY TREND</Typography>
-                      <SparkLineChart
-                        data={[3, 5, 2, 8, 5, 9, 7, 4, 10, 8, 12, 10]}
-                        height={80}
-                        showTooltip
-                        showHighlight
-                        colors={['#3b82f6']}
-                      />
-                    </Box>
-                  </Grid>
-                </Grid>
+        <Grid item xs={12} md={9}>
+          <Stack spacing={gridGap}>
+            <Card sx={{ background: 'linear-gradient(90deg, #7c3aed 0%, #a855f7 100%)', borderRadius: 2.5 }}>
+              <CardContent sx={{ py: density === 'compact' ? 1.35 : 2, px: { xs: 2, md: 3 } }}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                  <Box>
+                    <Typography sx={{ color: '#ede9fe', fontWeight: 700 }}>Schedule a free demo</Typography>
+                    <Typography sx={{ color: '#f5f3ff', opacity: 0.9 }}>Get an expert walkthrough, tailored to your business needs.</Typography>
+                  </Box>
+                  <Button variant="contained" sx={{ bgcolor: '#ef4444', color: '#fff', px: 2.5 }}>Request Demo</Button>
+                </Stack>
               </CardContent>
             </Card>
 
-            {/* PRODUCTIVITY BAR CHART (MUI X) */}
-            <Card sx={DESIGN.glass}>
-              <CardContent sx={{ p: 3}}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>Attendance & Hours</Typography>
-                <Box sx={{ width: '100%', height: 300 }}>
+            <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
+              <CardContent sx={{ px: { xs: 2, md: 2.5 }, py: density === 'compact' ? 1.25 : 2 }}>
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.16), color: theme.palette.primary.main, fontWeight: 800 }}>
+                    {getInitials(user?.full_name || 'U')}
+                  </Avatar>
+                  <Box>
+                    <Typography sx={{ fontWeight: 800, color: theme.palette.text.primary }}>
+                      {greeting}, {user?.full_name || 'User'}
+                    </Typography>
+                    <Typography sx={{ color: theme.palette.text.secondary }}>Have a productive day. {formattedDate}</Typography>
+                  </Box>
+                  <Box sx={{ ml: 'auto' }}>
+                    <WbTwilightRoundedIcon sx={{ color: '#f59e0b' }} />
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
+              <CardContent sx={{ py: density === 'compact' ? 1.25 : 2, px: cardPadding }}>
+                <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <AccessTimeRoundedIcon sx={{ color: '#f97316' }} />
+                    <Box>
+                      <Typography sx={{ fontWeight: 700 }}>Check-in reminder</Typography>
+                      <Typography sx={{ color: theme.palette.text.secondary }}>Your shift has already started</Typography>
+                    </Box>
+                  </Stack>
+                  <Typography sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}>General 9:00 AM-6:00 PM</Typography>
+                </Stack>
+                <Divider sx={{ borderColor: panelBorder, mb: 1.5 }} />
+                <Typography sx={{ fontWeight: 700, mb: 1 }}>Work Schedule</Typography>
+                <Box sx={{ width: '100%', height: 76 }}>
+                  <SparkLineChart
+                    data={[2, 3, 3, 5, 6, 4, 7]}
+                    height={70}
+                    showHighlight
+                    showTooltip
+                    colors={[isDark ? '#a78bfa' : '#7c3aed']}
+                  />
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                  {['Sun Weekend', 'Mon Absent', 'Tue Absent', 'Wed Present', 'Thu Present', 'Fri Present'].map((d) => (
+                    <Chip key={d} size="small" label={d} sx={{ bgcolor: isDark ? alpha('#8b5cf6', 0.18) : '#f3e8ff' }} />
+                  ))}
+                </Stack>
+              </CardContent>
+            </Card>
+
+            <Grid container spacing={gridGap}>
+              {METRICS.map((metric) => {
+                const Icon = metric.icon;
+                return (
+                  <Grid item xs={12} sm={4} key={metric.label}>
+                    <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}`, height: '100%' }}>
+                      <CardContent sx={{ p: cardPadding }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.25 }}>
+                          <Icon sx={{ color: theme.palette.primary.main }} />
+                          <Chip size="small" label={metric.delta} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.15), color: theme.palette.primary.main }} />
+                        </Stack>
+                        <Typography sx={{ color: theme.palette.text.secondary, fontSize: 13 }}>{metric.label}</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 900 }}>{metric.value}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+
+            <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
+              <CardContent sx={{ p: cardPadding }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                  <Typography sx={{ fontWeight: 800 }}>Attendance & Overtime (week)</Typography>
+                  <CampaignRoundedIcon sx={{ color: theme.palette.primary.main }} />
+                </Stack>
+                <Box sx={{ height: chartHeight }}>
                   <BarChart
                     series={[
-                      { data: [8, 9, 7, 8.5, 9, 0, 0], label: 'Worked Hours', color: '#3b82f6' },
-                      { data: [1, 0, 2, 0.5, 0, 0, 0], label: 'Overtime', color: '#94a3b8' },
+                      { data: [8, 9, 7, 8.5, 9, 0, 0], label: 'Worked', color: isDark ? '#a78bfa' : '#7c3aed' },
+                      { data: [1, 0, 2, 0.5, 0, 0, 0], label: 'Overtime', color: isDark ? '#a78bfa' : '#8b5cf6' },
                     ]}
                     xAxis={[{ data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], scaleType: 'band' }]}
                     margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
@@ -294,72 +308,41 @@ export default function MuiXDashboard() {
                 </Box>
               </CardContent>
             </Card>
-          </Stack>
-        </Grid>
 
-        {/* RIGHT COLUMN */}
-        <Grid item xs={12} lg={4}>
-          <Stack spacing={4}>
-
-            {/* LEAVE DISTRIBUTION PIE CHART (MUI X) */}
-            <Card sx={DESIGN.glass}>
-              <CardContent>
-                <Typography sx={{ fontWeight: 800, mb: 2 }}>Leave Distribution</Typography>
-                <Box sx={{ height: 200, display: 'flex', justifyContent: 'center' }}>
-                  <PieChart
-                    series={[
-                      {
-                        data: [
-                          { id: 0, value: 10, label: 'Annual', color: '#0f172a' },
-                          { id: 1, value: 5, label: 'Sick', color: '#3b82f6' },
-                          { id: 2, value: 2, label: 'Casual', color: '#cbd5e1' },
-                        ],
-                        innerRadius: 60,
-                        paddingAngle: 5,
-                        cornerRadius: 5,
-                      },
-                    ]}
-                    slotProps={{ legend: { hidden: true } }}
-                  />
-                </Box>
-                <Stack direction="row" justifyContent="center" spacing={2} sx={{ mt: 2 }}>
-                  <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Circle sx={{ fontSize: 8, color: '#0f172a' }} /> Annual
-                  </Typography>
-                  <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Circle sx={{ fontSize: 8, color: '#3b82f6' }} /> Sick
-                  </Typography>
+            <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
+              <CardContent sx={{ p: cardPadding }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.2 }}>
+                  <Typography sx={{ fontWeight: 800 }}>Today's Requests</Typography>
+                  <EventNoteRoundedIcon sx={{ color: theme.palette.primary.main }} />
                 </Stack>
+                <Table size={density === 'compact' ? 'small' : 'medium'}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Employee</TableCell>
+                      <TableCell>Request</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell align="right">Due</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {[
+                      ['Rhea Patel', 'Leave Approval', 'Pending', '11:30 AM'],
+                      ['Aman Singh', 'Shift Change', 'In Review', '1:15 PM'],
+                      ['Meera Das', 'Expense Claim', 'Approved', '4:00 PM'],
+                    ].map((row) => (
+                      <TableRow key={row[0]}>
+                        <TableCell>{row[0]}</TableCell>
+                        <TableCell>{row[1]}</TableCell>
+                        <TableCell>
+                          <Chip size="small" label={row[2]} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.14), color: theme.palette.primary.main }} />
+                        </TableCell>
+                        <TableCell align="right">{row[3]}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
-
-            {/* CLOCK IN CARD */}
-            <AttendanceCard />
-
-            {/* QUICK TEAM STATS */}
-            <Card sx={DESIGN.glass}>
-              <CardContent>
-                <Typography sx={{ fontWeight: 800, mb: 2 }}>Team Presence</Typography>
-                <List disablePadding>
-                  {[
-                    { name: 'Sarah Connor', status: 'In-Office', color: '#10b981' },
-                    { name: 'Mike Ross', status: 'Remote', color: '#3b82f6' }
-                  ].map((person, i) => (
-                    <ListItem key={i} sx={{ px: 0 }}>
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: '#f1f5f9', color: '#0f172a', fontWeight: 700 }}>{person.name[0]}</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={<Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>{person.name}</Typography>}
-                        secondary={person.status}
-                      />
-                      <Circle sx={{ color: person.color, fontSize: 10 }} />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
-
           </Stack>
         </Grid>
       </Grid>
@@ -367,15 +350,8 @@ export default function MuiXDashboard() {
   );
 }
 
-
-function resolveApiBaseUrl() {
-  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
-  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
-  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
-  return raw.replace(/\/$/, '');
-}
-
-function AttendanceCard() {
+function AttendanceWidget({ panelBg, panelBorder, density }: { panelBg: string; panelBorder: string; density: 'compact' | 'comfortable' }) {
+  const theme = useTheme();
   const { token, user, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [attendance, setAttendance] = useState<any>(null);
@@ -388,16 +364,18 @@ function AttendanceCard() {
     if (!isAuthenticated || !user) return;
     const today = new Date().toISOString().slice(0, 10);
     setLoading(true);
-    fetch(`${API_BASE}/attendance?employee_id=${user.id}&start_date=${today}&end_date=${today}` , {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(async (res) => {
-      setLoading(false);
-      if (!res.ok) return setAttendance(null);
-      const payload = await res.json().catch(() => null);
-      if (payload && payload.items && payload.items.length) setAttendance(payload.items[0]);
-      else setAttendance(null);
-    }).catch(() => setLoading(false));
-  }, [isAuthenticated, user, token]);
+    fetch(`${API_BASE}/attendance?employee_id=${user.id}&start_date=${today}&end_date=${today}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
+        setLoading(false);
+        if (!res.ok) return setAttendance(null);
+        const payload = await res.json().catch(() => null);
+        if (payload && payload.items && payload.items.length) setAttendance(payload.items[0]);
+        else setAttendance(null);
+      })
+      .catch(() => setLoading(false));
+  }, [isAuthenticated, user, token, API_BASE]);
 
   function showToast(message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'info') {
     setSnackMsg(message);
@@ -415,10 +393,18 @@ function AttendanceCard() {
     let attempt = 0;
     while (attempt <= retries) {
       try {
-        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) });
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...headers },
+          body: JSON.stringify(body),
+        });
         const text = await res.text().catch(() => null);
         let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
         if (!res.ok) throw { status: res.status, body: data || text };
         return data;
       } catch (err: unknown) {
@@ -435,12 +421,10 @@ function AttendanceCard() {
     const today = new Date().toISOString().slice(0, 10);
     const body = { employee_id: user.id, attendance_date: today, check_in_time: new Date().toISOString() };
     try {
-      console.debug('Attempting check-in', { API_BASE, employee_id: user.id });
       const data = await doPostWithRetry(`${API_BASE}/attendance/check-in`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
       setAttendance(data);
       showToast('Checked in successfully', 'success');
     } catch (err: any) {
-      console.error('Check-in error', err);
       const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
       showToast('Check-in failed: ' + msg, 'error');
     } finally {
@@ -454,12 +438,10 @@ function AttendanceCard() {
     const today = new Date().toISOString().slice(0, 10);
     const body = { employee_id: user.id, attendance_date: today, check_out_time: new Date().toISOString() };
     try {
-      console.debug('Attempting check-out', { API_BASE, employee_id: user.id });
       const data = await doPostWithRetry(`${API_BASE}/attendance/check-out`, body, { Authorization: token ? `Bearer ${token}` : '' }, 2, 800);
       setAttendance(data);
       showToast('Checked out successfully', 'success');
     } catch (err: any) {
-      console.error('Check-out error', err);
       const msg = err?.body?.detail || err?.body || err?.status || 'Network error';
       showToast('Check-out failed: ' + msg, 'error');
     } finally {
@@ -471,33 +453,43 @@ function AttendanceCard() {
   const signedOut = !!attendance && attendance.check_out_time;
 
   return (
-    <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)' }}>
-      <CardContent sx={{ p: 4, textAlign: 'center' }}>
-        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#64748b', mb: 1, letterSpacing: '0.05em' }}>SHIFT STATUS: ACTIVE</Typography>
-        <Typography variant="h3" sx={{ fontWeight: 900, mb: 1, color: '#0f172a', letterSpacing: '-0.02em' }}>{new Date().toLocaleTimeString()}</Typography>
-        <Divider sx={{ my: 3, borderColor: '#e2e8f0' }} />
-        {!isAuthenticated ? (
-          <Button disabled fullWidth variant="contained" sx={{ bgcolor: '#f1f5f9', color: '#94a3b8', fontWeight: 700, py: 1.5, borderRadius: 2 }}>Sign In Now</Button>
-        ) : (
-          <>
-            {!signedIn ? (
-              <Button fullWidth onClick={handleCheckIn} disabled={loading} variant="contained" sx={{ bgcolor: '#3b82f6', color: '#fff', fontWeight: 700, py: 1.5, borderRadius: 2, boxShadow: '0 8px 16px -4px rgba(59, 130, 246, 0.3)' }}>Clock In Now</Button>
-            ) : !signedOut ? (
-              <Button fullWidth onClick={handleCheckOut} disabled={loading} variant="contained" sx={{ bgcolor: '#ef4444', color: '#fff', fontWeight: 700, py: 1.5, borderRadius: 2, boxShadow: '0 8px 16px -4px rgba(239, 68, 68, 0.3)' }}>Clock Out</Button>
-            ) : (
-              <Button fullWidth disabled variant="contained" sx={{ bgcolor: '#f1f5f9', color: '#10b981', fontWeight: 700, py: 1.5, borderRadius: 2 }}>Shift Completed</Button>
-            )}
+    <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
+      <CardContent sx={{ p: density === 'compact' ? 1.25 : 2 }}>
+        <Stack alignItems="center" spacing={density === 'compact' ? 0.75 : 1.25}>
+          <Avatar sx={{ width: 68, height: 68, bgcolor: alpha(theme.palette.primary.main, 0.2), color: theme.palette.primary.main, fontWeight: 800 }}>
+            {getInitials(user?.full_name || 'U')}
+          </Avatar>
+          <Typography sx={{ fontWeight: 700 }}>{user?.full_name || 'User'}</Typography>
+          <Typography sx={{ color: theme.palette.text.secondary, fontSize: 13 }}>Yet to check-in</Typography>
 
-            {attendance && (
-              <Typography sx={{ mt: 2, color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>
-                {attendance.check_in_time ? `In: ${new Date(attendance.check_in_time).toLocaleTimeString()}` : ''}
-                {attendance.check_out_time ? ` • Out: ${new Date(attendance.check_out_time).toLocaleTimeString()}` : ''}
-              </Typography>
-            )}
-          </>
-        )}
+          <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '0.06em' }}>
+            {new Date().toLocaleTimeString()}
+          </Typography>
+
+          {!isAuthenticated ? (
+            <Button disabled fullWidth variant="contained">Sign In</Button>
+          ) : !signedIn ? (
+            <Button fullWidth onClick={handleCheckIn} disabled={loading} variant="contained">Check-in</Button>
+          ) : !signedOut ? (
+            <Button fullWidth onClick={handleCheckOut} disabled={loading} color="error" variant="contained">Check-out</Button>
+          ) : (
+            <Button fullWidth disabled variant="contained" color="success">Completed</Button>
+          )}
+
+          <List dense sx={{ width: '100%', mt: 1 }}>
+            <ListItem sx={{ px: 0 }}>
+              <ListItemText primary="Shift" secondary="General" />
+            </ListItem>
+            <ListItem sx={{ px: 0 }}>
+              <ListItemText primary="Hours" secondary="9:00 AM - 6:00 PM" />
+            </ListItem>
+            <ListItem sx={{ px: 0 }}>
+              <ListItemText primary="Date" secondary={new Date().toLocaleDateString()} />
+            </ListItem>
+          </List>
+        </Stack>
       </CardContent>
-      <Snackbar open={snackOpen} autoHideDuration={6000} onClose={() => setSnackOpen(false)}>
+      <Snackbar open={snackOpen} autoHideDuration={5000} onClose={() => setSnackOpen(false)}>
         <Alert onClose={() => setSnackOpen(false)} severity={snackSeverity} sx={{ width: '100%' }}>
           {snackMsg}
         </Alert>

@@ -101,13 +101,13 @@ export default function EmployeeDetailPage() {
             border: '1px solid #e2e8f0', 
             borderRadius: 2,
             boxShadow: '0 2px 4px -1px rgba(0,0,0,0.03)',
-            color: '#64748b',
-            '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' }
+            color: 'text.secondary',
+            '&:hover': { bgcolor: '#f1f5f9', color: 'text.primary' }
           }}
         >
           <ArrowBackIcon fontSize="small" />
         </IconButton>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', letterSpacing: '-0.02em' }}>
           {employee ? employee.full_name : 'Employee Profile'}
         </Typography>
       </Stack>
@@ -151,14 +151,14 @@ export default function EmployeeDetailPage() {
                 </Box>
 
                 {documents.length === 0 ? (
-                  <Typography sx={{ color: '#6b7280', fontStyle: 'italic' }}>No documents uploaded yet.</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontStyle: 'italic' }}>No documents uploaded yet.</Typography>
                 ) : (
                   <List sx={{ bgcolor: '#f9fafb', borderRadius: 1, border: '1px solid #e5e7eb' }}>
                     {documents.map((doc) => (
                       <ListItem 
                         key={doc.id}
                         secondaryAction={
-                          <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#3b82f6' }}>
+                          <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#7c3aed' }}>
                             <DownloadIcon />
                           </IconButton>
                         }

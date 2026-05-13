@@ -230,7 +230,7 @@ export default function GrievancePage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <WarningIcon color="primary" />
           {isAdmin ? 'Grievance Management' : 'My Grievances'}
         </Typography>
@@ -239,7 +239,7 @@ export default function GrievancePage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
           >
             File Grievance
           </Button>
@@ -263,7 +263,7 @@ export default function GrievancePage() {
       <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb' }}>
         <CardContent sx={{ p: 0 }}>
           {grievances.length === 0 ? (
-            <Typography sx={{ p: 4, textAlign: 'center', color: '#6b7280' }}>
+            <Typography sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
               {isAdmin ? 'No grievances yet.' : 'You have not filed any grievances.'}
             </Typography>
           ) : (
@@ -306,7 +306,7 @@ export default function GrievancePage() {
                         <IconButton
                           size="small"
                           onClick={() => openDetails(g)}
-                          sx={{ color: '#3b82f6' }}
+                          sx={{ color: '#7c3aed' }}
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
@@ -356,7 +356,7 @@ export default function GrievancePage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             File Grievance
           </Button>
@@ -375,7 +375,7 @@ export default function GrievancePage() {
               </Box>
               <Box>
                 <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 0.5 }}>Description</Typography>
-                <Typography sx={{ whiteSpace: 'pre-wrap', color: '#4b5563' }}>
+                <Typography sx={{ whiteSpace: 'pre-wrap', color: 'text.secondary' }}>
                   {selectedGrievance.description}
                 </Typography>
               </Box>
@@ -403,9 +403,9 @@ export default function GrievancePage() {
               {selectedGrievance.investigator_id && (
                 <Box sx={{ mt: 2, p: 2, bgcolor: '#f8fafc', borderRadius: 2 }}>
                   <Typography sx={{ fontWeight: 600, mb: 1 }}>Investigation Details</Typography>
-                  <Typography sx={{ fontSize: '0.875rem', color: '#4b5563' }}><strong>Investigator:</strong> {selectedGrievance.investigator_id}</Typography>
-                  {selectedGrievance.meeting_scheduled_at && <Typography sx={{ fontSize: '0.875rem', color: '#4b5563' }}><strong>Meeting:</strong> {new Date(selectedGrievance.meeting_scheduled_at).toLocaleString()}</Typography>}
-                  {selectedGrievance.investigation_notes && <Typography sx={{ fontSize: '0.875rem', color: '#4b5563', mt: 1 }}><strong>Notes:</strong><br/>{selectedGrievance.investigation_notes}</Typography>}
+                  <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}><strong>Investigator:</strong> {selectedGrievance.investigator_id}</Typography>
+                  {selectedGrievance.meeting_scheduled_at && <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}><strong>Meeting:</strong> {new Date(selectedGrievance.meeting_scheduled_at).toLocaleString()}</Typography>}
+                  {selectedGrievance.investigation_notes && <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary', mt: 1 }}><strong>Notes:</strong><br/>{selectedGrievance.investigation_notes}</Typography>}
                 </Box>
               )}
               <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
@@ -476,7 +476,7 @@ export default function GrievancePage() {
           <Button
             onClick={handleInvestigationSubmit}
             variant="contained"
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             Save Updates
           </Button>

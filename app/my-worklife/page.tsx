@@ -31,10 +31,10 @@ export default function MyWorklifePage() {
       <Stack spacing={3}>
         <Box>
           <Chip label="My Worklife" sx={{ bgcolor: '#dcfce7', color: '#166534', fontWeight: 700 }} />
-          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
+          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>
             Personal workspace
           </Typography>
-          <Typography sx={{ color: '#64748b', maxWidth: 760 }}>
+          <Typography sx={{ color: 'text.secondary', maxWidth: 760 }}>
             One place for the things you use every day: personal details, attendance, leave, tasks, and support.
           </Typography>
         </Box>
@@ -48,9 +48,9 @@ export default function MyWorklifePage() {
             <Grid item xs={12} md={4} key={stat.label}>
               <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
                 <CardContent sx={{ p: 2.5 }}>
-                  <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
-                  <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: '#0f172a', wordBreak: 'break-word' }}>{stat.value}</Typography>
-                  <Typography sx={{ mt: 0.75, color: '#94a3b8', fontSize: 13 }}>{stat.helper}</Typography>
+                  <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
+                  <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: 'text.primary', wordBreak: 'break-word' }}>{stat.value}</Typography>
+                  <Typography sx={{ mt: 0.75, color: 'text.secondary', fontSize: 13 }}>{stat.helper}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -59,15 +59,15 @@ export default function MyWorklifePage() {
 
         <Grid container spacing={2.5}>
           <Grid item xs={12} md={5}>
-            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: '#0f172a', color: '#fff', height: '100%' }}>
+            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0', bgcolor: 'text.primary', color: '#fff', height: '100%' }}>
               <CardContent sx={{ p: 3 }}>
-                <Typography sx={{ color: '#94a3b8', fontWeight: 700, fontSize: 13 }}>Signed in as</Typography>
+                <Typography sx={{ color: 'text.secondary', fontWeight: 700, fontSize: 13 }}>Signed in as</Typography>
                 <Typography variant="h5" sx={{ mt: 1, fontWeight: 900 }}>{user?.full_name}</Typography>
                 <Typography sx={{ color: '#cbd5e1', mt: 0.75 }}>{user?.email}</Typography>
-                <Chip label={user?.role || 'Employee'} sx={{ mt: 2, bgcolor: '#2563eb', color: '#fff', fontWeight: 700 }} />
+                <Chip label={user?.role || 'Employee'} sx={{ mt: 2, bgcolor: '#6d28d9', color: '#fff', fontWeight: 700 }} />
 
                 <Stack spacing={1.25} sx={{ mt: 3 }}>
-                  <Button component={Link} href="/profile" variant="contained" sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700 }}>
+                  <Button component={Link} href="/profile" variant="contained" sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700 }}>
                     View profile
                   </Button>
                   <Button component={Link} href="/settings" variant="outlined" sx={{ borderColor: 'rgba(255,255,255,0.25)', color: '#fff', textTransform: 'none', fontWeight: 700 }}>
@@ -81,15 +81,15 @@ export default function MyWorklifePage() {
           <Grid item xs={12} md={7}>
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', mb: 0.75 }}>Quick actions</Typography>
-                <Typography sx={{ color: '#64748b', mb: 2 }}>Shortcuts to the HRMS areas employees visit most.</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.75 }}>Quick actions</Typography>
+                <Typography sx={{ color: 'text.secondary', mb: 2 }}>Shortcuts to the HRMS areas employees visit most.</Typography>
                 <Grid container spacing={2}>
                   {quickLinks.map((item) => (
                     <Grid item xs={12} sm={6} key={item.href}>
                       <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', height: '100%' }}>
                         <CardContent>
-                          <Typography sx={{ fontWeight: 800, color: '#0f172a' }}>{item.label}</Typography>
-                          <Typography sx={{ mt: 0.75, color: '#64748b', lineHeight: 1.6, fontSize: 14 }}>{item.description}</Typography>
+                          <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{item.label}</Typography>
+                          <Typography sx={{ mt: 0.75, color: 'text.secondary', lineHeight: 1.6, fontSize: 14 }}>{item.description}</Typography>
                           <Button component={Link} href={item.href} size="small" sx={{ mt: 1.5, textTransform: 'none', fontWeight: 700 }}>
                             Open
                           </Button>
@@ -105,8 +105,8 @@ export default function MyWorklifePage() {
 
         <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
           <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>What this page is for</Typography>
-            <Typography sx={{ mt: 1, color: '#64748b', lineHeight: 1.8 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>What this page is for</Typography>
+            <Typography sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.8 }}>
               My Worklife is the employee home base. It gathers the route shortcuts, reminders, and the most common self-service actions without forcing users to search through the full navigation every time.
             </Typography>
           </CardContent>

@@ -205,7 +205,7 @@ export default function GatePassPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <BadgeIcon color="primary" />
           {isAdmin ? 'Gate Pass Management' : 'Gate Pass Requests'}
         </Typography>
@@ -214,7 +214,7 @@ export default function GatePassPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
           >
             Request Gate Pass
           </Button>
@@ -227,7 +227,7 @@ export default function GatePassPage() {
       <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb' }}>
         <CardContent sx={{ p: 0 }}>
           {gatePasses.length === 0 ? (
-            <Typography sx={{ p: 4, textAlign: 'center', color: '#6b7280' }}>
+            <Typography sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
               {isAdmin ? 'No gate pass requests yet.' : 'You have not requested any gate passes.'}
             </Typography>
           ) : (
@@ -365,7 +365,7 @@ export default function GatePassPage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             Request Gate Pass
           </Button>

@@ -289,10 +289,10 @@ export default function LifecyclePage() {
       <Stack spacing={3}>
         <Box>
           <Chip label="Lifecycle" sx={{ bgcolor: '#e0f2fe', color: '#0369a1', fontWeight: 700 }} />
-          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
+          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>
             Offer, onboarding, exit, and assets
           </Typography>
-          <Typography sx={{ color: '#64748b', maxWidth: 840 }}>
+          <Typography sx={{ color: 'text.secondary', maxWidth: 840 }}>
             This hub combines the main post-hire HR workflows into one place so the team can manage the employee lifecycle without jumping between screens.
           </Typography>
         </Box>
@@ -308,11 +308,11 @@ export default function LifecyclePage() {
                   <CardContent>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Box>
-                        <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 700 }}>{card.label}</Typography>
-                        <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: '#0f172a' }}>{card.value}</Typography>
+                        <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{card.label}</Typography>
+                        <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: 'text.primary' }}>{card.value}</Typography>
                       </Box>
                       <Box sx={{ width: 44, height: 44, borderRadius: 3, display: 'grid', placeItems: 'center', bgcolor: card.color }}>
-                        <Icon sx={{ color: '#0f172a' }} />
+                        <Icon sx={{ color: 'text.primary' }} />
                       </Box>
                     </Stack>
                   </CardContent>
@@ -331,7 +331,7 @@ export default function LifecyclePage() {
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>Offer management</Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: 14 }}>Draft, send, and track offers.</Typography>
+                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>Draft, send, and track offers.</Typography>
                   </Box>
                   <Button component={Link} href="/recruitment" variant="outlined" sx={{ textTransform: 'none', fontWeight: 700 }}>Recruitment</Button>
                 </Stack>
@@ -380,7 +380,7 @@ export default function LifecyclePage() {
                   </TableHead>
                   <TableBody>
                     {offers.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: '#64748b' }}>No offers yet.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No offers yet.</TableCell></TableRow>
                     ) : offers.map((offer) => (
                       <TableRow key={offer.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{offer.title}</TableCell>
@@ -400,7 +400,7 @@ export default function LifecyclePage() {
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>Onboarding and probation</Typography>
-                <Typography sx={{ color: '#64748b', fontSize: 14, mb: 2 }}>Track new hire setup and probation progress.</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Track new hire setup and probation progress.</Typography>
 
                 <Grid container spacing={2.5} sx={{ mb: 2 }}>
                   <Grid item xs={12} md={4}><TextField fullWidth label="Employee ID" value={onboardingForm.employee_id} onChange={(e) => setOnboardingForm({ ...onboardingForm, employee_id: e.target.value })} /></Grid>
@@ -415,7 +415,7 @@ export default function LifecyclePage() {
                 <Table>
                   <TableHead><TableRow><TableCell sx={{ fontWeight: 700 }}>Employee</TableCell><TableCell sx={{ fontWeight: 700 }}>Probation end</TableCell><TableCell sx={{ fontWeight: 700 }}>Status</TableCell><TableCell sx={{ fontWeight: 700 }}>Actions</TableCell></TableRow></TableHead>
                   <TableBody>
-                    {onboarding.length === 0 ? <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: '#64748b' }}>No onboarding plans yet.</TableCell></TableRow> : onboarding.map((item) => (
+                    {onboarding.length === 0 ? <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>No onboarding plans yet.</TableCell></TableRow> : onboarding.map((item) => (
                       <TableRow key={item.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{item.employee_id}</TableCell>
                         <TableCell>{item.probation_end_date || 'N/A'}</TableCell>
@@ -431,7 +431,7 @@ export default function LifecyclePage() {
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>Exit management and full-and-final</Typography>
-                <Typography sx={{ color: '#64748b', fontSize: 14, mb: 2 }}>Track resignations, termination, notice periods, and settlements.</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Track resignations, termination, notice periods, and settlements.</Typography>
 
                 <Grid container spacing={2.5} sx={{ mb: 2 }}>
                   <Grid item xs={12} md={4}><TextField fullWidth label="Employee ID" value={exitForm.employee_id} onChange={(e) => setExitForm({ ...exitForm, employee_id: e.target.value })} /></Grid>
@@ -448,7 +448,7 @@ export default function LifecyclePage() {
                 <Table>
                   <TableHead><TableRow><TableCell sx={{ fontWeight: 700 }}>Employee</TableCell><TableCell sx={{ fontWeight: 700 }}>Type</TableCell><TableCell sx={{ fontWeight: 700 }}>Status</TableCell><TableCell sx={{ fontWeight: 700 }}>Actions</TableCell></TableRow></TableHead>
                   <TableBody>
-                    {exits.length === 0 ? <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: '#64748b' }}>No exit cases yet.</TableCell></TableRow> : exits.map((item) => (
+                    {exits.length === 0 ? <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>No exit cases yet.</TableCell></TableRow> : exits.map((item) => (
                       <TableRow key={item.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{item.employee_id}</TableCell>
                         <TableCell>{item.exit_type}</TableCell>
@@ -464,7 +464,7 @@ export default function LifecyclePage() {
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>Asset and inventory</Typography>
-                <Typography sx={{ color: '#64748b', fontSize: 14, mb: 2 }}>Track laptops, devices, and assigned equipment.</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Track laptops, devices, and assigned equipment.</Typography>
 
                 <Grid container spacing={2.5} sx={{ mb: 2 }}>
                   <Grid item xs={12} md={4}><TextField fullWidth label="Asset tag" value={assetForm.asset_tag} onChange={(e) => setAssetForm({ ...assetForm, asset_tag: e.target.value })} /></Grid>
@@ -481,7 +481,7 @@ export default function LifecyclePage() {
                 <Table>
                   <TableHead><TableRow><TableCell sx={{ fontWeight: 700 }}>Tag</TableCell><TableCell sx={{ fontWeight: 700 }}>Name</TableCell><TableCell sx={{ fontWeight: 700 }}>Status</TableCell><TableCell sx={{ fontWeight: 700 }}>Assigned to</TableCell><TableCell sx={{ fontWeight: 700 }}>Actions</TableCell></TableRow></TableHead>
                   <TableBody>
-                    {assets.length === 0 ? <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: '#64748b' }}>No assets recorded yet.</TableCell></TableRow> : assets.map((item) => (
+                    {assets.length === 0 ? <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No assets recorded yet.</TableCell></TableRow> : assets.map((item) => (
                       <TableRow key={item.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{item.asset_tag}</TableCell>
                         <TableCell>{item.name}</TableCell>
@@ -500,7 +500,7 @@ export default function LifecyclePage() {
         <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 800 }}>What this page does</Typography>
-            <Typography sx={{ mt: 1, color: '#64748b', lineHeight: 1.8 }}>
+            <Typography sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.8 }}>
               Lifecycle unifies the post-hire HR processes into one working surface. Offers connect hiring to joining, onboarding tracks the probation journey, exits cover settlement and offboarding, and inventory keeps company assets mapped to employees.
             </Typography>
           </CardContent>

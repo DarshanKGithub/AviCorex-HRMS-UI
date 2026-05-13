@@ -119,7 +119,7 @@ export default function DocumentCenterPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <InsertDriveFileIcon color="primary" /> 
           Document Center
         </Typography>
@@ -127,7 +127,7 @@ export default function DocumentCenterPage() {
           variant="contained" 
           startIcon={<UploadFileIcon />} 
           onClick={() => setOpenUploadModal(true)}
-          sx={{ bgcolor: '#3b82f6', textTransform: 'none', fontWeight: 600 }}
+          sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
         >
           Upload Document
         </Button>
@@ -165,8 +165,8 @@ export default function DocumentCenterPage() {
                   <Card sx={{ display: 'inline-block', borderRadius: 2 }}>
                     <CardContent sx={{ py: 4, px: 6, textAlign: 'center' }}>
                       <InsertDriveFileIcon sx={{ fontSize: 40, color: '#cbd5e1', mb: 1 }} />
-                      <Typography sx={{ fontWeight: 800, color: '#15162c' }}>No documents found</Typography>
-                      <Typography sx={{ color: '#64748b' }}>Upload documents to make them available to the team.</Typography>
+                      <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>No documents found</Typography>
+                      <Typography sx={{ color: 'text.secondary' }}>Upload documents to make them available to the team.</Typography>
                     </CardContent>
                   </Card>
                 </TableCell>
@@ -180,10 +180,10 @@ export default function DocumentCenterPage() {
                       {doc.document_type}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ color: '#4b5563' }}>{doc.file_name}</TableCell>
-                  <TableCell sx={{ color: '#4b5563' }}>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
+                  <TableCell sx={{ color: 'text.secondary' }}>{doc.file_name}</TableCell>
+                  <TableCell sx={{ color: 'text.secondary' }}>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
                   <TableCell align="right">
-                    <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#3b82f6' }}>
+                    <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#7c3aed' }}>
                       <DownloadIcon />
                     </IconButton>
                   </TableCell>
@@ -227,7 +227,7 @@ export default function DocumentCenterPage() {
             variant="contained" 
             onClick={handleUpload} 
             disabled={!uploadForm.employee_id || !selectedFile || uploading}
-            sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}
+            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
           >
             {uploading ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
           </Button>

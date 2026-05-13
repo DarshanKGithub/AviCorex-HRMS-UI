@@ -128,14 +128,14 @@ export default function AttendanceInfoPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
           {tab === 0 ? 'Attendance Info' : 'Attendance Info / My Regularizations'}
         </Typography>
         <Button 
           variant="contained" 
           onClick={() => setTab(1)}
           sx={{ 
-            bgcolor: '#3b82f6', 
+            bgcolor: '#7c3aed', 
             borderRadius: 2, 
             textTransform: 'none', 
             fontWeight: 600,
@@ -161,19 +161,19 @@ export default function AttendanceInfoPage() {
             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
               <Card sx={{ flex: 1, borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
                 <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', mb: 1 }}>Avg. Work Hrs</Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textTransform: 'uppercase', mb: 1 }}>Avg. Work Hrs</Typography>
                   <Typography sx={{ fontWeight: 600 }}>-</Typography>
                 </CardContent>
               </Card>
               <Card sx={{ flex: 1, borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
                 <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', mb: 1 }}>Avg. Actual Work Hrs</Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textTransform: 'uppercase', mb: 1 }}>Avg. Actual Work Hrs</Typography>
                   <Typography sx={{ fontWeight: 600 }}>-</Typography>
                 </CardContent>
               </Card>
               <Card sx={{ flex: 1, borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
                 <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                  <Typography sx={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', mb: 1 }}>Penalty Days</Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', textTransform: 'uppercase', mb: 1 }}>Penalty Days</Typography>
                   <Typography sx={{ fontWeight: 600 }}>0</Typography>
                 </CardContent>
               </Card>
@@ -182,18 +182,18 @@ export default function AttendanceInfoPage() {
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                  <Typography sx={{ color: '#6b7280', cursor: 'pointer' }}>{'<'} Prev</Typography>
+                  <Typography sx={{ color: 'text.secondary', cursor: 'pointer' }}>{'<'} Prev</Typography>
                   <Typography sx={{ fontWeight: 600 }}>May 2026</Typography>
-                  <Typography sx={{ color: '#6b7280', cursor: 'pointer' }}>Next {'>'}</Typography>
+                  <Typography sx={{ color: 'text.secondary', cursor: 'pointer' }}>Next {'>'}</Typography>
                 </Stack>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, textAlign: 'center', color: '#6b7280', fontSize: '0.85rem', mb: 1 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, textAlign: 'center', color: 'text.secondary', fontSize: '0.85rem', mb: 1 }}>
                   <Box>Sun</Box><Box>Mon</Box><Box>Tue</Box><Box>Wed</Box><Box>Thu</Box><Box>Fri</Box><Box>Sat</Box>
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
                   {Array.from({ length: 35 }).map((_, i) => (
                     <Box key={i} sx={{ border: '1px solid #e5e7eb', height: 80, borderRadius: 1, p: 1, position: 'relative' }}>
                       <Typography sx={{ fontSize: '0.85rem' }}>{((i + 26) % 31) + 1}</Typography>
-                      {i === 7 && <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 24, height: 24, borderRadius: '50%', border: '2px solid #3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>0</Box>}
+                      {i === 7 && <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 24, height: 24, borderRadius: '50%', border: '2px solid #7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>0</Box>}
                     </Box>
                   ))}
                 </Box>
@@ -204,19 +204,19 @@ export default function AttendanceInfoPage() {
           <Grid item xs={12} md={4}>
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none', height: '100%' }}>
               <CardContent>
-                <Typography sx={{ fontSize: '0.85rem', color: '#6b7280', mb: 2 }}>03 Sun</Typography>
+                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary', mb: 2 }}>03 Sun</Typography>
                 <Typography sx={{ fontWeight: 600, mb: 1 }}>General(GEN)</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#6b7280', mb: 3 }}>Shift : 09:00 to 18:00</Typography>
+                <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary', mb: 3 }}>Shift : 09:00 to 18:00</Typography>
                 
                 <Divider sx={{ my: 2 }} />
                 
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
-                    <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>First In</Typography>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>First In</Typography>
                     <Typography>-</Typography>
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography sx={{ fontSize: '0.75rem', color: '#6b7280' }}>Last Out</Typography>
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Last Out</Typography>
                     <Typography>-</Typography>
                   </Grid>
                 </Grid>
@@ -232,12 +232,12 @@ export default function AttendanceInfoPage() {
               <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
                   <CardContent>
                       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                          <Typography sx={{ color: '#6b7280', cursor: 'pointer' }}>{'<'} Prev</Typography>
+                          <Typography sx={{ color: 'text.secondary', cursor: 'pointer' }}>{'<'} Prev</Typography>
                           <Typography sx={{ fontWeight: 600 }}>MAY 2026</Typography>
-                          <Typography sx={{ color: '#6b7280', cursor: 'pointer' }}>Next {'>'}</Typography>
+                          <Typography sx={{ color: 'text.secondary', cursor: 'pointer' }}>Next {'>'}</Typography>
                       </Stack>
                       <Box sx={{ bgcolor: '#f3f4f6', p: 2, textAlign: 'center', borderRadius: 1 }}>
-                          <Typography sx={{ color: '#6b7280', fontSize: '0.85rem' }}>No exception days to regularise.</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>No exception days to regularise.</Typography>
                       </Box>
                   </CardContent>
               </Card>
@@ -245,16 +245,16 @@ export default function AttendanceInfoPage() {
            <Grid item xs={12} md={8}>
               <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
                   <Stack direction="row" spacing={0} sx={{ border: '1px solid #e5e7eb', borderRadius: 1, overflow: 'hidden' }}>
-                      <Button variant={subTab === 'apply' ? 'contained' : 'text'} onClick={() => setSubTab('apply')} sx={{ bgcolor: subTab === 'apply' ? '#3b82f6' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'apply' ? '#fff' : '#6b7280' }}>Apply</Button>
-                      <Button variant={subTab === 'pending' ? 'contained' : 'text'} onClick={() => setSubTab('pending')} sx={{ bgcolor: subTab === 'pending' ? '#3b82f6' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'pending' ? '#fff' : '#6b7280' }}>Pending</Button>
-                      <Button variant={subTab === 'history' ? 'contained' : 'text'} onClick={() => setSubTab('history')} sx={{ bgcolor: subTab === 'history' ? '#3b82f6' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'history' ? '#fff' : '#6b7280' }}>History</Button>
+                      <Button variant={subTab === 'apply' ? 'contained' : 'text'} onClick={() => setSubTab('apply')} sx={{ bgcolor: subTab === 'apply' ? '#7c3aed' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'apply' ? '#fff' : '#6b7280' }}>Apply</Button>
+                      <Button variant={subTab === 'pending' ? 'contained' : 'text'} onClick={() => setSubTab('pending')} sx={{ bgcolor: subTab === 'pending' ? '#7c3aed' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'pending' ? '#fff' : '#6b7280' }}>Pending</Button>
+                      <Button variant={subTab === 'history' ? 'contained' : 'text'} onClick={() => setSubTab('history')} sx={{ bgcolor: subTab === 'history' ? '#7c3aed' : 'transparent', borderRadius: 0, textTransform: 'none', color: subTab === 'history' ? '#fff' : '#6b7280' }}>History</Button>
                   </Stack>
               </Box>
 
               {subTab === 'apply' ? (
                 <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none', py: 8 }}>
                     <CardContent sx={{ textAlign: 'center' }}>
-                        <Typography sx={{ color: '#6b7280', mb: 1 }}>Smart! Your attendance is sorted.</Typography>
+                        <Typography sx={{ color: 'text.secondary', mb: 1 }}>Smart! Your attendance is sorted.</Typography>
                         <Typography sx={{ fontSize: '0.85rem', color: '#9ca3af', mb: 3 }}>Still want to apply regularization? Select date(s).</Typography>
                         <Button variant="outlined" onClick={() => setOpenModal(true)} sx={{ textTransform: 'none', borderRadius: 2 }}>New Regularization</Button>
                     </CardContent>
@@ -265,7 +265,7 @@ export default function AttendanceInfoPage() {
                     {loading ? (
                       <Typography sx={{ p: 3, textAlign: 'center' }}>Loading...</Typography>
                     ) : regularizations.length === 0 ? (
-                      <Typography sx={{ p: 3, textAlign: 'center', color: '#6b7280' }}>No {subTab} regularizations found.</Typography>
+                      <Typography sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>No {subTab} regularizations found.</Typography>
                     ) : (
                       <Table>
                         <TableHead sx={{ bgcolor: '#f9fafb' }}>
@@ -353,7 +353,7 @@ export default function AttendanceInfoPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none' }}>Cancel</Button>
-          <Button onClick={submitRegularization} variant="contained" sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}>Submit Request</Button>
+          <Button onClick={submitRegularization} variant="contained" sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}>Submit Request</Button>
         </DialogActions>
       </Dialog>
     </Box>

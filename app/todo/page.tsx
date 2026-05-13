@@ -200,10 +200,10 @@ export default function TodoPage() {
       <Stack spacing={3}>
         <Box>
           <Chip label="To Do" sx={{ bgcolor: '#ede9fe', color: '#6d28d9', fontWeight: 700 }} />
-          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
+          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>
             Task tracker
           </Typography>
-          <Typography sx={{ color: '#64748b', maxWidth: 780 }}>
+          <Typography sx={{ color: 'text.secondary', maxWidth: 780 }}>
             Create, organize, and update your personal work items. This view saves to the backend so your tasks persist after refresh.
           </Typography>
         </Box>
@@ -214,8 +214,8 @@ export default function TodoPage() {
           <Grid item xs={12} lg={4}>
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>Add a task</Typography>
-                <Typography sx={{ color: '#64748b', fontSize: 14, mb: 2 }}>Capture what needs attention next.</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Add a task</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Capture what needs attention next.</Typography>
                 <Stack spacing={2}>
                   <TextField fullWidth label="Task title" value={title} onChange={(e) => setTitle(e.target.value)} />
                   <TextField fullWidth label="Description" multiline minRows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -233,8 +233,8 @@ export default function TodoPage() {
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>Your tasks</Typography>
-                    <Typography sx={{ color: '#64748b', fontSize: 14 }}>Edit status, update details, or remove items when done.</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Your tasks</Typography>
+                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>Edit status, update details, or remove items when done.</Typography>
                   </Box>
                   <Button component={Link} href="/engage" variant="outlined" sx={{ textTransform: 'none', fontWeight: 700 }}>
                     Visit Engage
@@ -272,7 +272,7 @@ export default function TodoPage() {
                   </Box>
                 ) : visibleItems.length === 0 ? (
                   <Box sx={{ py: 6, textAlign: 'center' }}>
-                    <Typography sx={{ color: '#64748b' }}>
+                    <Typography sx={{ color: 'text.secondary' }}>
                       {statusFilter === 'all' ? 'No tasks yet. Add your first item on the left.' : 'No tasks match the selected filter.'}
                     </Typography>
                   </Box>
@@ -284,12 +284,12 @@ export default function TodoPage() {
                           <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
                             <Box sx={{ flex: 1 }}>
                               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.75 }}>
-                                <Typography sx={{ fontWeight: 800, color: '#0f172a' }}>{item.title}</Typography>
+                                <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{item.title}</Typography>
                                 <Chip label={formatStatus(item.status)} size="small" sx={{ fontWeight: 700 }} />
                               </Stack>
-                              {item.description && <Typography sx={{ color: '#64748b', lineHeight: 1.7 }}>{item.description}</Typography>}
+                              {item.description && <Typography sx={{ color: 'text.secondary', lineHeight: 1.7 }}>{item.description}</Typography>}
                               {item.due_date && (
-                                <Typography sx={{ mt: 1, color: '#94a3b8', fontSize: 12 }}>Due {new Date(item.due_date).toLocaleDateString()}</Typography>
+                                <Typography sx={{ mt: 1, color: 'text.secondary', fontSize: 12 }}>Due {new Date(item.due_date).toLocaleDateString()}</Typography>
                               )}
                             </Box>
                             <Stack direction="row" spacing={1} flexWrap="wrap">

@@ -197,7 +197,7 @@ export default function HelpdeskPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <SupportAgentRoundedIcon color="primary" /> 
           {isAdmin ? 'Request Hub Management' : 'My Request Hub'}
         </Typography>
@@ -210,7 +210,7 @@ export default function HelpdeskPage() {
             setCategory('General');
             setPriority('Medium');
           }}
-          sx={{ bgcolor: '#3b82f6', borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 3 }}
+          sx={{ bgcolor: '#7c3aed', borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 3 }}
         >
           Create New Ticket
         </Button>
@@ -231,8 +231,8 @@ export default function HelpdeskPage() {
             <Card sx={{ borderRadius: 2, boxShadow: 'none' }}>
               <CardContent sx={{ py: 6, textAlign: 'center' }}>
                 <SupportAgentRoundedIcon sx={{ fontSize: 40, color: '#cbd5e1', mb: 1 }} />
-                <Typography sx={{ fontWeight: 800, color: '#15162c' }}>{isAdmin ? 'No tickets yet.' : 'You have not submitted any helpdesk tickets.'}</Typography>
-                <Typography sx={{ color: '#64748b' }}>Create the first ticket to get support started.</Typography>
+                <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{isAdmin ? 'No tickets yet.' : 'You have not submitted any helpdesk tickets.'}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>Create the first ticket to get support started.</Typography>
               </CardContent>
             </Card>
           ) : (
@@ -282,7 +282,7 @@ export default function HelpdeskPage() {
                         <IconButton
                           size="small"
                           onClick={() => openDetails(t)}
-                          sx={{ color: '#3b82f6' }}
+                          sx={{ color: '#7c3aed' }}
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
@@ -290,7 +290,7 @@ export default function HelpdeskPage() {
                           <IconButton
                             size="small"
                             onClick={() => openDetails(t)}
-                            sx={{ color: '#6b7280' }}
+                            sx={{ color: 'text.secondary' }}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -352,7 +352,7 @@ export default function HelpdeskPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none' }}>Cancel</Button>
-          <Button onClick={submitTicket} variant="contained" sx={{ bgcolor: '#3b82f6', textTransform: 'none' }}>Submit Ticket</Button>
+          <Button onClick={submitTicket} variant="contained" sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}>Submit Ticket</Button>
         </DialogActions>
       </Dialog>
 
@@ -427,7 +427,7 @@ export default function HelpdeskPage() {
                 setDetailModal(false);
               }}
               variant="contained"
-              sx={{ bgcolor: '#3b82f6' }}
+              sx={{ bgcolor: '#7c3aed' }}
             >
               Update Status
             </Button>

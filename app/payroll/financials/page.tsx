@@ -278,7 +278,7 @@ export default function FinancialsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <AccountBalanceWalletIcon color="primary" /> 
           Financials & Compensation
         </Typography>
@@ -308,8 +308,8 @@ export default function FinancialsPage() {
               <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
                 <Stack spacing={2}>
                   <Stack direction="row" spacing={1.5} alignItems="center">
-                    <WorkOutlineIcon sx={{ color: '#2563eb' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                    <WorkOutlineIcon sx={{ color: '#6d28d9' }} />
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                       Choose Employee
                     </Typography>
                   </Stack>
@@ -327,7 +327,7 @@ export default function FinancialsPage() {
                     ))}
                   </TextField>
                   {selectedEmployee && (
-                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                       Managing compensation for {selectedEmployee.full_name}
                     </Typography>
                   )}
@@ -340,10 +340,10 @@ export default function FinancialsPage() {
                 <Stack spacing={3}>
                   <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
                     <Stack spacing={0.5}>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                         Salary Structure Editor
                       </Typography>
-                      <Typography sx={{ color: '#5b5f7a', fontSize: '0.95rem' }}>
+                      <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
                         Update the base package and compliance rates used for payroll processing.
                       </Typography>
                     </Stack>
@@ -352,7 +352,7 @@ export default function FinancialsPage() {
                       startIcon={<SavingsIcon />}
                       onClick={saveSalaryStructure}
                       disabled={savingStructure || !selectedEmployeeId}
-                      sx={{ bgcolor: '#2563eb', textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+                      sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
                     >
                       {savingStructure ? 'Saving...' : 'Save Structure'}
                     </Button>
@@ -381,8 +381,8 @@ export default function FinancialsPage() {
                           }
                           fullWidth
                           InputProps={{
-                            startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: '#6b7280' }}>{field.prefix}</Typography> : undefined,
-                            endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: '#6b7280' }}>{field.suffix}</Typography> : undefined,
+                            startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: 'text.secondary' }}>{field.prefix}</Typography> : undefined,
+                            endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: 'text.secondary' }}>{field.suffix}</Typography> : undefined,
                           }}
                         />
                       </Grid>
@@ -395,33 +395,33 @@ export default function FinancialsPage() {
                     <Grid item xs={12} md={4}>
                       <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
                         <CardContent>
-                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Monthly Gross</Typography>
-                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Monthly Gross</Typography>
+                          <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
                             ₹{monthlyGross.toLocaleString()}
                           </Typography>
-                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Base + allowance components</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>Base + allowance components</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
                         <CardContent>
-                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Estimated Take Home</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Estimated Take Home</Typography>
                           <Typography variant="h5" sx={{ fontWeight: 800, color: '#16a34a', mt: 1 }}>
                             ₹{estimatedTakeHome.toLocaleString()}
                           </Typography>
-                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>After PF, ESI and tax</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>After PF, ESI and tax</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
                         <CardContent>
-                          <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Annual Gross</Typography>
-                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', mt: 1 }}>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Annual Gross</Typography>
+                          <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
                             ₹{annualGross.toLocaleString()}
                           </Typography>
-                          <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>Projected yearly payroll cost</Typography>
+                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>Projected yearly payroll cost</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -430,19 +430,19 @@ export default function FinancialsPage() {
                   <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
                     <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                       <CardContent>
-                        <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
+                        <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
                         <Stack spacing={1.25}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>PF deduction</Typography>
-                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{pfDeduction.toLocaleString()}</Typography>
+                            <Typography sx={{ color: 'text.primary' }}>PF deduction</Typography>
+                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{pfDeduction.toLocaleString()}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>ESI deduction</Typography>
-                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{esiDeduction.toLocaleString()}</Typography>
+                            <Typography sx={{ color: 'text.primary' }}>ESI deduction</Typography>
+                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{esiDeduction.toLocaleString()}</Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>Estimated tax</Typography>
-                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>₹{estimatedTax.toLocaleString()}</Typography>
+                            <Typography sx={{ color: 'text.primary' }}>Estimated tax</Typography>
+                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{estimatedTax.toLocaleString()}</Typography>
                           </Box>
                         </Stack>
                       </CardContent>
@@ -450,23 +450,23 @@ export default function FinancialsPage() {
 
                     <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                       <CardContent>
-                        <Typography sx={{ color: '#5b5f7a', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
+                        <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
                         <Stack spacing={1.25}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>Employee</Typography>
-                            <Typography sx={{ fontWeight: 700, color: '#0f172a', textAlign: 'right' }}>
+                            <Typography sx={{ color: 'text.primary' }}>Employee</Typography>
+                            <Typography sx={{ fontWeight: 700, color: 'text.primary', textAlign: 'right' }}>
                               {selectedEmployee?.full_name || user?.full_name || 'Current user'}
                             </Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>Structure status</Typography>
+                            <Typography sx={{ color: 'text.primary' }}>Structure status</Typography>
                             <Typography sx={{ fontWeight: 700, color: salaryStructure ? '#16a34a' : '#f59e0b' }}>
                               {salaryStructure ? 'Saved' : 'Draft'}
                             </Typography>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: '#334155' }}>PF / ESI / Tax</Typography>
-                            <Typography sx={{ fontWeight: 700, color: '#0f172a' }}>
+                            <Typography sx={{ color: 'text.primary' }}>PF / ESI / Tax</Typography>
+                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
                               {salaryForm.pf_percentage}% / {salaryForm.esi_percentage}% / {salaryForm.tax_bracket_percentage}%
                             </Typography>
                           </Box>
@@ -487,11 +487,11 @@ export default function FinancialsPage() {
                 <Box>
                   <Typography variant="h6" sx={{ mb: 2 }}>Current Salary Structure</Typography>
                   <Stack spacing={1.5} sx={{ mb: 4 }}>
-                    <Chip label="Compensation" sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', color: '#2563eb', fontWeight: 700, alignSelf: 'flex-start' }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: '#15162c' }}>
+                    <Chip label="Compensation" sx={{ bgcolor: 'rgba(124, 58, 237, 0.12)', color: '#6d28d9', fontWeight: 700, alignSelf: 'flex-start' }} />
+                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: 'text.primary' }}>
                       Salary Structure, Tax, PF & ESI
                     </Typography>
-                    <Typography sx={{ color: '#5b5f7a', lineHeight: 1.8, maxWidth: 900 }}>
+                    <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, maxWidth: 900 }}>
                       Your compensation bands, statutory deductions, and salary components.
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Base Salary:</Typography><Typography fontWeight={600}>₹{salaryStructure.base_salary?.toLocaleString()}</Typography></Box>
@@ -511,7 +511,7 @@ export default function FinancialsPage() {
         )
       ) : activeTab === 1 ? (
         <Box>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenReimModal(true)} sx={{ mb: 2, bgcolor: '#3b82f6', textTransform: 'none' }}>Claim Reimbursement</Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenReimModal(true)} sx={{ mb: 2, bgcolor: '#7c3aed', textTransform: 'none' }}>Claim Reimbursement</Button>
           <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
             <Table>
               <TableHead sx={{ bgcolor: '#f9fafb' }}>
@@ -524,7 +524,7 @@ export default function FinancialsPage() {
               </TableHead>
               <TableBody>
                 {reimbursements.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: '#6b7280' }}>No claims found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>No claims found.</TableCell></TableRow>
                 ) : (
                   reimbursements.map(r => (
                     <TableRow key={r.id}>
@@ -541,7 +541,7 @@ export default function FinancialsPage() {
         </Box>
       ) : (
         <Box>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenLoanModal(true)} sx={{ mb: 2, bgcolor: '#3b82f6', textTransform: 'none' }}>Apply for Loan/Advance</Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenLoanModal(true)} sx={{ mb: 2, bgcolor: '#7c3aed', textTransform: 'none' }}>Apply for Loan/Advance</Button>
           <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
             <Table>
               <TableHead sx={{ bgcolor: '#f9fafb' }}>
@@ -555,7 +555,7 @@ export default function FinancialsPage() {
               </TableHead>
               <TableBody>
                 {loans.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: '#6b7280' }}>No active loans.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No active loans.</TableCell></TableRow>
                 ) : (
                   loans.map(l => (
                     <TableRow key={l.id}>
@@ -585,7 +585,7 @@ export default function FinancialsPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenReimModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={applyReimbursement} sx={{ bgcolor: '#3b82f6' }}>Submit Claim</Button>
+          <Button variant="contained" onClick={applyReimbursement} sx={{ bgcolor: '#7c3aed' }}>Submit Claim</Button>
         </DialogActions>
       </Dialog>
 
@@ -601,7 +601,7 @@ export default function FinancialsPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenLoanModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={applyLoan} sx={{ bgcolor: '#3b82f6' }}>Submit Application</Button>
+          <Button variant="contained" onClick={applyLoan} sx={{ bgcolor: '#7c3aed' }}>Submit Application</Button>
         </DialogActions>
       </Dialog>
     </Box>

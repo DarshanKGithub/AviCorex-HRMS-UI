@@ -128,7 +128,7 @@ export default function TrainingCertificationPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <SchoolIcon color="primary" />
           Training & Certifications
         </Typography>
@@ -137,7 +137,7 @@ export default function TrainingCertificationPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenCertDialog(true)}
-            sx={{ bgcolor: '#2563eb', textTransform: 'none' }}
+            sx={{ bgcolor: '#6d28d9', textTransform: 'none' }}
           >
             Add Certification
           </Button>
@@ -155,31 +155,31 @@ export default function TrainingCertificationPage() {
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2.5, mb: 4 }}>
             <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
-                <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Enrolled Trainings</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Enrolled Trainings</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
                   {enrolledTrainings.length}
                 </Typography>
               </CardContent>
             </Card>
             <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
-                <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Completed</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Completed</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
                   {completedTrainings.length}
                 </Typography>
               </CardContent>
             </Card>
             <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
-                <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Active Certs</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c', mt: 1 }}>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active Certs</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
                   {activeCerts.length}
                 </Typography>
               </CardContent>
             </Card>
             <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
-                <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Expired Certs</Typography>
+                <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Expired Certs</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: expiredCerts.length > 0 ? '#dc2626' : '#15162c', mt: 1 }}>
                   {expiredCerts.length}
                 </Typography>
@@ -208,7 +208,7 @@ export default function TrainingCertificationPage() {
                 <TableBody>
                   {trainings.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 4, color: '#6b7280' }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                         No training enrollments yet.
                       </TableCell>
                     </TableRow>
@@ -256,7 +256,7 @@ export default function TrainingCertificationPage() {
                 <TableBody>
                   {certifications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#6b7280' }}>
+                      <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                         No certifications added yet.
                       </TableCell>
                     </TableRow>
@@ -340,7 +340,7 @@ export default function TrainingCertificationPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenCertDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={addCertification} sx={{ bgcolor: '#2563eb' }}>
+          <Button variant="contained" onClick={addCertification} sx={{ bgcolor: '#6d28d9' }}>
             Add Certificate
           </Button>
         </DialogActions>

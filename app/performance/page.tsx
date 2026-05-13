@@ -115,7 +115,7 @@ export default function PerformancePage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <TrendingUpIcon color="primary" />
           Performance & KPI Management
         </Typography>
@@ -124,7 +124,7 @@ export default function PerformancePage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenGoalDialog(true)}
-            sx={{ bgcolor: '#2563eb', textTransform: 'none' }}
+            sx={{ bgcolor: '#6d28d9', textTransform: 'none' }}
           >
             Set Goal
           </Button>
@@ -144,8 +144,8 @@ export default function PerformancePage() {
               <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
-                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Performance Score</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Performance Score</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
                       {performanceScore?.score?.toFixed(1) || '0'}%
                     </Typography>
                     <LinearProgress
@@ -155,7 +155,7 @@ export default function PerformancePage() {
                         height: 6,
                         borderRadius: 3,
                         backgroundColor: '#e5e7eb',
-                        '& .MuiLinearProgress-bar': { backgroundColor: '#2563eb' },
+                        '& .MuiLinearProgress-bar': { backgroundColor: '#6d28d9' },
                       }}
                     />
                     <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -170,8 +170,8 @@ export default function PerformancePage() {
               <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
-                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Active Goals</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active Goals</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
                       {activeGoals.length}
                     </Typography>
                     <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -186,8 +186,8 @@ export default function PerformancePage() {
               <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
-                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Active KPIs</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active KPIs</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
                       {activeKpis.length}
                     </Typography>
                     <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -202,8 +202,8 @@ export default function PerformancePage() {
               <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
-                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: 600 }}>Appraisals</Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: '#15162c' }}>
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Appraisals</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
                       {appraisals.length}
                     </Typography>
                     <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -227,7 +227,7 @@ export default function PerformancePage() {
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
               <CardContent>
                 {activeGoals.length === 0 ? (
-                  <Typography sx={{ color: '#6b7280', py: 3 }}>No active goals. Create one to get started.</Typography>
+                  <Typography sx={{ color: 'text.secondary', py: 3 }}>No active goals. Create one to get started.</Typography>
                 ) : (
                   <Stack spacing={2}>
                     {activeGoals.map((goal) => (
@@ -236,11 +236,11 @@ export default function PerformancePage() {
                           <Stack spacing={1.5}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 2 }}>
                               <Box sx={{ flex: 1 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                                <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                                   {goal.title}
                                 </Typography>
                                 {goal.description && (
-                                  <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', mt: 0.5 }}>
+                                  <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', mt: 0.5 }}>
                                     {goal.description}
                                   </Typography>
                                 )}
@@ -265,7 +265,7 @@ export default function PerformancePage() {
                                 height: 8,
                                 borderRadius: 2,
                                 backgroundColor: '#e5e7eb',
-                                '& .MuiLinearProgress-bar': { backgroundColor: '#2563eb' },
+                                '& .MuiLinearProgress-bar': { backgroundColor: '#6d28d9' },
                               }}
                             />
                           </Stack>
@@ -283,7 +283,7 @@ export default function PerformancePage() {
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
               <CardContent>
                 {activeKpis.length === 0 ? (
-                  <Typography sx={{ color: '#6b7280', py: 3 }}>No active KPIs set yet.</Typography>
+                  <Typography sx={{ color: 'text.secondary', py: 3 }}>No active KPIs set yet.</Typography>
                 ) : (
                   <Stack spacing={2}>
                     {activeKpis.map((kpi) => {
@@ -294,11 +294,11 @@ export default function PerformancePage() {
                             <Stack spacing={1.5}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                                 <Box>
-                                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                                  <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                                     {kpi.title}
                                   </Typography>
                                   {kpi.description && (
-                                    <Typography sx={{ color: '#6b7280', fontSize: '0.875rem', mt: 0.5 }}>
+                                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', mt: 0.5 }}>
                                       {kpi.description}
                                     </Typography>
                                   )}
@@ -318,7 +318,7 @@ export default function PerformancePage() {
                                   borderRadius: 2,
                                   backgroundColor: '#e5e7eb',
                                   '& .MuiLinearProgress-bar': {
-                                    backgroundColor: achievement >= 100 ? '#16a34a' : '#2563eb',
+                                    backgroundColor: achievement >= 100 ? '#16a34a' : '#6d28d9',
                                   },
                                 }}
                               />
@@ -338,7 +338,7 @@ export default function PerformancePage() {
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
               <CardContent>
                 {recentAppraisals.length === 0 ? (
-                  <Typography sx={{ color: '#6b7280', py: 3 }}>No performance appraisals yet.</Typography>
+                  <Typography sx={{ color: 'text.secondary', py: 3 }}>No performance appraisals yet.</Typography>
                 ) : (
                   <Stack spacing={2}>
                     {recentAppraisals.map((appraisal) => (
@@ -346,18 +346,18 @@ export default function PerformancePage() {
                         <CardContent>
                           <Stack spacing={1}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <Typography variant="h6" sx={{ fontWeight: 700, color: '#15162c' }}>
+                              <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
                                 {appraisal.review_period}
                               </Typography>
                               <Chip label={appraisal.status} />
                             </Box>
                             {appraisal.rating && (
-                              <Typography sx={{ color: '#6b7280' }}>
+                              <Typography sx={{ color: 'text.secondary' }}>
                                 <strong>Rating:</strong> {appraisal.rating}/5.0
                               </Typography>
                             )}
                             {appraisal.comments && (
-                              <Typography sx={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                              <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
                                 {appraisal.comments}
                               </Typography>
                             )}
@@ -422,7 +422,7 @@ export default function PerformancePage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenGoalDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createGoal} sx={{ bgcolor: '#2563eb' }}>
+          <Button variant="contained" onClick={createGoal} sx={{ bgcolor: '#6d28d9' }}>
             Create Goal
           </Button>
         </DialogActions>

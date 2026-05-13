@@ -74,7 +74,7 @@ export default function BiometricsPage() {
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#15162c', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
           <FingerprintIcon color="primary" />
           Biometric & Device Integration
         </Typography>
@@ -85,7 +85,7 @@ export default function BiometricsPage() {
 
       <Card sx={{ borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(0, 0, 0, 0.08)', maxWidth: 600 }}>
         <CardContent sx={{ p: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: '#0f172a' }}>Manual Log Synchronization</Typography>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'text.primary' }}>Manual Log Synchronization</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
             Manually pull or inject biometric logs from the hardware device into the HRMS ecosystem.
           </Typography>
@@ -125,15 +125,15 @@ export default function BiometricsPage() {
               onClick={handleManualSync}
               disabled={syncing}
               sx={{ 
-                bgcolor: '#3b82f6', 
+                bgcolor: '#7c3aed', 
                 py: 1.5,
                 borderRadius: 2,
                 fontWeight: 600,
                 textTransform: 'none',
-                boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
                 '&:hover': {
-                  bgcolor: '#2563eb',
-                  boxShadow: '0 6px 20px rgba(59, 130, 246, 0.23)'
+                  bgcolor: '#6d28d9',
+                  boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)'
                 }
               }}
             >
