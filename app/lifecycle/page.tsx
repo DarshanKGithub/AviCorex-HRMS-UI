@@ -28,6 +28,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -98,6 +99,7 @@ const assetStatuses = ['Available', 'Assigned', 'Repair', 'Retired'];
 
 export default function LifecyclePage() {
   const { token, user } = useAuth();
+  const { hasPermission } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<Summary>({ offers: 0, onboarding: 0, exits: 0, assets: 0 });
@@ -114,10 +116,10 @@ export default function LifecyclePage() {
   const [exitForm, setExitForm] = useState({ employee_id: '', exit_type: 'Resignation', reason: '', notice_period_end: '', last_working_day: '', settlement_amount: '', status: 'Requested' });
   const [assetForm, setAssetForm] = useState({ asset_tag: '', name: '', category: 'IT Equipment', serial_number: '', employee_id: '', status: 'Available', notes: '' });
 
-  const canManageOffers = ['Admin', 'HR'].includes(user?.role || '');
-  const canManageOnboarding = ['Admin', 'HR'].includes(user?.role || '');
-  const canManageExits = ['Admin', 'HR'].includes(user?.role || '');
-  const canManageAssets = ['Admin', 'HR'].includes(user?.role || '');
+  const canManageOffers = hasPermission('manage_recruitment');
+  const canManageOnboarding = hasPermission('create_employee');
+  const canManageExits = hasPermission('delete_employee');
+  const canManageAssets = hasPermission('manage_org');
 
   useEffect(() => {
     if (token) {

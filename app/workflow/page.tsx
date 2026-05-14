@@ -28,10 +28,14 @@ export default function WorkflowFormsPage() {
       router.push('/login');
       return;
     }
+    if (status === 'ready' && user && !hasPermission('manage_workflows')) {
+      router.push('/dashboard');
+      return;
+    }
     if (token) {
       fetchData();
     }
-  }, [status, token, router]);
+  }, [hasPermission, status, token, router, user]);
 
   async function fetchData() {
     setLoading(true);

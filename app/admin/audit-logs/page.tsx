@@ -26,6 +26,7 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import AuditIcon from '@mui/icons-material/History';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
@@ -50,6 +51,7 @@ type PaginatedResponse = {
 
 export default function AuditLogsPage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +66,10 @@ export default function AuditLogsPage() {
 
   // Check authorization on mount
   useEffect(() => {
-    if (auth.status === 'ready' && (!auth.user || auth.user.role !== 'Admin')) {
+    if (auth.status === 'ready' && !hasPermission('view_audit_logs')) {
       router.push('/login');
     }
-  }, [auth.status, auth.user, router]);
+  }, [auth.status, hasPermission, router]);
 
   // Fetch audit logs
   async function fetchLogs() {
@@ -137,7 +139,7 @@ export default function AuditLogsPage() {
     return new Date(isoString).toLocaleString();
   }
 
-  if (auth.status === 'ready' && (!auth.user || auth.user.role !== 'Admin')) {
+  if (auth.status === 'ready' && !hasPermission('view_audit_logs')) {
     return null;
   }
 

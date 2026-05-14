@@ -55,7 +55,7 @@ export default function ServicesPage() {
   const { hasPermission } = usePermissions();
   const [services, setServices] = useState<ServiceItem[]>(DEFAULT_SERVICES);
 
-  const isAdmin = hasPermission('manage_services') || (user?.role ?? '').toLowerCase().includes('admin');
+  const isAdmin = hasPermission('manage_settings');
 
   useEffect(() => {
     setServices(readServices());

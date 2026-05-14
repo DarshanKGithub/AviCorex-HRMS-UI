@@ -36,7 +36,7 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState('');
   const canEditProfile = hasPermission('edit_profile');
 
-  const isAdmin = hasPermission('manage_services') || (authContext?.user?.role ?? '').toLowerCase().includes('admin');
+  const isAdmin = hasPermission('manage_settings');
 
   const SERVICES = [
     { key: 'manage-accounts', label: 'Manage Accounts', icon: 'people' },

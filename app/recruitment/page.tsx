@@ -38,6 +38,7 @@ import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -95,6 +96,7 @@ function formatDateTime(value: string) {
 
 export default function RecruitmentPage() {
   const { user, token } = useAuth();
+  const { hasPermission } = usePermissions();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +116,7 @@ export default function RecruitmentPage() {
   const [applicationForm, setApplicationForm] = useState({ job_id: '', candidate_id: '', status: 'Applied' });
   const [interviewForm, setInterviewForm] = useState({ application_id: '', scheduled_at: '', meeting_link: '' });
 
-  const isAdminOrHR = ['Admin', 'HR'].includes(user?.role || '');
+  const isAdminOrHR = hasPermission('manage_recruitment');
   const recruitmentStats = [
     { label: 'Open roles', value: jobs.length, accent: '#6d28d9' },
     { label: 'Candidates', value: candidates.length, accent: '#16a34a' },

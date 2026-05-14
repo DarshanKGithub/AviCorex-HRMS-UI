@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthContext';
+import { getPermissionsForRole } from '@/components/auth/rolePermissions';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -52,10 +53,14 @@ export function usePermissions() {
         if (cancelled) {
           return;
         }
+        const resolvedRole = payload.role ?? user?.role ?? null;
+        const resolvedPermissions = Array.isArray(payload.permissions) && payload.permissions.length > 0
+          ? payload.permissions
+          : getPermissionsForRole(resolvedRole);
         setState({
           status: 'ready',
-          role: payload.role ?? user?.role ?? null,
-          permissions: Array.isArray(payload.permissions) ? payload.permissions : []
+          role: resolvedRole,
+          permissions: resolvedPermissions
         });
       })
       .catch(() => {
@@ -63,9 +68,9 @@ export function usePermissions() {
           return;
         }
         setState({
-          status: 'error',
+          status: 'ready',
           role: user?.role ?? null,
-          permissions: []
+          permissions: getPermissionsForRole(user?.role)
         });
       });
 

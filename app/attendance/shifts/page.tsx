@@ -23,6 +23,7 @@ import Stack from '@mui/material/Stack';
 import AddIcon from '@mui/icons-material/Add';
 import ClockIcon from '@mui/icons-material/Schedule';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
@@ -48,6 +49,7 @@ type ShiftListResponse = {
 
 export default function ShiftsPage() {
   const auth = useAuth();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,14 +68,13 @@ export default function ShiftsPage() {
     if (auth.status === 'ready' && !auth.user) {
       router.push('/login');
     } else if (auth.status === 'ready' && auth.token) {
-      // Check if user has admin/HR role
-      if (auth.user?.role !== 'admin' && auth.user?.role !== 'hr') {
+      if (!hasPermission('manage_shifts')) {
         router.push('/attendance');
       } else {
         fetchShifts();
       }
     }
-  }, [auth.status, auth.token, router, auth.user?.role]);
+  }, [auth.status, auth.token, hasPermission, router]);
 
   async function fetchShifts() {
     if (!auth.token) return;

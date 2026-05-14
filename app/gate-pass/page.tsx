@@ -28,6 +28,7 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import BadgeIcon from '@mui/icons-material/Badge';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -55,6 +56,7 @@ interface PaginatedResponse {
 
 export default function GatePassPage() {
   const { user, token } = useAuth();
+  const { hasPermission } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [gatePasses, setGatePasses] = useState<GatePass[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -72,10 +74,10 @@ export default function GatePassPage() {
 
   useEffect(() => {
     if (token) {
-      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
+      setIsAdmin(hasPermission('manage_gatepasses'));
       fetchGatePasses();
     }
-  }, [token, user?.role]);
+  }, [hasPermission, token]);
 
   async function fetchGatePasses() {
     setLoading(true);

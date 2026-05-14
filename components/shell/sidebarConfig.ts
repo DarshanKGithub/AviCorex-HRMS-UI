@@ -54,16 +54,19 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     label: 'Engage',
     href: '/engage',
     icon: 'engage',
+    requiredAnyPermissions: ['view_announcements', 'raise_support_ticket', 'manage_grievances', 'manage_gatepasses'],
   },
   {
     label: 'My Worklife',
     href: '/my-worklife',
     icon: 'worklife',
+    requiredAnyPermissions: ['view_profile', 'edit_profile', 'change_password'],
   },
   {
     label: 'To Do',
     href: '/todo',
     icon: 'todo',
+    requiredAnyPermissions: ['view_tasks'],
   },
   {
     label: 'Salary',
@@ -151,16 +154,19 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     label: 'Performance',
     href: '/performance',
     icon: 'performance',
+    requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
     children: [
       {
         label: 'Goals & KPIs',
         href: '/performance',
         icon: 'performance',
+        requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
       },
       {
         label: 'Training & Certifications',
         href: '/performance/training',
         icon: 'performance',
+        requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
       }
     ]
   },
@@ -168,6 +174,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     label: 'Expense Claims',
     href: '#expense',
     icon: 'expense',
+    requiredAnyPermissions: ['view_expense_claims_own', 'approve_expenses'],
   },
   {
     label: 'Document Center',
@@ -183,34 +190,39 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     children: [
       { label: 'Directory', href: '/employees', icon: 'people', requiredAnyPermissions: ['view_employee'] },
       { label: 'Org Hierarchy', href: '/org-chart', icon: 'people', requiredAnyPermissions: ['view_employee'] },
-      { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people' },
-      { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow' },
+      { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people', requiredAnyPermissions: ['manage_recruitment'] },
+      { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow', requiredAnyPermissions: ['create_employee', 'delete_employee', 'manage_org'] },
     ]
   },
   {
     label: 'Request Hub',
     href: '/helpdesk',
     icon: 'helpdesk',
+    requiredAnyPermissions: ['raise_support_ticket', 'view_announcements', 'manage_helpdesk', 'manage_gatepasses', 'manage_grievances'],
     children: [
       {
         label: 'Support Tickets',
         href: '/helpdesk',
         icon: 'helpdesk',
+        requiredAnyPermissions: ['raise_support_ticket', 'manage_helpdesk'],
       },
       {
         label: 'Announcements',
         href: '/announcements',
         icon: 'campaign',
+        requiredAnyPermissions: ['view_announcements', 'manage_announcements'],
       },
       {
         label: 'Gate Pass',
         href: '/gate-pass',
         icon: 'badge',
+        requiredAnyPermissions: ['manage_gatepasses'],
       },
       {
         label: 'Grievances',
         href: '/grievance',
         icon: 'problem',
+        requiredAnyPermissions: ['manage_grievances'],
       }
     ]
   },
@@ -218,16 +230,19 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     label: 'Notifications',
     href: '/notifications',
     icon: 'notifications',
+    requiredAnyPermissions: ['view_announcements', 'manage_notifications'],
     children: [
       {
         label: 'Notification Center',
         href: '/notifications',
         icon: 'notifications',
+        requiredAnyPermissions: ['view_announcements', 'manage_notifications'],
       },
       {
         label: 'Settings',
         href: '/settings/notifications',
         icon: 'settings',
+        requiredAnyPermissions: ['manage_notifications'],
       }
     ]
   },

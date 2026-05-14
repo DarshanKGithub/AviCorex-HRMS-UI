@@ -26,6 +26,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { API_BASE_URL } from '@/lib/apiBase';
 
@@ -44,6 +45,7 @@ type Ticket = {
 
 export default function HelpdeskPage() {
   const { user, token } = useAuth();
+  const { hasPermission } = usePermissions();
   
   // State
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -66,11 +68,10 @@ export default function HelpdeskPage() {
 
   useEffect(() => {
     if (token) {
-      // Check if user is admin/hr
-      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
+      setIsAdmin(hasPermission('manage_helpdesk'));
       fetchTickets();
     }
-  }, [token, user?.role]);
+  }, [hasPermission, token]);
 
   async function fetchTickets() {
     setLoading(true);
