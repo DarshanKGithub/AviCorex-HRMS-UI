@@ -143,7 +143,7 @@ export default function LeavesPage() {
   }, [auth.status, auth.token, router, canApproveLeave]);
 
   useEffect(() => {
-    const tab = searchParams.get('tab');
+    const tab = searchParams?.get('tab');
     if (tab === 'apply') {
       setTabValue(0);
     } else if (tab === 'pending') {

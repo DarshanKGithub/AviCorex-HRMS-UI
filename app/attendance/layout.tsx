@@ -16,11 +16,11 @@ export default function AttendanceLayout({ children }: AttendanceLayoutProps) {
 
   // Determine active tab based on pathname
   const getTabValue = () => {
-    if (pathname.includes('/attendance/timesheets')) return 0;
-    if (pathname.includes('/attendance/overtime')) return 1;
-    if (pathname.includes('/attendance/comp-off')) return 2;
-    if (pathname.includes('/attendance/shifts')) return 3;
-    if (pathname.includes('/attendance/info')) return 4;
+    if (pathname?.includes('/attendance/timesheets')) return 0;
+    if (pathname?.includes('/attendance/overtime')) return 1;
+    if (pathname?.includes('/attendance/comp-off')) return 2;
+    if (pathname?.includes('/attendance/shifts')) return 3;
+    if (pathname?.includes('/attendance/info')) return 4;
     return 4;
   };
 

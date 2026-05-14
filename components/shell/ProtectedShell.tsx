@@ -116,7 +116,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const activeNav = useMemo(() => {
     const findActive = (items: any[]): any => {
       for (const item of items) {
-        if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
+        if ((pathname === item.href) || pathname?.startsWith(`${item.href}/`)) {
           return item;
         }
         if (item.children) {
@@ -129,7 +129,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     return findActive(visibleItems);
   }, [pathname, visibleItems]);
 
-  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
 
   if (status === 'loading' || !isAuthenticated || !user) {
     return (
@@ -145,7 +145,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const renderNavItem = (item: any, depth = 0): React.ReactNode => {
     const Icon = getIconComponent(item.icon);
     const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const active = (pathname === item.href) || pathname?.startsWith(`${item.href}/`);
     const isExpanded = expandedItems[item.href] ?? active;
 
     if (!hasChildren) {
@@ -220,7 +220,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <List component="div" disablePadding>
             {item.children.map((child: any) => {
               const ChildIcon = getIconComponent(child.icon);
-              const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
+              const childActive = (pathname === child.href) || pathname?.startsWith(`${child.href}/`);
 
               return (
                 <ListItemButton

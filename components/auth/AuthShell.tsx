@@ -1,9 +1,12 @@
+"use client";
+
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { keyframes, useTheme } from '@mui/material/styles';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
@@ -14,6 +17,13 @@ interface AuthShellProps {
 }
 
 export function AuthShell({ children }: AuthShellProps) {
+  const theme = useTheme();
+
+  const floatIn = keyframes`
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  `;
+
   return (
     <Box
       className="h-screen w-full overflow-hidden"
@@ -29,30 +39,30 @@ export function AuthShell({ children }: AuthShellProps) {
           <div className="absolute -right-16 top-24 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl" />
           <div className="absolute bottom-10 left-10 h-72 w-72 rounded-full bg-purple-500/15 blur-3xl" />
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="overflow-hidden rounded-2xl bg-white/95 p-1.5 shadow-[0_14px_34px_-16px_rgba(15,23,42,0.5)]">
+            <Box sx={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: 3, animation: `${floatIn} 360ms ease-out` }}>
+            <Box className="overflow-hidden rounded-2xl bg-white/95 p-1.5 shadow-[0_14px_34px_-16px_rgba(15,23,42,0.5)]">
               <Image src="/logo.png" alt="HRMS logo" width={46} height={46} className="h-11 w-11 rounded-xl object-cover" priority />
-            </div>
-            <div>
+            </Box>
+            <Box>
               <Typography sx={{ fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)', fontWeight: 700 }}>
                 HRMS
               </Typography>
               <Typography sx={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em' }}>
                 Workforce Suite
               </Typography>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <div className="relative z-10 max-w-[520px]">
+          <Box sx={{ position: 'relative', zIndex: 10, maxWidth: 520, animation: `${floatIn} 420ms ease-out` }}>
             <Typography variant="h3" component="h1" sx={{ mt: 2.5, fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.06, fontSize: { xs: '2.4rem', xl: '3.25rem' } }}>
               One login for your entire HRMS.
             </Typography>
             <Typography sx={{ mt: 2, maxWidth: 420, color: 'rgba(255,255,255,0.8)', fontSize: '0.96rem', lineHeight: 1.6 }}>
               Manage payroll, attendance, approvals, and employee workspaces from a modern SaaS entry point.
             </Typography>
-          </div>
+          </Box>
 
-          <Box sx={{ position: 'relative', zIndex: 10, mt: 5, display: 'grid', gap: 1.2 }}>
+          <Box sx={{ position: 'relative', zIndex: 10, mt: 5, display: 'grid', gap: 1.2, animation: `${floatIn} 480ms ease-out` }}>
             <Paper sx={{ p: 2.5, borderRadius: 4, bgcolor: 'rgba(10, 27, 51, 0.56)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(14px)' }}>
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.8 }}>
                 <Box>
@@ -93,7 +103,7 @@ export function AuthShell({ children }: AuthShellProps) {
             </Paper>
           </Box>
 
-          <Box sx={{ mt: 2.5, position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: 1.5, color: 'rgba(255,255,255,0.76)' }}>
+          <Box sx={{ mt: 2.5, position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: 1.5, color: 'rgba(255,255,255,0.76)', animation: `${floatIn} 520ms ease-out` }}>
             <InsightsRoundedIcon fontSize="small" sx={{ color: '#ddd6fe' }} />
             <Typography sx={{ fontSize: 13 }}>Built for a clean HR experience, not a cluttered form.</Typography>
           </Box>
@@ -101,20 +111,20 @@ export function AuthShell({ children }: AuthShellProps) {
 
         <section className="relative flex h-full items-center justify-center px-5 py-6 sm:px-10 sm:py-8 lg:px-12 lg:py-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.08),transparent_25%),radial-gradient(circle_at_bottom_left,rgba(139,92,246,0.07),transparent_22%)]" />
-          <div className="relative z-10 w-full max-w-[500px]">
-            <div className="mb-6 flex items-center gap-3 lg:hidden">
-              <div className="overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/70">
+          <Box sx={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 500, animation: `${floatIn} 300ms ease-out` }}>
+            <Box className="mb-6 flex items-center gap-3 lg:hidden" sx={{ alignItems: 'center', animation: `${floatIn} 300ms ease-out` }}>
+              <Box className="overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/70">
                 <Image src="/logo.png" alt="HRMS logo" width={42} height={42} className="h-10 w-10 rounded-xl object-cover" priority />
-              </div>
-              <div>
+              </Box>
+              <Box>
                 <Typography sx={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 700 }}>
                   HRMS
                 </Typography>
                 <Typography sx={{ fontSize: 18, color: 'text.primary', fontWeight: 800, letterSpacing: '-0.03em' }}>Workforce Suite</Typography>
-              </div>
-            </div>
+              </Box>
+            </Box>
             {children}
-          </div>
+          </Box>
         </section>
       </div>
     </Box>

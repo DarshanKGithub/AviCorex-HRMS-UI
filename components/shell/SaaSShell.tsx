@@ -18,8 +18,8 @@ interface SaaSShellProps {
 
 export function SaaSShell({ children, title = 'HRMS Platform', subtitle = 'Calm, enterprise-ready HR workflows' }: SaaSShellProps) {
   const pathname = usePathname();
-  const isProtectedDashboardRoute = pathname.startsWith('/dashboard');
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/forgot-password');
+  const isProtectedDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
+  const isAuthRoute = (pathname?.startsWith('/login') ?? false) || (pathname?.startsWith('/forgot-password') ?? false);
 
   if (isProtectedDashboardRoute || isAuthRoute) {
     return <>{children}</>;

@@ -139,14 +139,14 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
 
   if (!items) {
     // Try exact match first
-    if (pathBreadcrumbMap[pathname]) {
+    if (pathname && pathBreadcrumbMap[pathname]) {
       breadcrumbItems = pathBreadcrumbMap[pathname];
     } else {
       // Try pattern matching for dynamic routes
       for (const [pattern, crumbs] of Object.entries(pathBreadcrumbMap)) {
         if (pattern.includes('[')) {
           const regex = new RegExp('^' + pattern.replace(/\[.*?\]/g, '[^/]+') + '$');
-          if (regex.test(pathname)) {
+          if (pathname && regex.test(pathname)) {
             breadcrumbItems = crumbs;
             break;
           }
