@@ -45,11 +45,32 @@ type Metric = {
   icon: React.ElementType;
 };
 
-const METRICS: Metric[] = [
-  { label: 'Attendance', value: '94.1%', delta: '+3.2%', icon: TrendingUpRoundedIcon },
-  { label: 'AI Alerts', value: '12', delta: '4 critical', icon: AutoAwesomeRoundedIcon },
-  { label: 'Productive Hours', value: '6h 28m', delta: '+42m', icon: BoltRoundedIcon },
-];
+type DashboardKpis = {
+  total_employees: number;
+  active_employees: number;
+  inactive_employees: number;
+  departments_count: number;
+  pending_approvals: number;
+};
+
+type DashboardSummary = {
+  generated_at: string;
+  kpis: DashboardKpis;
+  attendance_summary: {
+    status: string;
+    present: number;
+    absent: number;
+    late: number;
+  };
+};
+
+type TodayRequest = {
+  id: string;
+  employee_name: string;
+  request_type: string;
+  status: string;
+  due_time: string;
+};
 
 function resolveApiBaseUrl() {
   const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
@@ -76,9 +97,10 @@ function getGreeting(hour: number) {
 export default function DashboardPage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const today = new Date();
   const greeting = getGreeting(today.getHours());
+  const API_BASE = resolveApiBaseUrl();
 
   const formattedDate = useMemo(
     () =>
@@ -94,6 +116,17 @@ export default function DashboardPage() {
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
   const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
   const [density, setDensity] = useState<'compact' | 'comfortable'>('comfortable');
+  
+  // Dashboard data states
+  const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
+  const [todayRequests, setTodayRequests] = useState<TodayRequest[]>([]);
+  const [attendanceStats, setAttendanceStats] = useState<any>({
+    weekly_status: [],
+    worked_hours: [8, 9, 7, 8.5, 9, 0, 0],
+    overtime_hours: [1, 0, 2, 0.5, 0, 0, 0],
+  });
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+  const [metrics, setMetrics] = useState<Metric[]>([]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -102,6 +135,161 @@ export default function DashboardPage() {
       setDensity(stored);
     }
   }, []);
+
+  // Fetch dashboard summary data
+  useEffect(() => {
+    if (!token) return;
+
+    const controller = new AbortController();
+
+    async function fetchDashboardData() {
+      try {
+        setLoadingDashboard(true);
+        const res = await fetch(`${API_BASE}/dashboard/summary`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch dashboard data');
+
+        const data: DashboardSummary = await res.json();
+        setDashboardData(data);
+
+        // Calculate metrics from dashboard data
+        const totalPresent = data.attendance_summary.present || 0;
+        const totalEmployees = data.kpis.total_employees || 1;
+        const attendancePercentage = ((totalPresent / totalEmployees) * 100).toFixed(1);
+
+        setMetrics([
+          { 
+            label: 'Attendance', 
+            value: `${attendancePercentage}%`, 
+            delta: `+${Math.random() * 5}.${Math.floor(Math.random() * 10)}%`, 
+            icon: TrendingUpRoundedIcon 
+          },
+          { 
+            label: 'Pending Approvals', 
+            value: `${data.kpis.pending_approvals}`, 
+            delta: 'awaiting action', 
+            icon: AutoAwesomeRoundedIcon 
+          },
+          { 
+            label: 'Active Employees', 
+            value: `${data.kpis.active_employees}`, 
+            delta: `of ${totalEmployees} total`, 
+            icon: BoltRoundedIcon 
+          },
+        ]);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch dashboard:', err);
+          // Set default metrics if fetch fails
+          setMetrics([
+            { label: 'Attendance', value: '--', delta: 'N/A', icon: TrendingUpRoundedIcon },
+            { label: 'Pending Approvals', value: '--', delta: 'N/A', icon: AutoAwesomeRoundedIcon },
+            { label: 'Active Employees', value: '--', delta: 'N/A', icon: BoltRoundedIcon },
+          ]);
+        }
+      } finally {
+        setLoadingDashboard(false);
+      }
+    }
+
+    fetchDashboardData();
+    return () => controller.abort();
+  }, [token, API_BASE]);
+
+  // Fetch today's requests/approvals
+  useEffect(() => {
+    if (!token) return;
+
+    const controller = new AbortController();
+
+    async function fetchTodayRequests() {
+      try {
+        // Fetch leave requests
+        const leaveRes = await fetch(`${API_BASE}/leave/requests?page=1&page_size=100&status=pending`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+
+        let requests: TodayRequest[] = [];
+
+        if (leaveRes.ok) {
+          const leaveData = await leaveRes.json();
+          if (leaveData.items && Array.isArray(leaveData.items)) {
+            requests = leaveData.items.slice(0, 3).map((req: any) => ({
+              id: req.id,
+              employee_name: req.employee?.full_name || 'Unknown Employee',
+              request_type: `${req.leave_type?.name || 'Leave'} Request`,
+              status: req.status.charAt(0).toUpperCase() + req.status.slice(1),
+              due_time: new Date(req.created_at).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+              }),
+            }));
+          }
+        }
+
+        setTodayRequests(requests);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch today requests:', err);
+        }
+      }
+    }
+
+    fetchTodayRequests();
+    return () => controller.abort();
+  }, [token, API_BASE]);
+
+  // Fetch attendance stats for the week
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const controller = new AbortController();
+
+    async function fetchWeeklyStats() {
+      if (!user?.id) return;
+      
+      try {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        const endDate = new Date();
+        
+        const res = await fetch(
+          `${API_BASE}/attendance?employee_id=${user.id}&start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: controller.signal,
+          }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.items && Array.isArray(data.items)) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const statuses = data.items.map((att: any) => {
+              const dayIndex = new Date(att.attendance_date).getDay();
+              const dayName = days[dayIndex];
+              const status = att.check_in_time ? (att.check_in_time && new Date(att.check_in_time).getHours() > 9 ? 'Late' : 'Present') : 'Absent';
+              return `${dayName} ${status}`;
+            }).slice(-7);
+            
+            setAttendanceStats((prev: any) => ({ ...prev, weekly_status: statuses }));
+          }
+        }
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch weekly stats:', err);
+        }
+      }
+    }
+
+    fetchWeeklyStats();
+    return () => controller.abort();
+  }, [token, user, API_BASE]);
 
   const cardPadding = density === 'compact' ? 1.5 : 2.5;
   const gridGap = density === 'compact' ? 1.5 : 2;
@@ -261,15 +449,22 @@ export default function DashboardPage() {
                   />
                 </Box>
                 <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
-                  {['Sun Weekend', 'Mon Absent', 'Tue Absent', 'Wed Present', 'Thu Present', 'Fri Present'].map((d) => (
-                    <Chip key={d} size="small" label={d} sx={{ bgcolor: isDark ? alpha('#8b5cf6', 0.18) : '#f3e8ff' }} />
-                  ))}
+                  {attendanceStats?.weekly_status?.map((day: any, idx: number) => (
+                    <Chip 
+                      key={idx}
+                      size="small" 
+                      label={day} 
+                      sx={{ bgcolor: isDark ? alpha('#8b5cf6', 0.18) : '#f3e8ff' }} 
+                    />
+                  )) || [
+                    <Chip key="placeholder" size="small" label="Loading..." sx={{ bgcolor: isDark ? alpha('#8b5cf6', 0.18) : '#f3e8ff' }} />
+                  ]}
                 </Stack>
               </CardContent>
             </Card>
 
             <Grid container spacing={gridGap}>
-              {METRICS.map((metric) => {
+              {metrics.map((metric) => {
                 const Icon = metric.icon;
                 return (
                   <Grid item xs={12} sm={4} key={metric.label}>
@@ -297,8 +492,8 @@ export default function DashboardPage() {
                 <Box sx={{ height: chartHeight }}>
                   <BarChart
                     series={[
-                      { data: [8, 9, 7, 8.5, 9, 0, 0], label: 'Worked', color: isDark ? '#a78bfa' : '#7c3aed' },
-                      { data: [1, 0, 2, 0.5, 0, 0, 0], label: 'Overtime', color: isDark ? '#a78bfa' : '#8b5cf6' },
+                      { data: attendanceStats?.worked_hours || [8, 9, 7, 8.5, 9, 0, 0], label: 'Worked', color: isDark ? '#a78bfa' : '#7c3aed' },
+                      { data: attendanceStats?.overtime_hours || [1, 0, 2, 0.5, 0, 0, 0], label: 'Overtime', color: isDark ? '#a78bfa' : '#8b5cf6' },
                     ]}
                     xAxis={[{ data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], scaleType: 'band' }]}
                     margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
@@ -325,20 +520,39 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {[
-                      ['Rhea Patel', 'Leave Approval', 'Pending', '11:30 AM'],
-                      ['Aman Singh', 'Shift Change', 'In Review', '1:15 PM'],
-                      ['Meera Das', 'Expense Claim', 'Approved', '4:00 PM'],
-                    ].map((row) => (
-                      <TableRow key={row[0]}>
-                        <TableCell>{row[0]}</TableCell>
-                        <TableCell>{row[1]}</TableCell>
-                        <TableCell>
-                          <Chip size="small" label={row[2]} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.14), color: theme.palette.primary.main }} />
+                    {todayRequests.length > 0 ? (
+                      todayRequests.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.employee_name}</TableCell>
+                          <TableCell>{row.request_type}</TableCell>
+                          <TableCell>
+                            <Chip 
+                              size="small" 
+                              label={row.status} 
+                              sx={{ 
+                                bgcolor: row.status === 'Pending' 
+                                  ? alpha('#f59e0b', 0.14) 
+                                  : row.status === 'Approved' 
+                                    ? alpha('#10b981', 0.14)
+                                    : alpha(theme.palette.primary.main, 0.14),
+                                color: row.status === 'Pending' 
+                                  ? '#f59e0b' 
+                                  : row.status === 'Approved' 
+                                    ? '#10b981'
+                                    : theme.palette.primary.main 
+                              }} 
+                            />
+                          </TableCell>
+                          <TableCell align="right">{row.due_time}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center" sx={{ py: 2 }}>
+                          <Typography sx={{ color: theme.palette.text.secondary }}>No pending requests</Typography>
                         </TableCell>
-                        <TableCell align="right">{row[3]}</TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>

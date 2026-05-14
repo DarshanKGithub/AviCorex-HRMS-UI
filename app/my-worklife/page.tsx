@@ -41,7 +41,7 @@ export default function MyWorklifePage() {
 
         <Grid container spacing={2.5}>
           {[
-            { label: 'Focus areas', value: '6', helper: 'Shortcuts and essentials' },
+            { label: 'Focus areas', value: quickLinks.length.toString(), helper: 'Shortcuts and essentials' },
             { label: 'Today', value: new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }), helper: 'Daily view' },
             { label: 'Status', value: user?.role || 'Employee', helper: 'Current workspace role' },
           ].map((stat) => (

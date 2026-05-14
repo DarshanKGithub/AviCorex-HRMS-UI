@@ -57,10 +57,10 @@ export function AuthShell({ children }: AuthShellProps) {
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.8 }}>
                 <Box>
                   <Typography sx={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Workspace preview
+                    Key features
                   </Typography>
                   <Typography sx={{ color: '#fff', fontSize: 18, fontWeight: 800, mt: 0.5 }}>
-                    Teams, approvals, and reporting
+                    Complete HR management
                   </Typography>
                 </Box>
                 <Box sx={{ width: 52, height: 52, borderRadius: 3, display: 'grid', placeItems: 'center', bgcolor: 'rgba(139,92,246,0.18)' }}>
@@ -69,18 +69,13 @@ export function AuthShell({ children }: AuthShellProps) {
               </Stack>
               <Box sx={{ display: 'grid', gap: 1.4 }}>
                 {[
-                  { label: 'Payroll', pct: 92 },
-                  { label: 'Attendance', pct: 84 },
-                  { label: 'Requests', pct: 76 },
+                  { label: 'Payroll Management', icon: <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> },
+                  { label: 'Attendance Tracking', icon: <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> },
+                  { label: 'Request Approvals', icon: <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> },
                 ].map((item) => (
-                  <Box key={item.label}>
-                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.7 }}>
-                      <Typography sx={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontWeight: 600 }}>{item.label}</Typography>
-                      <Typography sx={{ color: '#ddd6fe', fontSize: 13, fontWeight: 700 }}>{item.pct}%</Typography>
-                    </Stack>
-                    <Box sx={{ height: 8, borderRadius: 999, bgcolor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                      <Box sx={{ width: `${item.pct}%`, height: '100%', borderRadius: 999, background: 'linear-gradient(90deg, #a78bfa, #7c3aed)' }} />
-                    </Box>
+                  <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                    <Box sx={{ color: '#a78bfa' }}>{item.icon}</Box>
+                    <Typography sx={{ color: 'rgba(255,255,255,0.82)', fontSize: 13, fontWeight: 600 }}>{item.label}</Typography>
                   </Box>
                 ))}
               </Box>
