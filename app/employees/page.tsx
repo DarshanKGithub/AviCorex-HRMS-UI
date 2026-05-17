@@ -70,7 +70,9 @@ export default function EmployeesPage() {
   const [managerId, setManagerId] = useState<string | ''>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Employee');
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
   const [chainOpen, setChainOpen] = useState(false);
   const [managerChain, setManagerChain] = useState<string[]>([]);
@@ -223,23 +225,34 @@ export default function EmployeesPage() {
     setEditingId(null);
     setName('');
     setEmail('');
+    setPassword('');
+    setRole('Employee');
     setDepartmentId('');
     setDesignationId('');
     setManagerId('');
+    setErrors({});
   }
 
   function validateForm() {
-    const e: { name?: string; email?: string } = {};
+    const e: { name?: string; email?: string; password?: string } = {};
     if (!name || name.trim().length < 2) e.name = 'Full name is required (min 2 chars)';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) e.email = 'Enter a valid email address';
+    if (!editingId && (!password || password.length < 6)) {
+      e.password = 'Login password is required (min 6 characters)';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   // Derived validity check (does not set state) to avoid calling validateForm() during render
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isFormValid = !!name && name.trim().length >= 2 && !!email && emailRegex.test(email);
+  const isFormValid =
+    !!name &&
+    name.trim().length >= 2 &&
+    !!email &&
+    emailRegex.test(email) &&
+    (editingId ? true : password.length >= 6);
 
   async function handleSave() {
     if (!validateForm()) return;
@@ -258,13 +271,17 @@ export default function EmployeesPage() {
       return;
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       full_name: name,
       email,
       department_id: departmentId || null,
       designation_id: designationId || null,
       manager_id: managerId || null,
     };
+    if (!editingId) {
+      payload.password = password;
+      payload.role = role;
+    }
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
@@ -348,12 +365,39 @@ export default function EmployeesPage() {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 1 }}>{editingId ? 'Edit employee' : 'Create employee'}</Typography>
+              <Typography variant="h6" sx={{ mb: 1 }}>{editingId ? 'Edit employee' : 'Create employee & login'}</Typography>
               <Divider sx={{ mb: 1 }} />
               {canModify ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {!editingId && (
+                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                      Creates an employee profile and login account. The new hire signs in with the email and password below.
+                    </Typography>
+                  )}
                   <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} fullWidth error={!!errors.name} helperText={errors.name} />
-                  <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth error={!!errors.email} helperText={errors.email} />
+                  <TextField label="Work email (login)" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth error={!!errors.email} helperText={errors.email} disabled={!!editingId} />
+                  {!editingId && (
+                    <>
+                      <TextField
+                        label="Login password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        fullWidth
+                        error={!!errors.password}
+                        helperText={errors.password || 'Minimum 6 characters — share securely with the employee'}
+                      />
+                      <FormControl fullWidth>
+                        <InputLabel id="role-label">Login role</InputLabel>
+                        <Select labelId="role-label" label="Login role" value={role} onChange={(e) => setRole(e.target.value)}>
+                          <MenuItem value="Employee">Employee</MenuItem>
+                          <MenuItem value="Worker">Worker</MenuItem>
+                          <MenuItem value="Manager">Manager</MenuItem>
+                        </Select>
+                        <FormHelperText>Controls which menus and actions they can access after login</FormHelperText>
+                      </FormControl>
+                    </>
+                  )}
                   <FormControl>
                     <InputLabel id="manager-label">Manager</InputLabel>
                     <Select labelId="manager-label" label="Manager" value={managerId} onChange={(e) => setManagerId(e.target.value)}>

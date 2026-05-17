@@ -172,9 +172,9 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
   },
   {
     label: 'Expense Claims',
-    href: '#expense',
+    href: '/payroll/financials?tab=1',
     icon: 'expense',
-    requiredAnyPermissions: ['view_expense_claims_own', 'approve_expenses'],
+    requiredAnyPermissions: ['view_expense_claims_own', 'approve_expenses', 'view_payroll'],
   },
   {
     label: 'Document Center',

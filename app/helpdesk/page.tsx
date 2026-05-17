@@ -26,6 +26,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { API_BASE_URL } from '@/lib/apiBase';
@@ -45,6 +46,7 @@ type Ticket = {
 
 export default function HelpdeskPage() {
   const { user, token } = useAuth();
+  const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   
   // State
@@ -106,7 +108,7 @@ export default function HelpdeskPage() {
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
-          employee_id: user?.id,
+          employee_id: employeeId,
           subject,
           description,
           category,

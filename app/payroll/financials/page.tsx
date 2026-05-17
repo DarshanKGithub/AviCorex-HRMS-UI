@@ -10,7 +10,7 @@ import SavingsIcon from '@mui/icons-material/Savings';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -47,10 +47,38 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+type SalaryFieldKey = keyof Pick<SalaryStructure, 'base_salary' | 'hra' | 'da' | 'special_allowance' | 'pf_percentage' | 'esi_percentage' | 'tax_bracket_percentage'>;
+
+function salaryFieldsToStrings(data: SalaryStructure): Record<SalaryFieldKey, string> {
+  return {
+    base_salary: data.base_salary === 0 ? '' : String(data.base_salary),
+    hra: data.hra === 0 ? '' : String(data.hra),
+    da: data.da === 0 ? '' : String(data.da),
+    special_allowance: data.special_allowance === 0 ? '' : String(data.special_allowance),
+    pf_percentage: String(data.pf_percentage),
+    esi_percentage: String(data.esi_percentage),
+    tax_bracket_percentage: data.tax_bracket_percentage === 0 ? '' : String(data.tax_bracket_percentage),
+  };
+}
+
+function stringsToSalaryForm(fields: Record<SalaryFieldKey, string>, employeeId?: string): SalaryStructure {
+  return {
+    employee_id: employeeId,
+    base_salary: fields.base_salary === '' ? 0 : Number(fields.base_salary),
+    hra: fields.hra === '' ? 0 : Number(fields.hra),
+    da: fields.da === '' ? 0 : Number(fields.da),
+    special_allowance: fields.special_allowance === '' ? 0 : Number(fields.special_allowance),
+    pf_percentage: fields.pf_percentage === '' ? defaultSalaryStructure.pf_percentage : Number(fields.pf_percentage),
+    esi_percentage: fields.esi_percentage === '' ? defaultSalaryStructure.esi_percentage : Number(fields.esi_percentage),
+    tax_bracket_percentage: fields.tax_bracket_percentage === '' ? 0 : Number(fields.tax_bracket_percentage),
+  };
+}
+
 export default function FinancialsPage() {
   const { token, user, status } = useAuth();
   const { hasPermission } = usePermissions();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [savingStructure, setSavingStructure] = useState(false);
@@ -61,6 +89,7 @@ export default function FinancialsPage() {
   const [loans, setLoans] = useState<any[]>([]);
   const [salaryStructure, setSalaryStructure] = useState<SalaryStructure | null>(null);
   const [salaryForm, setSalaryForm] = useState<SalaryStructure>(defaultSalaryStructure);
+  const [salaryFields, setSalaryFields] = useState<Record<SalaryFieldKey, string>>(salaryFieldsToStrings(defaultSalaryStructure));
   const [structureMessage, setStructureMessage] = useState<string | null>(null);
   const [structureError, setStructureError] = useState<string | null>(null);
   
@@ -70,6 +99,13 @@ export default function FinancialsPage() {
   const [openLoanModal, setOpenLoanModal] = useState(false);
   const [loanForm, setLoanForm] = useState({ loan_type: 'Personal', amount: 0, interest_rate: 0, emi_amount: 0, remaining_balance: 0 });
   const canManagePayroll = hasPermission('process_payroll');
+
+  useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (tab === '1') setActiveTab(1);
+    else if (tab === '2') setActiveTab(2);
+    else if (tab === '0') setActiveTab(0);
+  }, [searchParams]);
 
   useEffect(() => {
     if (status === 'ready' && !user) {
@@ -118,6 +154,7 @@ export default function FinancialsPage() {
         const normalized = normalizeSalaryStructure(salary);
         setSalaryStructure(normalized);
         setSalaryForm(normalized);
+        setSalaryFields(salaryFieldsToStrings(normalized));
       }
     } catch (e) {
       console.error(e);
@@ -168,9 +205,11 @@ export default function FinancialsPage() {
         const normalized = normalizeSalaryStructure(await res.json());
         setSalaryStructure(normalized);
         setSalaryForm(normalized);
+        setSalaryFields(salaryFieldsToStrings(normalized));
       } else if (res.status === 404) {
         setSalaryStructure(null);
         setSalaryForm(defaultSalaryStructure);
+        setSalaryFields(salaryFieldsToStrings(defaultSalaryStructure));
       } else {
         throw new Error('Failed to load salary structure');
       }
@@ -193,9 +232,11 @@ export default function FinancialsPage() {
     setStructureMessage(null);
 
     try {
+      const normalizedForm = stringsToSalaryForm(salaryFields, selectedEmployeeId);
+      setSalaryForm(normalizedForm);
       const payload = {
         employee_id: selectedEmployeeId,
-        ...salaryForm,
+        ...normalizedForm,
       };
       const res = await fetch(`${API_BASE}/financials/salary-structures`, {
         method: 'POST',
@@ -211,6 +252,7 @@ export default function FinancialsPage() {
       const normalized = normalizeSalaryStructure(await res.json());
       setSalaryStructure(normalized);
       setSalaryForm(normalized);
+      setSalaryFields(salaryFieldsToStrings(normalized));
       setStructureMessage('Salary structure saved successfully');
     } catch (e) {
       console.error(e);
@@ -229,15 +271,7 @@ export default function FinancialsPage() {
       });
       if (res.ok) {
         setOpenReimModal(false);
-    const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId);
-    const activeStructure = salaryStructure ?? salaryForm;
-    const monthlyGross = activeStructure.base_salary + activeStructure.hra + activeStructure.da + activeStructure.special_allowance;
-    const pfDeduction = activeStructure.base_salary * (activeStructure.pf_percentage / 100);
-    const esiDeduction = monthlyGross * (activeStructure.esi_percentage / 100);
-    const estimatedTax = monthlyGross * (activeStructure.tax_bracket_percentage / 100);
-    const estimatedTakeHome = Math.max(monthlyGross - pfDeduction - esiDeduction - estimatedTax, 0);
-    const annualGross = monthlyGross * 12;
-
+        setReimForm({ expense_type: 'Travel', amount: 0, description: '' });
         fetchData();
       } else {
         alert('Failed to submit reimbursement');
@@ -372,13 +406,13 @@ export default function FinancialsPage() {
                         <TextField
                           label={field.label}
                           type="number"
-                          value={salaryForm[field.key as keyof SalaryStructure]}
-                          onChange={(event) =>
-                            setSalaryForm((current) => ({
-                              ...current,
-                              [field.key]: Number(event.target.value) || 0,
-                            }))
-                          }
+                          value={salaryFields[field.key as SalaryFieldKey]}
+                          onChange={(event) => {
+                            const key = field.key as SalaryFieldKey;
+                            const nextFields = { ...salaryFields, [key]: event.target.value };
+                            setSalaryFields(nextFields);
+                            setSalaryForm(stringsToSalaryForm(nextFields, selectedEmployeeId));
+                          }}
                           fullWidth
                           InputProps={{
                             startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: 'text.secondary' }}>{field.prefix}</Typography> : undefined,

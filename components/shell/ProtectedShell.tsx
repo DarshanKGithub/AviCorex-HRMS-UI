@@ -37,6 +37,7 @@ import { iconMap } from '@/components/shell/iconMapping';
 
 const expandedWidth = 300;
 const collapsedWidth = 120;
+const SIDEBAR_EXPANDED_KEY = 'hrms-sidebar-expanded';
 
 function getInitials(name: string) {
   return name
@@ -99,6 +100,17 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(SIDEBAR_EXPANDED_KEY);
+      if (stored) {
+        setExpandedItems(JSON.parse(stored) as Record<string, boolean>);
+      }
+    } catch {
+      // ignore invalid session storage
+    }
+  }, []);
+
   // Filter sidebar items based on permissions
   const visibleItems = useMemo(() => {
     const filterItems = (items: any[]): any[] => {
@@ -116,7 +128,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const activeNav = useMemo(() => {
     const findActive = (items: any[]): any => {
       for (const item of items) {
-        if ((pathname === item.href) || pathname?.startsWith(`${item.href}/`)) {
+        const itemPath = item.href.split('?')[0];
+        if ((pathname === itemPath) || pathname?.startsWith(`${itemPath}/`)) {
           return item;
         }
         if (item.children) {
@@ -128,6 +141,35 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     };
     return findActive(visibleItems);
   }, [pathname, visibleItems]);
+
+  const pathExpandedItems = useMemo(() => {
+    const result: Record<string, boolean> = {};
+    const walk = (items: any[]) => {
+      for (const item of items) {
+        if (!item.children?.length) continue;
+        const itemPath = item.href.split('?')[0];
+        const childActive = item.children.some((child: any) => {
+          const childPath = child.href.split('?')[0];
+          return pathname === childPath || pathname?.startsWith(`${childPath}/`);
+        });
+        const selfActive = pathname === itemPath || pathname?.startsWith(`${itemPath}/`);
+        if (childActive || selfActive) {
+          result[item.href] = true;
+        }
+        walk(item.children);
+      }
+    };
+    walk(visibleItems);
+    return result;
+  }, [pathname, visibleItems]);
+
+  const persistExpandedItems = (next: Record<string, boolean>) => {
+    try {
+      sessionStorage.setItem(SIDEBAR_EXPANDED_KEY, JSON.stringify(next));
+    } catch {
+      // ignore quota errors
+    }
+  };
 
   const isDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
 
@@ -145,8 +187,10 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const renderNavItem = (item: any, depth = 0): React.ReactNode => {
     const Icon = getIconComponent(item.icon);
     const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-    const active = (pathname === item.href) || pathname?.startsWith(`${item.href}/`);
-    const isExpanded = expandedItems[item.href] ?? active;
+    const itemPath = item.href.split('?')[0];
+    const active = (pathname === itemPath) || pathname?.startsWith(`${itemPath}/`);
+    const isExpanded =
+      item.href in expandedItems ? expandedItems[item.href] : (pathExpandedItems[item.href] ?? false);
 
     if (!hasChildren) {
       return (
@@ -191,7 +235,13 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     return (
       <Box key={item.href}>
         <ListItemButton
-          onClick={() => setExpandedItems((prev) => ({ ...prev, [item.href]: !isExpanded }))}
+          onClick={() => {
+            setExpandedItems((prev) => {
+              const next = { ...prev, [item.href]: !isExpanded };
+              persistExpandedItems(next);
+              return next;
+            });
+          }}
           sx={{
             mb: 0.8,
             borderRadius: 3,
@@ -220,7 +270,8 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <List component="div" disablePadding>
             {item.children.map((child: any) => {
               const ChildIcon = getIconComponent(child.icon);
-              const childActive = (pathname === child.href) || pathname?.startsWith(`${child.href}/`);
+              const childPath = child.href.split('?')[0];
+              const childActive = (pathname === childPath) || pathname?.startsWith(`${childPath}/`);
 
               return (
                 <ListItemButton

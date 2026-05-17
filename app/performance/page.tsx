@@ -8,6 +8,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddIcon from '@mui/icons-material/Add';
 import { useAuth } from '@/components/auth/AuthContext';
+import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -16,6 +17,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000'
 
 export default function PerformancePage() {
   const { token, user, status } = useAuth();
+  const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   const router = useRouter();
 
@@ -54,10 +56,10 @@ export default function PerformancePage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [scoreRes, goalsRes, kpisRes, appraisalsRes] = await Promise.all([
-        fetch(`${API_BASE}/performance/performance-score/${user?.id}`, { headers }),
-        fetch(`${API_BASE}/performance/goals/employee/${user?.id}`, { headers }),
-        fetch(`${API_BASE}/performance/kpis/employee/${user?.id}`, { headers }),
-        fetch(`${API_BASE}/performance/appraisals/employee/${user?.id}`, { headers }),
+        fetch(`${API_BASE}/performance/performance-score/${employeeId}`, { headers }),
+        fetch(`${API_BASE}/performance/goals/employee/${employeeId}`, { headers }),
+        fetch(`${API_BASE}/performance/kpis/employee/${employeeId}`, { headers }),
+        fetch(`${API_BASE}/performance/appraisals/employee/${employeeId}`, { headers }),
       ]);
 
       if (scoreRes.ok) setPerformanceScore(await scoreRes.json());
@@ -87,7 +89,7 @@ export default function PerformancePage() {
         },
         body: JSON.stringify({
           ...goalForm,
-          employee_id: user?.id,
+          employee_id: employeeId,
           target_value: parseFloat(goalForm.target_value as any),
           status: 'Active',
         }),

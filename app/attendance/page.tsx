@@ -23,6 +23,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
 import { useAuth } from '@/components/auth/AuthContext';
+import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -54,6 +55,7 @@ type PaginatedResponse = {
 
 export default function AttendancePage() {
   const auth = useAuth();
+  const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ export default function AttendancePage() {
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      const empId = (auth.user as any).employee_id || auth.user.id;
+      const empId = employeeId;
       const response = await fetch(
         `${API_BASE_URL}/attendance?employee_id=${empId}&start_date=${today}&end_date=${today}`,
         {
@@ -105,7 +107,7 @@ export default function AttendancePage() {
     if (!auth.token || !auth.user) return;
 
     try {
-      const empId = (auth.user as any).employee_id || auth.user.id;
+      const empId = employeeId;
       const response = await fetch(
         `${API_BASE_URL}/attendance?employee_id=${empId}&page=1&size=10`,
         {
@@ -135,7 +137,7 @@ export default function AttendancePage() {
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toISOString();
 
-      const empId = (auth.user as any).employee_id || auth.user.id;
+      const empId = employeeId;
       const response = await fetch(`${API_BASE_URL}/attendance/check-in`, {
         method: 'POST',
         headers: {
@@ -218,7 +220,7 @@ export default function AttendancePage() {
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toISOString();
 
-      const empId = (auth.user as any).employee_id || auth.user.id;
+      const empId = employeeId;
       const response = await fetch(`${API_BASE_URL}/attendance/check-out`, {
         method: 'POST',
         headers: {

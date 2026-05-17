@@ -7,6 +7,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '@/components/auth/AuthContext';
+import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -15,6 +16,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000'
 
 export default function TrainingCertificationPage() {
   const { token, user, status } = useAuth();
+  const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   const router = useRouter();
 
@@ -32,6 +34,8 @@ export default function TrainingCertificationPage() {
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [verifyId, setVerifyId] = useState('');
+  const [verifyResult, setVerifyResult] = useState<any>(null);
 
   const canManagePerformance = hasPermission('manage_performance');
 
@@ -51,8 +55,8 @@ export default function TrainingCertificationPage() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [trainingsRes, certsRes, coursesRes] = await Promise.all([
-        fetch(`${API_BASE}/performance/training/enrollments/employee/${user?.id}`, { headers }),
-        fetch(`${API_BASE}/performance/certifications/employee/${user?.id}`, { headers }),
+        fetch(`${API_BASE}/performance/training/enrollments/employee/${employeeId}`, { headers }),
+        fetch(`${API_BASE}/performance/certifications/employee/${employeeId}`, { headers }),
         fetch(`${API_BASE}/performance/training/courses`, { headers }),
       ]);
 
@@ -82,20 +86,43 @@ export default function TrainingCertificationPage() {
         },
         body: JSON.stringify({
           ...certForm,
-          employee_id: user?.id,
+          employee_id: employeeId,
         }),
       });
 
       if (res.ok) {
-        setMessage('Certification added successfully');
+        const created = await res.json();
+        setMessage(`Certification added. Verification ID: ${created.verification_id || 'N/A'}`);
         setOpenCertDialog(false);
         setCertForm({ name: '', issuing_authority: '', issue_date: '', expiry_date: '' });
         fetchData();
       } else {
-        setError('Failed to add certification');
+        const err = await res.json().catch(() => null);
+        setError(err?.detail || 'Failed to add certification');
       }
     } catch (e) {
       setError('Network error');
+    }
+  }
+
+  async function verifyCertification() {
+    if (!verifyId.trim()) {
+      setError('Enter a verification ID');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/performance/certifications/verify/${encodeURIComponent(verifyId.trim())}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setVerifyResult(await res.json());
+        setError('');
+      } else {
+        setVerifyResult(null);
+        setError('Certification not found for this verification ID');
+      }
+    } catch {
+      setError('Network error while verifying certification');
     }
   }
 
@@ -241,10 +268,31 @@ export default function TrainingCertificationPage() {
 
           {/* Certifications Tab */}
           {activeTab === 1 && (
+            <>
+            <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none', mb: 3, p: 2 }}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
+                <TextField
+                  label="Verify by ID"
+                  placeholder="e.g. CERT-A1B2C3D4"
+                  value={verifyId}
+                  onChange={(e) => setVerifyId(e.target.value.toUpperCase())}
+                  fullWidth
+                />
+                <Button variant="contained" onClick={verifyCertification} sx={{ bgcolor: '#6d28d9', textTransform: 'none', whiteSpace: 'nowrap' }}>
+                  Verify Certificate
+                </Button>
+              </Stack>
+              {verifyResult && (
+                <Alert severity={verifyResult.is_valid ? 'success' : 'warning'} sx={{ mt: 2 }}>
+                  {verifyResult.name} — {verifyResult.issuing_authority}. Status: {verifyResult.is_valid ? 'Valid' : 'Expired'}.
+                </Alert>
+              )}
+            </Card>
             <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
               <Table>
                 <TableHead sx={{ bgcolor: '#f9fafb' }}>
                   <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Verification ID</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Certification</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Issued By</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Issue Date</TableCell>
@@ -256,7 +304,7 @@ export default function TrainingCertificationPage() {
                 <TableBody>
                   {certifications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                         No certifications added yet.
                       </TableCell>
                     </TableRow>
@@ -265,6 +313,7 @@ export default function TrainingCertificationPage() {
                       const isExpired = c.expiry_date && new Date(c.expiry_date) < new Date();
                       return (
                         <TableRow key={c.id}>
+                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#6d28d9' }}>{c.verification_id || '—'}</TableCell>
                           <TableCell sx={{ fontWeight: 500 }}>{c.name}</TableCell>
                           <TableCell>{c.issuing_authority}</TableCell>
                           <TableCell>{new Date(c.issue_date).toLocaleDateString()}</TableCell>
@@ -297,6 +346,7 @@ export default function TrainingCertificationPage() {
                 </TableBody>
               </Table>
             </Card>
+            </>
           )}
         </>
       )}

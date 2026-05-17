@@ -8,6 +8,7 @@ export type AuthUser = {
   full_name: string;
   email: string;
   role: string;
+  employee_id?: string | null;
   avatar_url?: string | null;
 };
 
@@ -88,8 +89,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedSession = readStoredSession();
-    if (storedSession) {
+    if (storedSession?.token) {
       setState(storedSession);
+      void fetch(`${API_BASE_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${storedSession.token}` },
+      })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((me) => {
+          if (!me?.id) return;
+          setState((prev) => ({
+            ...prev,
+            user: {
+              id: me.id,
+              full_name: me.full_name,
+              email: me.email,
+              role: me.role,
+              employee_id: me.employee_id ?? me.id,
+              avatar_url: me.avatar_url,
+            },
+          }));
+        })
+        .catch(() => undefined);
       return;
     }
 
@@ -112,7 +132,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const nextSession = {
       token: payload.access_token,
-      user: payload.user
+      user: {
+        ...payload.user,
+        employee_id: payload.user.employee_id ?? payload.user.id,
+      },
     };
 
     saveSession(nextSession, options?.remember ?? true);

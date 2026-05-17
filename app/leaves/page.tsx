@@ -34,10 +34,11 @@ import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import AddIcon from '@mui/icons-material/Add';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth } from '../../components/auth/AuthContext';
+import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-import { API_BASE_URL } from '@/lib/apiBase';
+import { apiFetch, buildApiUrl, getApiBaseUrl, isNetworkFetchError } from '@/lib/apiBase';
 
 type LeaveBalance = {
   id: string;
@@ -86,6 +87,7 @@ function TabPanel(props: TabPanelProps) {
 
 export default function LeavesPage() {
   const auth = useAuth();
+  const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -107,6 +109,7 @@ export default function LeavesPage() {
   const [pendingTypeFilter, setPendingTypeFilter] = useState<string>('all');
   const [selectedPendingRequestIds, setSelectedPendingRequestIds] = useState<string[]>([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const [apiUnreachable, setApiUnreachable] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({ 
@@ -169,9 +172,10 @@ export default function LeavesPage() {
   async function fetchLeaveTypes() {
     if (!auth.token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/leave/types`, {
+      const res = await apiFetch(buildApiUrl('/leave/types'), {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
+      setApiUnreachable(null);
       if (res.ok) {
         const data = await res.json();
         setLeaveTypes(data || []);
@@ -180,6 +184,9 @@ export default function LeavesPage() {
       }
     } catch (err) {
       console.error('Error fetching leave types:', err);
+      if (isNetworkFetchError(err)) {
+        setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
+      }
     }
   }
 
@@ -189,9 +196,10 @@ export default function LeavesPage() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/leave/balances`, {
+      const res = await apiFetch(buildApiUrl('/leave/balances'), {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
+      setApiUnreachable(null);
       if (res.ok) {
         const data = await res.json();
         setBalances(data || []);
@@ -200,6 +208,9 @@ export default function LeavesPage() {
       }
     } catch (err) {
       console.error('Error fetching balances:', err);
+      if (isNetworkFetchError(err)) {
+        setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -208,9 +219,10 @@ export default function LeavesPage() {
   async function fetchBalancesWithDetails() {
     if (!auth.token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/leave/balances/with-details`, {
+      const res = await apiFetch(buildApiUrl('/leave/balances/with-details'), {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
+      setApiUnreachable(null);
       if (res.ok) {
         const data = await res.json();
         setBalancesWithDetails(data || []);
@@ -219,31 +231,36 @@ export default function LeavesPage() {
       }
     } catch (err) {
       console.error('Error fetching balances with details:', err);
+      if (isNetworkFetchError(err)) {
+        setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
+      }
     }
   }
 
   async function fetchRequests() {
     if (!auth.token) return;
     try {
-      const url = new URL(`${API_BASE_URL}/leave/requests`);
-      if (!canApproveLeave && auth.user?.id) {
-        url.searchParams.set('employee_id', auth.user.id);
-      }
-      const res = await fetch(url.toString(), { 
-        headers: { Authorization: `Bearer ${auth.token}` } 
-      });
+      const res = await apiFetch(
+        buildApiUrl('/leave/requests', {
+          employee_id: !canApproveLeave && employeeId ? employeeId : undefined,
+        }),
+        { headers: { Authorization: `Bearer ${auth.token}` } }
+      );
+      setApiUnreachable(null);
       if (res.ok) {
         const payload = await res.json();
         setRequests(payload.items || []);
       } else if (res.status !== 401) {
         console.error('Error fetching requests:', res.status, res.statusText);
-        // Set empty array on error to avoid breaking the UI
         setRequests([]);
       }
     } catch (err) {
       console.error('Error fetching requests:', err);
-      // Set empty array on error to avoid breaking the UI
       setRequests([]);
+      if (isNetworkFetchError(err)) {
+        setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
+        setError(err instanceof Error ? err.message : 'Unable to connect to the HRMS API.');
+      }
     }
   }
 
@@ -267,7 +284,7 @@ export default function LeavesPage() {
 
     try {
       // Step 1: Create the leave request
-      const res = await fetch(`${API_BASE_URL}/leave/requests`, {
+      const res = await apiFetch(buildApiUrl('/leave/requests'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -301,7 +318,7 @@ export default function LeavesPage() {
           formData.append('file', file);
 
           try {
-            const uploadRes = await fetch(`${API_BASE_URL}/leave/requests/${leaveRequest.id}/upload`, {
+            const uploadRes = await apiFetch(buildApiUrl(`/leave/requests/${leaveRequest.id}/upload`), {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${auth.token}`,
@@ -340,7 +357,7 @@ export default function LeavesPage() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/leave/requests/${requestId}/approve`, {
+      const res = await apiFetch(buildApiUrl(`/leave/requests/${requestId}/approve`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${auth.token}` },
         body: JSON.stringify({ approve }),
@@ -371,7 +388,7 @@ export default function LeavesPage() {
     setBulkActionLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/leave/requests/bulk-approve`, {
+      const res = await apiFetch(buildApiUrl('/leave/requests/bulk-approve'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -526,6 +543,11 @@ export default function LeavesPage() {
       <Box className="mx-auto max-w-7xl">
         <Breadcrumbs sx={{ mb: 3 }} />
         {/* Alerts */}
+        {apiUnreachable && (
+          <Alert severity="warning" onClose={() => setApiUnreachable(null)} sx={{ mb: 2 }}>
+            {apiUnreachable}
+          </Alert>
+        )}
         {success && <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 2 }}>{success}</Alert>}
         {error && <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>{error}</Alert>}
 

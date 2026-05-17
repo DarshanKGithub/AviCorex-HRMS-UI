@@ -20,6 +20,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import { useAuth } from '@/components/auth/AuthContext';
+import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -43,12 +44,13 @@ interface PaginatedResponse {
 
 export default function AnnouncementsPage() {
   const { user, token } = useAuth();
+  const { hasPermission } = usePermissions();
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const canManageAnnouncements = hasPermission('manage_announcements');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -58,10 +60,9 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     if (token) {
-      setIsAdmin(['Admin', 'HR'].includes(user?.role || ''));
       fetchAnnouncements();
     }
-  }, [token, user?.role]);
+  }, [token]);
 
   async function fetchAnnouncements() {
     setLoading(true);
@@ -144,7 +145,7 @@ export default function AnnouncementsPage() {
           <CampaignIcon color="primary" />
           Announcements & Updates
         </Typography>
-        {isAdmin && (
+        {canManageAnnouncements && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
