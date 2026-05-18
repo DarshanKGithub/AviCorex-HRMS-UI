@@ -125,7 +125,14 @@ export default function EmployeesPage() {
     const id = confirmDeleteId;
     if (!id) return;
     setConfirmDeleteId(null);
-    if (!auth.token) return;
+    setDeletingId(id);
+    if (!auth.token) {
+      setToastMsg('Authentication error');
+      setToastSeverity('error');
+      setToastOpen(true);
+      setDeletingId(null);
+      return;
+    }
     try {
       const response: Response = await fetch(`${API_BASE_URL}/employees/${id}`, {
         method: 'DELETE',
@@ -151,6 +158,8 @@ export default function EmployeesPage() {
       setToastMsg(err?.message || 'Network error');
       setToastSeverity('error');
       setToastOpen(true);
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -481,6 +490,17 @@ export default function EmployeesPage() {
             <DialogActions>
               <Button onClick={() => setSaveConfirmOpen(false)}>Cancel</Button>
               <Button onClick={doSaveConfirmed} disabled={saving}>{saving ? <CircularProgress size={18} /> : 'Confirm'}</Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={confirmDeleteId !== null} onClose={() => setConfirmDeleteId(null)}>
+            <DialogTitle>Confirm delete</DialogTitle>
+            <DialogContent>
+              <Typography>Are you sure you want to delete this employee? This action cannot be undone.</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
+              <Button onClick={handleDeleteConfirmed} disabled={!!deletingId} color="error">{deletingId ? <CircularProgress size={18} /> : 'Delete'}</Button>
             </DialogActions>
           </Dialog>
         </CardContent>
