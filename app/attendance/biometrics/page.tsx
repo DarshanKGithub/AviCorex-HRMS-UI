@@ -87,7 +87,7 @@ export default function BiometricsPage() {
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, color: 'text.primary' }}>Manual Log Synchronization</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Manually pull or inject biometric logs from the hardware device into the HRMS ecosystem.
+            Manually pull or inject biometric logs from the hardware device into the GreaterHR ecosystem.
           </Typography>
 
           <Stack spacing={3}>

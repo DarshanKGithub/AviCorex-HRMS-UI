@@ -252,12 +252,12 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     icon: 'services',
     adminOnly: true,
   },
-  {
-    label: 'Dynamic Workflows',
-    href: '/workflow',
-    icon: 'workflow',
-    requiredAnyPermissions: ['manage_workflows']
-  }
+  // {
+  //   label: 'Dynamic Workflows',
+  //   href: '/workflow',
+  //   icon: 'workflow',
+  //   requiredAnyPermissions: ['manage_workflows']
+  // }
 ];
 
 function hasAnyPermission(userPermissions: Set<string>, required: string[] | undefined): boolean {

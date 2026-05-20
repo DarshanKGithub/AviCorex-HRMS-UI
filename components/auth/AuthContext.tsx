@@ -36,6 +36,7 @@ type AuthContextValue = AuthState & {
   login: (input: LoginInput, options?: { remember?: boolean }) => Promise<LoginResult>;
   logout: () => void;
   updateUser: (user: Partial<AuthUser>) => void;
+  refreshUser: () => Promise<void>;
 };
 
 const STORAGE_KEY = 'hrms_auth_session';
@@ -155,8 +156,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // persist to storage if token exists
         if (nextState.token && nextUser) {
-          const storage = window.localStorage.getItem(STORAGE_KEY) ? window.localStorage : window.sessionStorage;
-          storage.setItem(STORAGE_KEY, JSON.stringify({ token: nextState.token, user: nextUser }));
+          const sessionValue = JSON.stringify({ token: nextState.token, user: nextUser });
+          window.localStorage.setItem(STORAGE_KEY, sessionValue);
+          window.sessionStorage.setItem(STORAGE_KEY, sessionValue);
+        }
+      } catch {}
+      return nextState;
+    });
+  }
+
+  async function refreshUser() {
+    if (!state.token) {
+      return;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${state.token}` },
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const me = await response.json().catch(() => null);
+    if (!me?.id) {
+      return;
+    }
+
+    const nextUser: AuthUser = {
+      id: me.id,
+      full_name: me.full_name,
+      email: me.email,
+      role: me.role,
+      employee_id: me.employee_id ?? me.id,
+      avatar_url: me.avatar_url,
+    };
+
+    setState((prev) => {
+      const nextState = { ...prev, user: nextUser };
+      try {
+        if (nextState.token && nextUser) {
+          const sessionValue = JSON.stringify({ token: nextState.token, user: nextUser });
+          window.localStorage.setItem(STORAGE_KEY, sessionValue);
+          window.sessionStorage.setItem(STORAGE_KEY, sessionValue);
         }
       } catch {}
       return nextState;
@@ -169,7 +211,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(state.token && state.user),
       login,
       logout,
-      updateUser
+      updateUser,
+      refreshUser
     }),
     [state]
   );

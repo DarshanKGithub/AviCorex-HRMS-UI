@@ -16,7 +16,7 @@ interface SaaSShellProps {
   subtitle?: string;
 }
 
-export function SaaSShell({ children, title = 'HRMS Platform', subtitle = 'Calm, enterprise-ready HR workflows' }: SaaSShellProps) {
+export function SaaSShell({ children, title = 'GreaterHR', subtitle = 'Where Workforce Meets Insight' }: SaaSShellProps) {
   const pathname = usePathname();
   const isProtectedDashboardRoute = pathname?.startsWith('/dashboard') ?? false;
   const isAuthRoute = (pathname?.startsWith('/login') ?? false) || (pathname?.startsWith('/forgot-password') ?? false);

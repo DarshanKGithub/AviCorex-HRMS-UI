@@ -48,12 +48,12 @@ export default function HelpdeskPage() {
   const { user, token } = useAuth();
   const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
+  const isAdmin = hasPermission('manage_helpdesk');
   
   // State
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  
+
   // Form State
   const [openModal, setOpenModal] = useState(false);
   const [detailModal, setDetailModal] = useState(false);
@@ -69,17 +69,22 @@ export default function HelpdeskPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (token) {
-      setIsAdmin(hasPermission('manage_helpdesk'));
-      fetchTickets();
-    }
-  }, [hasPermission, token]);
+    if (!token) return;
+
+    void fetchTickets();
+  }, [token, isAdmin]);
 
   async function fetchTickets() {
     setLoading(true);
     try {
-      const endpoint = isAdmin ? '/engagement/tickets' : '/engagement/tickets';
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const params = new URLSearchParams();
+      params.set('page', '1');
+      params.set('size', '50');
+      if (!isAdmin && employeeId) {
+        params.set('employee_id', employeeId);
+      }
+
+      const res = await fetch(`${API_BASE_URL}/engagement/tickets?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

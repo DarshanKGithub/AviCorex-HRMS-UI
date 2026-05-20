@@ -63,25 +63,20 @@ export default function EmployeesPage() {
   const [size] = useState(10);
   const [total, setTotal] = useState(0);
   const [q, setQ] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [departmentId, setDepartmentId] = useState<string | ''>('');
-  const [designationId, setDesignationId] = useState<string | ''>('');
-  const [managerId, setManagerId] = useState<string | ''>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Employee');
-  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
-
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editDepartmentId, setEditDepartmentId] = useState<string | ''>('');
+  const [editDesignationId, setEditDesignationId] = useState<string | ''>('');
+  const [editManagerId, setEditManagerId] = useState<string | ''>('');
+  const [editErrors, setEditErrors] = useState<{ name?: string; email?: string }>({});
   const [chainOpen, setChainOpen] = useState(false);
   const [managerChain, setManagerChain] = useState<string[]>([]);
-
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error'>('success');
-
-  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
+  const [editConfirmOpen, setEditConfirmOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [departments, setDepartments] = useState<Option[]>([]);
@@ -90,7 +85,7 @@ export default function EmployeesPage() {
   const canCreateEmployee = hasPermission('create_employee');
   const canEditEmployee = hasPermission('edit_employee');
   const canDeleteEmployee = hasPermission('delete_employee');
-  const canModify = canCreateEmployee || canEditEmployee || canDeleteEmployee;
+  const canModify = canEditEmployee || canDeleteEmployee;
 
   useEffect(() => {
     if (auth.status === 'loading') return;
@@ -223,97 +218,77 @@ export default function EmployeesPage() {
   function startEdit(emp: Employee) {
     if (!canEditEmployee) return;
     setEditingId(emp.id);
-    setName(emp.full_name);
-    setEmail(emp.email);
-    setDepartmentId(emp.department_id ?? '');
-    setDesignationId(emp.designation_id ?? '');
-    setManagerId(emp.manager_id ?? '');
+    setEditName(emp.full_name);
+    setEditEmail(emp.email);
+    setEditDepartmentId(emp.department_id ?? '');
+    setEditDesignationId(emp.designation_id ?? '');
+    setEditManagerId(emp.manager_id ?? '');
   }
 
-  function resetForm() {
+  function resetEdit() {
     setEditingId(null);
-    setName('');
-    setEmail('');
-    setPassword('');
-    setRole('Employee');
-    setDepartmentId('');
-    setDesignationId('');
-    setManagerId('');
-    setErrors({});
+    setEditName('');
+    setEditEmail('');
+    setEditDepartmentId('');
+    setEditDesignationId('');
+    setEditManagerId('');
+    setEditErrors({});
   }
 
-  function validateForm() {
-    const e: { name?: string; email?: string; password?: string } = {};
-    if (!name || name.trim().length < 2) e.name = 'Full name is required (min 2 chars)';
+  function validateEditForm() {
+    const e: { name?: string; email?: string } = {};
+    if (!editName || editName.trim().length < 2) e.name = 'Full name is required (min 2 chars)';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) e.email = 'Enter a valid email address';
-    if (!editingId && (!password || password.length < 6)) {
-      e.password = 'Login password is required (min 6 characters)';
-    }
-    setErrors(e);
+    if (!editEmail || !emailRegex.test(editEmail)) e.email = 'Enter a valid email address';
+    setEditErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  // Derived validity check (does not set state) to avoid calling validateForm() during render
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isFormValid =
-    !!name &&
-    name.trim().length >= 2 &&
-    !!email &&
-    emailRegex.test(email) &&
-    (editingId ? true : password.length >= 6);
+  const isEditFormValid =
+    !!editName &&
+    editName.trim().length >= 2 &&
+    !!editEmail &&
+    emailRegex.test(editEmail);
 
   async function handleSave() {
-    if (!validateForm()) return;
+    if (!validateEditForm()) return;
 
-    if (editingId && !canEditEmployee) {
+    if (!canEditEmployee) {
       setToastMsg('You do not have permission to edit employees');
       setToastSeverity('error');
       setToastOpen(true);
       return;
     }
 
-    if (!editingId && !canCreateEmployee) {
-      setToastMsg('You do not have permission to create employees');
-      setToastSeverity('error');
-      setToastOpen(true);
-      return;
-    }
-
     const payload: Record<string, unknown> = {
-      full_name: name,
-      email,
-      department_id: departmentId || null,
-      designation_id: designationId || null,
-      manager_id: managerId || null,
+      full_name: editName,
+      email: editEmail,
+      department_id: editDepartmentId || null,
+      designation_id: editDesignationId || null,
+      manager_id: editManagerId || null,
     };
-    if (!editingId) {
-      payload.password = password;
-      payload.role = role;
-    }
+    
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (auth.token) headers.Authorization = `Bearer ${auth.token}`;
 
     try {
-      let res: Response;
-      if (editingId) {
-        res = await fetch(`${API_BASE_URL}/employees/${editingId}`, {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify(payload),
-        });
-      } else {
-        res = await fetch(`${API_BASE_URL}/employees/`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload),
-        });
-      }
+      const res = await fetch(`${API_BASE_URL}/employees/${editingId}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(payload),
+      });
       if (res.ok) {
-        setToastMsg(editingId ? 'Employee updated' : 'Employee created');
+        setToastMsg('Employee updated');
         setToastSeverity('success');
         setToastOpen(true);
-        resetForm();
+        const currentUserEmail = auth.user?.email?.toLowerCase();
+        const editedEmail = editEmail.trim().toLowerCase();
+        if (auth.user?.id === editingId || currentUserEmail === editedEmail) {
+          auth.updateUser({ full_name: editName.trim() });
+          void auth.refreshUser();
+        }
+        resetEdit();
         fetchEmployees();
       } else {
         const body = await res.json().catch(() => ({}));
@@ -331,7 +306,7 @@ export default function EmployeesPage() {
   // Function to handle the confirmed save action
   async function doSaveConfirmed() {
     setSaving(true);
-    setSaveConfirmOpen(false);
+    setEditConfirmOpen(false);
     try {
       await handleSave();
     } finally {
@@ -340,121 +315,54 @@ export default function EmployeesPage() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       <Breadcrumbs />
-      <Card>
-        <CardHeader title="Employees" subheader="Manage employee master data" />
-        <CardContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 1 }}>Employees</Typography>
-              <Divider sx={{ mb: 1 }} />
-              <List>
-                {employees.map((emp) => (
-                  <ListItem key={emp.id} disablePadding>
-                    <ListItemButton component="a" href={`/employees/${emp.id}`}>
-                      <ListItemText primary={emp.full_name} secondary={`${emp.email} • ${emp.is_active ? 'Active' : 'Inactive'}`} />
-                    </ListItemButton>
-                    {canModify && (
-                      <Stack direction="row" spacing={1} sx={{ ml: 1 }}>
-                        {canEditEmployee && (
-                          <IconButton edge="end" onClick={() => startEdit(emp)} aria-label="edit"><EditRoundedIcon /></IconButton>
-                        )}
-                        {canDeleteEmployee && (
-                          <IconButton edge="end" onClick={() => handleDelete(emp.id)} aria-label="delete"><DeleteRoundedIcon /></IconButton>
-                        )}
-                      </Stack>
-                    )}
-                  </ListItem>
-                ))}
-              </List>
-              {!loading && employees.length === 0 && (
-                <Typography sx={{ color: '#666' }}>No employees yet.</Typography>
-              )}
-            </Grid>
+      
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>Employees</Typography>
+        {canCreateEmployee && (
+          <Button 
+            variant="contained" 
+            startIcon={<AddRoundedIcon />}
+            onClick={() => window.location.href = '/employees/create'}
+          >
+            Create Employee
+          </Button>
+        )}
+      </Stack>
 
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{ mb: 1 }}>{editingId ? 'Edit employee' : 'Create employee & login'}</Typography>
-              <Divider sx={{ mb: 1 }} />
-              {canModify ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {!editingId && (
-                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                      Creates an employee profile and login account. The new hire signs in with the email and password below.
-                    </Typography>
-                  )}
-                  <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} fullWidth error={!!errors.name} helperText={errors.name} />
-                  <TextField label="Work email (login)" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth error={!!errors.email} helperText={errors.email} disabled={!!editingId} />
-                  {!editingId && (
-                    <>
-                      <TextField
-                        label="Login password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        fullWidth
-                        error={!!errors.password}
-                        helperText={errors.password || 'Minimum 6 characters — share securely with the employee'}
-                      />
-                      <FormControl fullWidth>
-                        <InputLabel id="role-label">Login role</InputLabel>
-                        <Select labelId="role-label" label="Login role" value={role} onChange={(e) => setRole(e.target.value)}>
-                          <MenuItem value="Employee">Employee</MenuItem>
-                          <MenuItem value="Worker">Worker</MenuItem>
-                          <MenuItem value="Manager">Manager</MenuItem>
-                        </Select>
-                        <FormHelperText>Controls which menus and actions they can access after login</FormHelperText>
-                      </FormControl>
-                    </>
-                  )}
-                  <FormControl>
-                    <InputLabel id="manager-label">Manager</InputLabel>
-                    <Select labelId="manager-label" label="Manager" value={managerId} onChange={(e) => setManagerId(e.target.value)}>
-                      <MenuItem value="">—</MenuItem>
-                      {employees.filter(e => e.id !== editingId).map((m) => (
-                        <MenuItem key={m.id} value={m.id}>{m.full_name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <InputLabel id="dept-label">Department</InputLabel>
-                    <Select labelId="dept-label" label="Department" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)}>
-                      <MenuItem value="">—</MenuItem>
-                      {departments.map((d) => (
-                        <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <InputLabel id="des-label">Designation</InputLabel>
-                    <Select labelId="des-label" label="Designation" value={designationId} onChange={(e) => setDesignationId(e.target.value)}>
-                      <MenuItem value="">—</MenuItem>
-                      {designations.map((d) => (
-                        <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      variant="contained"
-                      startIcon={<SaveRoundedIcon />}
-                      onClick={() => setSaveConfirmOpen(true)}
-                      disabled={!isFormValid || (editingId ? !canEditEmployee : !canCreateEmployee)}
-                    >
-                      {editingId ? 'Save' : 'Add'}
-                    </Button>
-                    {editingId && (
-                      <Button variant="outlined" startIcon={<CloseRoundedIcon />} onClick={resetForm}>
-                        Cancel
-                      </Button>
+      <Card>
+        <CardHeader title="Employee Directory" subheader="View and manage all employees" />
+        <CardContent>
+          <List>
+            {employees.map((emp) => (
+              <ListItem key={emp.id} disablePadding sx={{ mb: 1, border: '1px solid #e5e7eb', borderRadius: 1, p: 1 }}>
+                <ListItemButton component="a" href={`/employees/${emp.id}`}>
+                  <ListItemText 
+                    primary={emp.full_name} 
+                    secondary={`${emp.email} • ${emp.is_active ? 'Active' : 'Inactive'}`} 
+                  />
+                </ListItemButton>
+                {canModify && (
+                  <Stack direction="row" spacing={1} sx={{ ml: 1 }}>
+                    {canEditEmployee && (
+                      <IconButton edge="end" onClick={() => startEdit(emp)} aria-label="edit" size="small">
+                        <EditRoundedIcon />
+                      </IconButton>
+                    )}
+                    {canDeleteEmployee && (
+                      <IconButton edge="end" onClick={() => handleDelete(emp.id)} aria-label="delete" size="small">
+                        <DeleteRoundedIcon />
+                      </IconButton>
                     )}
                   </Stack>
-                </Box>
-              ) : (
-                <Typography sx={{ color: '#666' }}>You do not have permission to create or edit employees.</Typography>
-              )}
-            </Grid>
-          </Grid>
+                )}
+              </ListItem>
+            ))}
+          </List>
+          {!loading && employees.length === 0 && (
+            <Typography sx={{ color: '#666', textAlign: 'center', py: 4 }}>No employees yet.</Typography>
+          )}
 
           {/* Search and pagination controls */}
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 2 }}>
@@ -465,46 +373,107 @@ export default function EmployeesPage() {
             <Button disabled={page <= 1} onClick={() => { const np = Math.max(1, page - 1); setPage(np); fetchEmployees(np); }}>Prev</Button>
             <Button disabled={page * size >= total} onClick={() => { const np = page + 1; setPage(np); fetchEmployees(np); }}>Next</Button>
           </Box>
-
-          <Dialog open={chainOpen} onClose={() => setChainOpen(false)}>
-            <DialogTitle>Manager Chain</DialogTitle>
-            <DialogContent>
-              {managerChain.length === 0 ? (
-                <Typography sx={{ color: '#666' }}>No manager chain available.</Typography>
-              ) : (
-                managerChain.map((m, i) => (
-                  <Typography key={i}>{`${i + 1}. ${m}`}</Typography>
-                ))
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setChainOpen(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog open={saveConfirmOpen} onClose={() => setSaveConfirmOpen(false)}>
-            <DialogTitle>{editingId ? 'Confirm save' : 'Confirm create'}</DialogTitle>
-            <DialogContent>
-              <Typography>Are you sure you want to {editingId ? 'save changes to' : 'create'} this employee?</Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setSaveConfirmOpen(false)}>Cancel</Button>
-              <Button onClick={doSaveConfirmed} disabled={saving}>{saving ? <CircularProgress size={18} /> : 'Confirm'}</Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog open={confirmDeleteId !== null} onClose={() => setConfirmDeleteId(null)}>
-            <DialogTitle>Confirm delete</DialogTitle>
-            <DialogContent>
-              <Typography>Are you sure you want to delete this employee? This action cannot be undone.</Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
-              <Button onClick={handleDeleteConfirmed} disabled={!!deletingId} color="error">{deletingId ? <CircularProgress size={18} /> : 'Delete'}</Button>
-            </DialogActions>
-          </Dialog>
         </CardContent>
       </Card>
+
+      {/* Dialogs and Snackbar */}
+      <Dialog open={chainOpen} onClose={() => setChainOpen(false)}>
+        <DialogTitle>Manager Chain</DialogTitle>
+        <DialogContent>
+          {managerChain.length === 0 ? (
+            <Typography sx={{ color: '#666' }}>No manager chain available.</Typography>
+          ) : (
+            managerChain.map((m, i) => (
+              <Typography key={i}>{`${i + 1}. ${m}`}</Typography>
+            ))
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setChainOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editingId !== null} onClose={() => resetEdit()} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Employee</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
+          <TextField 
+            label="Full name" 
+            value={editName} 
+            onChange={(e) => setEditName(e.target.value)} 
+            fullWidth 
+            error={!!editErrors.name} 
+            helperText={editErrors.name} 
+          />
+          <TextField 
+            label="Work email" 
+            value={editEmail} 
+            onChange={(e) => setEditEmail(e.target.value)} 
+            fullWidth 
+            error={!!editErrors.email} 
+            helperText={editErrors.email} 
+            disabled
+          />
+          <FormControl fullWidth>
+            <InputLabel id="edit-dept-label">Department</InputLabel>
+            <Select labelId="edit-dept-label" label="Department" value={editDepartmentId} onChange={(e) => setEditDepartmentId(e.target.value)}>
+              <MenuItem value="">—</MenuItem>
+              {departments.map((d) => (
+                <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="edit-des-label">Designation</InputLabel>
+            <Select labelId="edit-des-label" label="Designation" value={editDesignationId} onChange={(e) => setEditDesignationId(e.target.value)}>
+              <MenuItem value="">—</MenuItem>
+              {designations.map((d) => (
+                <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="edit-manager-label">Manager</InputLabel>
+            <Select labelId="edit-manager-label" label="Manager" value={editManagerId} onChange={(e) => setEditManagerId(e.target.value)}>
+              <MenuItem value="">—</MenuItem>
+              {employees.filter(e => e.id !== editingId).map((m) => (
+                <MenuItem key={m.id} value={m.id}>{m.full_name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => resetEdit()}>Cancel</Button>
+          <Button onClick={() => setEditConfirmOpen(true)} disabled={!isEditFormValid} variant="contained">Save Changes</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editConfirmOpen} onClose={() => setEditConfirmOpen(false)}>
+        <DialogTitle>Confirm save</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to save changes to this employee?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={doSaveConfirmed} disabled={saving}>{saving ? <CircularProgress size={18} /> : 'Confirm'}</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={confirmDeleteId !== null} onClose={() => setConfirmDeleteId(null)}>
+        <DialogTitle>Confirm delete</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this employee? This action cannot be undone.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirmed} disabled={!!deletingId} color="error">{deletingId ? <CircularProgress size={18} /> : 'Delete'}</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar open={toastOpen} autoHideDuration={6000} onClose={() => setToastOpen(false)}>
+        <Alert onClose={() => setToastOpen(false)} severity={toastSeverity}>
+          {toastMsg}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

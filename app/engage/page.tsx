@@ -15,6 +15,7 @@ import Grid from '@mui/material/Grid';
 import Alert from '@mui/material/Alert';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { useAuth } from '@/components/auth/AuthContext';
+import { API_BASE_URL, apiFetch } from '@/lib/apiBase';
 
 type Announcement = {
   id: string;
@@ -32,8 +33,6 @@ type Ticket = {
   created_at: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
 export default function EngagePage() {
   const { token, user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -50,21 +49,36 @@ export default function EngagePage() {
       setLoading(true);
       setError(null);
       try {
-        const [announcementsRes, ticketsRes] = await Promise.all([
-          fetch(`${API_BASE}/engagement/announcements?page=1&size=5`, {
+        const [announcementsRes, ticketsRes] = await Promise.allSettled([
+          apiFetch(`${API_BASE_URL}/engagement/announcements?page=1&size=5`, {
             headers: { Authorization: `Bearer ${token}` },
             signal: controller.signal,
           }),
-          fetch(`${API_BASE}/engagement/tickets?page=1&size=5`, {
+          apiFetch(`${API_BASE_URL}/engagement/tickets?page=1&size=5`, {
             headers: { Authorization: `Bearer ${token}` },
             signal: controller.signal,
           }),
         ]);
 
-        const announcementsData = announcementsRes.ok ? await announcementsRes.json() : { items: [] };
-        const ticketsData = ticketsRes.ok ? await ticketsRes.json() : { items: [] };
-        setAnnouncements(announcementsData.items || []);
-        setTickets(ticketsData.items || []);
+        let nextError: string | null = null;
+
+        if (announcementsRes.status === 'fulfilled') {
+          const announcementsData = announcementsRes.value.ok ? await announcementsRes.value.json() : { items: [] };
+          setAnnouncements(announcementsData.items || []);
+        } else {
+          setAnnouncements([]);
+          nextError = announcementsRes.reason instanceof Error ? announcementsRes.reason.message : 'Unable to load announcements.';
+        }
+
+        if (ticketsRes.status === 'fulfilled') {
+          const ticketsData = ticketsRes.value.ok ? await ticketsRes.value.json() : { items: [] };
+          setTickets(ticketsData.items || []);
+        } else {
+          setTickets([]);
+          nextError = nextError || (ticketsRes.reason instanceof Error ? ticketsRes.reason.message : 'Unable to load tickets.') ;
+        }
+
+        setError(nextError);
       } catch {
         setError('Unable to load engagement data right now.');
       } finally {

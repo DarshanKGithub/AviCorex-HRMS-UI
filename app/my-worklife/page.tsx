@@ -82,7 +82,7 @@ export default function MyWorklifePage() {
             <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
               <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 0.75 }}>Quick actions</Typography>
-                <Typography sx={{ color: 'text.secondary', mb: 2 }}>Shortcuts to the HRMS areas employees visit most.</Typography>
+                <Typography sx={{ color: 'text.secondary', mb: 2 }}>Shortcuts to the GreaterHR areas employees visit most.</Typography>
                 <Grid container spacing={2}>
                   {quickLinks.map((item) => (
                     <Grid item xs={12} sm={6} key={item.href}>

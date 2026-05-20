@@ -191,7 +191,10 @@ export default function ProfilePage() {
       const data = await response.json();
       setProfile(data);
       setSuccess('Profile updated successfully');
-      try { authContext.updateUser({ full_name: data.full_name }); } catch {}
+      try {
+        authContext.updateUser({ full_name: data.full_name });
+        await authContext.refreshUser();
+      } catch {}
       setIsEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile');

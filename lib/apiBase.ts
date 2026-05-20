@@ -63,7 +63,7 @@ export async function apiFetch(input: string, init?: RequestInit): Promise<Respo
   } catch (error) {
     if (isNetworkFetchError(error)) {
       throw new Error(
-        `Cannot reach the HRMS API at ${getApiBaseUrl()}. Make sure the backend is running (uvicorn on port 8000).`
+        `Cannot reach the GreaterHR API at ${getApiBaseUrl()}. Make sure the backend is running (uvicorn on port 8000).`
       );
     }
     throw error;

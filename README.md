@@ -1,6 +1,6 @@
-# HRMS SaaS Frontend
+# GreaterHR Frontend
 
-Phase 1 frontend implementation for the HRMS product.
+Phase 1 frontend implementation for the GreaterHR product.
 
 ## Stack
 - Next.js
@@ -11,7 +11,7 @@ Phase 1 frontend implementation for the HRMS product.
 - Secure authentication UX
 - Clean SaaS dashboard shell
 - Role-aware frontend structure
-- Shared design system using the HRMS palette
+- Shared design system using the GreaterHR palette
 
 ## Palette
 - #fcfcfe

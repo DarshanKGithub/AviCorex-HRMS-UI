@@ -3,8 +3,8 @@ import './globals.css';
 import { ThemeRegistry } from '@/components/ThemeRegistry';
 
 export const metadata: Metadata = {
-  title: 'HRMS SaaS',
-  description: 'HRMS platform frontend scaffold for Phase 1 authentication and SaaS UX.'
+  title: 'GreaterHR - Where Workforce Meets Insight',
+  description: 'GreaterHR is the workforce platform frontend for authentication, operations, and SaaS UX.'
 };
 
 export default function RootLayout({

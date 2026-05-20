@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { getPermissionsForRole } from '@/components/auth/rolePermissions';
 
@@ -81,14 +81,14 @@ export function usePermissions() {
 
   const permissionSet = useMemo(() => new Set(state.permissions), [state.permissions]);
 
-  const hasPermission = (permission: string) => permissionSet.has('*') || permissionSet.has(permission);
+  const hasPermission = useCallback((permission: string) => permissionSet.has('*') || permissionSet.has(permission), [permissionSet]);
 
-  const hasAnyPermission = (permissions: string[]) => {
+  const hasAnyPermission = useCallback((permissions: string[]) => {
     if (permissions.length === 0) {
       return true;
     }
     return permissions.some((permission) => hasPermission(permission));
-  };
+  }, [hasPermission]);
 
   return {
     ...state,
