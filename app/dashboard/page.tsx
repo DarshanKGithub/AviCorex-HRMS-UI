@@ -12,7 +12,7 @@ import { DelegationSection, DashboardDetailSection } from '@/components/dashboar
 import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ;
 
 type AttendanceRecord = {
   attendance_date: string;
