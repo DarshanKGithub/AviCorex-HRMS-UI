@@ -59,9 +59,15 @@ function resolveAvatarUrl(avatarUrl?: string | null) {
 }
 
 // Helper to check if user has permission for an item
-function canAccessItem(item: any, hasPermission: (perm: string) => boolean, role?: string): boolean {
+function canAccessItem(item: any, hasPermission: (perm: string) => boolean, hasEntitlement: (featureKey: string) => boolean, role?: string): boolean {
   if (item.adminOnly) {
     return hasPermission('manage_settings');
+  }
+
+  if (item.requiredAnyEntitlements && item.requiredAnyEntitlements.length > 0) {
+    if (item.requiredAnyEntitlements.some((key: string) => hasEntitlement(key))) {
+      return true;
+    }
   }
 
   // If no permissions required, allow access
@@ -79,7 +85,7 @@ function getIconComponent(iconName: string) {
 
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const { status, isAuthenticated, user, logout } = useAuth();
-  const { permissions, hasPermission } = usePermissions();
+  const { permissions, hasPermission, hasEntitlement } = usePermissions();
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
@@ -115,7 +121,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const visibleItems = useMemo(() => {
     const filterItems = (items: any[]): any[] => {
       return items
-        .filter((item) => canAccessItem(item, hasPermission, user?.role))
+        .filter((item) => canAccessItem(item, hasPermission, hasEntitlement, user?.role))
         .map((item) => ({
           ...item,
           children: item.children ? filterItems(item.children) : undefined

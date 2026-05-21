@@ -10,6 +10,9 @@ export type AuthUser = {
   role: string;
   employee_id?: string | null;
   avatar_url?: string | null;
+  tenant_id?: string | null;
+  tenant?: { id: string; name: string; domain?: string | null } | null;
+  entitlements?: string[];
 };
 
 export type LoginInput = {
@@ -107,6 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               role: me.role,
               employee_id: me.employee_id ?? me.id,
               avatar_url: me.avatar_url,
+              tenant_id: me.tenant_id ?? null,
+              tenant: me.tenant ?? null,
+              entitlements: me.entitlements ?? [],
             },
           }));
         })
@@ -136,6 +142,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: {
         ...payload.user,
         employee_id: payload.user.employee_id ?? payload.user.id,
+        tenant_id: payload.user.tenant_id ?? null,
+        tenant: payload.user.tenant ?? null,
+        entitlements: payload.user.entitlements ?? [],
       },
     };
 
@@ -190,6 +199,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       role: me.role,
       employee_id: me.employee_id ?? me.id,
       avatar_url: me.avatar_url,
+      tenant_id: me.tenant_id ?? null,
+      tenant: me.tenant ?? null,
+      entitlements: me.entitlements ?? [],
     };
 
     setState((prev) => {

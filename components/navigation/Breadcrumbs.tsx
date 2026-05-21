@@ -114,6 +114,18 @@ const pathBreadcrumbMap: Record<string, { label: string; href?: string }[]> = {
     { label: 'Admin', href: '#admin' },
     { label: 'Audit Logs' },
   ],
+  '/admin/clients': [
+    { label: 'Admin', href: '/admin' },
+    { label: 'Clients' },
+  ],
+  '/admin/packages': [
+    { label: 'Admin', href: '/admin' },
+    { label: 'Packages' },
+  ],
+  '/admin/subscriptions': [
+    { label: 'Admin', href: '/admin' },
+    { label: 'Subscriptions' },
+  ],
   '/org/departments': [
     { label: 'Organization', href: '#org' },
     { label: 'Departments' },

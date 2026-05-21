@@ -81,19 +81,32 @@ export function usePermissions() {
 
   const permissionSet = useMemo(() => new Set(state.permissions), [state.permissions]);
 
-  const hasPermission = useCallback((permission: string) => permissionSet.has('*') || permissionSet.has(permission), [permissionSet]);
+  const permissionSetWithWildcard = useMemo(() => permissionSet, [permissionSet]);
 
-  const hasAnyPermission = useCallback((permissions: string[]) => {
-    if (permissions.length === 0) {
-      return true;
-    }
-    return permissions.some((permission) => hasPermission(permission));
-  }, [hasPermission]);
+  const hasPermission = useCallback(
+    (permission: string) => permissionSetWithWildcard.has('*') || permissionSetWithWildcard.has(permission),
+    [permissionSetWithWildcard]
+  );
+
+  const hasAnyPermission = useCallback(
+    (permissions: string[]) => {
+      if (permissions.length === 0) {
+        return true;
+      }
+      return permissions.some((permission) => hasPermission(permission));
+    },
+    [hasPermission]
+  );
+
+  const entitlementSet = useMemo(() => new Set(user?.entitlements ?? []), [user?.entitlements]);
+
+  const hasEntitlement = useCallback((featureKey: string) => entitlementSet.has(featureKey), [entitlementSet]);
 
   return {
     ...state,
     hasPermission,
     hasAnyPermission,
+    hasEntitlement,
     permissionSet
   };
 }

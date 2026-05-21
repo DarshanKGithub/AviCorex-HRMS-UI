@@ -39,6 +39,7 @@ export type SidebarItem = {
     | 'badge'
     | 'problem';
   requiredAnyPermissions?: string[];
+  requiredAnyEntitlements?: string[];
   adminOnly?: boolean;
   children?: SidebarItem[];
 };
@@ -193,6 +194,18 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people', requiredAnyPermissions: ['manage_recruitment'] },
       { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow', requiredAnyPermissions: ['create_employee', 'delete_employee', 'manage_org'] },
     ]
+  },
+  {
+    label: 'Clients',
+    href: '/admin/clients',
+    icon: 'people',
+    adminOnly: true,
+  },
+  {
+    label: 'Package Manager',
+    href: '/admin/packages',
+    icon: 'settings',
+    adminOnly: true,
   },
   {
     label: 'Request Hub',
