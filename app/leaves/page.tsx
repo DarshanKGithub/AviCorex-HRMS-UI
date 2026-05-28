@@ -40,9 +40,44 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { apiFetch, buildApiUrl, getApiBaseUrl, isNetworkFetchError } from '@/lib/apiBase';
 
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const leaveRequestSchema = z.object({
+  leave_type_id: z.string().min(1, 'Please select a leave type.'),
+  start_date: z.string().min(1, 'Please provide a valid start date.'),
+  end_date: z.string().min(1, 'Please provide a valid end date.'),
+  session_from: z.string(),
+  session_to: z.string(),
+  reason: z.string().optional(),
+  contact_details: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.start_date && data.end_date) {
+    const start = new Date(data.start_date);
+    const end = new Date(data.end_date);
+    if (end < start) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date cannot be before start date.',
+        path: ['end_date']
+      });
+    } else if (data.start_date === data.end_date && data.session_from === 'Session 2' && data.session_to === 'Session 1') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'For same-day leave, session range is invalid.',
+        path: ['session_to']
+      });
+    }
+  }
+});
+type LeaveRequestFormValues = z.infer<typeof leaveRequestSchema>;
+
+
 type LeaveBalance = {
   id: string;
   employee_id: string;
+  employee_name?: string;
   leave_type_id: string;
   leave_type_name?: string;
   year: number;
@@ -55,6 +90,7 @@ type LeaveBalance = {
 type LeaveRequest = {
   id: string;
   employee_id: string;
+  employee_name?: string;
   leave_type_id: string;
   start_date: string;
   end_date: string;
@@ -112,15 +148,24 @@ export default function LeavesPage() {
   const [apiUnreachable, setApiUnreachable] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
-  const [form, setForm] = useState({ 
-    leave_type_id: '', 
-    start_date: '', 
-    end_date: '', 
-    session_from: 'Session 1',
-    session_to: 'Session 2',
-    reason: '',
-    contact_details: '',
+  const { control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<LeaveRequestFormValues>({
+    resolver: zodResolver(leaveRequestSchema),
+    mode: 'onChange',
+    defaultValues: {
+      leave_type_id: '', 
+      start_date: '', 
+      end_date: '', 
+      session_from: 'Session 1',
+      session_to: 'Session 2',
+      reason: '',
+      contact_details: '',
+    }
   });
+  
+  const formLeaveTypeId = watch('leave_type_id');
+  const formStartDate = watch('start_date');
+  const formEndDate = watch('end_date');
+
 
   const canRequestLeave = hasPermission('request_leave');
   const canApproveLeave = hasPermission('approve_leave');
@@ -242,18 +287,37 @@ export default function LeavesPage() {
     try {
       const res = await apiFetch(
         buildApiUrl('/leave/requests', {
-          employee_id: !canApproveLeave && employeeId ? employeeId : undefined,
+          employee_id: !hasPermission('view_leave') && employeeId ? employeeId : undefined,
         }),
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
-      setApiUnreachable(null);
+      
+      let allRequests: LeaveRequest[] = [];
       if (res.ok) {
         const payload = await res.json();
-        setRequests(payload.items || []);
-      } else if (res.status !== 401) {
-        console.error('Error fetching requests:', res.status, res.statusText);
-        setRequests([]);
+        allRequests = payload.items || [];
       }
+
+      if (auth.user?.role === 'Manager') {
+        const teamRes = await apiFetch(
+          buildApiUrl('/leave/requests/team'),
+          { headers: { Authorization: `Bearer ${auth.token}` } }
+        );
+        if (teamRes.ok) {
+          const teamPayload = await teamRes.json();
+          const teamRequests = teamPayload.items || [];
+          const existingIds = new Set(allRequests.map(r => r.id));
+          for (const req of teamRequests) {
+            if (!existingIds.has(req.id)) {
+              allRequests.push(req);
+              existingIds.add(req.id);
+            }
+          }
+        }
+      }
+
+      setRequests(allRequests);
+      setApiUnreachable(null);
     } catch (err) {
       console.error('Error fetching requests:', err);
       setRequests([]);
@@ -264,19 +328,14 @@ export default function LeavesPage() {
     }
   }
 
-  async function submitRequest(e: React.FormEvent) {
-    e.preventDefault();
+  const submitRequest = async (data: LeaveRequestFormValues) => {
     if (!auth.token) return;
     if (!canRequestLeave) {
       setError('You do not have permission to submit leave requests.');
       return;
     }
 
-    const validationError = validateLeaveForm();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+
 
     setSubmitting(true);
     setError(null);
@@ -291,13 +350,13 @@ export default function LeavesPage() {
           Authorization: `Bearer ${auth.token}`,
         },
         body: JSON.stringify({
-          leave_type_id: form.leave_type_id,
-          start_date: form.start_date,
-          end_date: form.end_date,
-          session_from: form.session_from,
-          session_to: form.session_to,
-          reason: form.reason,
-          contact_details: form.contact_details,
+          leave_type_id: data.leave_type_id,
+          start_date: data.start_date,
+          end_date: data.end_date,
+          session_from: data.session_from,
+          session_to: data.session_to,
+          reason: data.reason,
+          contact_details: data.contact_details,
           cc_to: ccEmails,
           attachment_paths: [],
         }),
@@ -336,7 +395,7 @@ export default function LeavesPage() {
       }
 
       await fetchRequests();
-      setForm({ leave_type_id: '', start_date: '', end_date: '', session_from: 'Session 1', session_to: 'Session 2', reason: '', contact_details: '' });
+      reset();
       setCcEmails([]);
       setCcInput('');
       setAttachments([]);
@@ -449,34 +508,6 @@ export default function LeavesPage() {
 
   const resolveLeaveTypeLabel = (leaveTypeId: string) => leaveTypeNameById.get(leaveTypeId) ?? leaveTypeId;
 
-  const validateLeaveForm = () => {
-    const start = new Date(form.start_date);
-    const end = new Date(form.end_date);
-    if (!form.leave_type_id) {
-      return 'Please select a leave type.';
-    }
-    if (!form.start_date || Number.isNaN(start.getTime())) {
-      return 'Please provide a valid start date.';
-    }
-    if (!form.end_date || Number.isNaN(end.getTime())) {
-      return 'Please provide a valid end date.';
-    }
-    if (end < start) {
-      return 'End date cannot be before start date.';
-    }
-    if (
-      form.start_date === form.end_date &&
-      form.session_from === 'Session 2' &&
-      form.session_to === 'Session 1'
-    ) {
-      return 'For same-day leave, session range is invalid.';
-    }
-    if (ccEmails.some((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-      return 'One or more CC email addresses are invalid.';
-    }
-    return null;
-  };
-
   const handleCategoryClick = (category: string) => {
     const leaveTypeId = leaveTypeIdByName.get(category.toLowerCase());
     if (!leaveTypeId) {
@@ -487,19 +518,19 @@ export default function LeavesPage() {
     setError(null);
     setSelectedCategory(category);
     setTabValue(0);
-    setForm((prev) => ({ ...prev, leave_type_id: leaveTypeId }));
+    setValue('leave_type_id', leaveTypeId, { shouldValidate: true });
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
   useEffect(() => {
-    if (!form.leave_type_id) {
+    if (!formLeaveTypeId) {
       setSelectedCategory(null);
       return;
     }
-    setSelectedCategory(resolveLeaveTypeLabel(form.leave_type_id));
-  }, [form.leave_type_id, leaveTypeNameById]);
+    setSelectedCategory(resolveLeaveTypeLabel(formLeaveTypeId));
+  }, [formLeaveTypeId, leaveTypeNameById]);
 
   const yearOptions = [...new Set([new Date().getFullYear(), ...balancesWithDetails.map((balance) => balance.year)])].sort((a, b) => b - a);
 
@@ -671,17 +702,20 @@ export default function LeavesPage() {
                         You do not have permission to submit leave requests.
                       </Alert>
                     )}
-                    <form onSubmit={submitRequest}>
+                    <form onSubmit={handleSubmit(submitRequest)}>
                       <Stack spacing={3}>
                         {/* Leave Type */}
                         <Box>
                           <FormControl fullWidth size="small">
                             <InputLabel sx={{ color: 'text.secondary' }}>Leave type *</InputLabel>
-                            <Select
-                              value={form.leave_type_id}
-                              label="Leave type *"
-                              onChange={(e) => setForm({ ...form, leave_type_id: e.target.value })}
-                              required
+                            <Controller
+                              name="leave_type_id"
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  {...field}
+                                  label="Leave type *"
+                                  error={!!errors.leave_type_id}
                               sx={{
                                 bgcolor: '#fafbfd',
                                 borderRadius: 1.5,
@@ -703,6 +737,8 @@ export default function LeavesPage() {
                                 </MenuItem>
                               ))}
                             </Select>
+                            )}
+                          />
                           </FormControl>
                         </Box>
 
@@ -712,13 +748,17 @@ export default function LeavesPage() {
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               From date *
                             </Typography>
-                            <TextField
-                              type="date"
-                              value={form.start_date}
-                              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-                              fullWidth
-                              size="small"
-                              required
+                            <Controller
+                              name="start_date"
+                              control={control}
+                              render={({ field }) => (
+                                <TextField
+                                  {...field}
+                                  type="date"
+                                  fullWidth
+                                  size="small"
+                                  error={!!errors.start_date}
+                                  helperText={errors.start_date?.message}
                               InputLabelProps={{ shrink: true }}
                               sx={{
                                 '& .MuiOutlinedInput-root': {
@@ -730,15 +770,20 @@ export default function LeavesPage() {
                                 },
                               }}
                             />
+                            )}
+                          />
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               Session
                             </Typography>
                             <FormControl fullWidth size="small">
-                              <Select
-                                value={form.session_from}
-                                onChange={(e) => setForm({ ...form, session_from: e.target.value })}
+                              <Controller
+                                name="session_from"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
                                 sx={{
                                   bgcolor: '#fafbfd',
                                   borderRadius: 1.5,
@@ -756,6 +801,8 @@ export default function LeavesPage() {
                                 <MenuItem value="Session 1">Session 1</MenuItem>
                                 <MenuItem value="Session 2">Session 2</MenuItem>
                               </Select>
+                              )}
+                            />
                             </FormControl>
                           </Grid>
                         </Grid>
@@ -766,13 +813,17 @@ export default function LeavesPage() {
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               To date *
                             </Typography>
-                            <TextField
-                              type="date"
-                              value={form.end_date}
-                              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-                              fullWidth
-                              size="small"
-                              required
+                            <Controller
+                              name="end_date"
+                              control={control}
+                              render={({ field }) => (
+                                <TextField
+                                  {...field}
+                                  type="date"
+                                  fullWidth
+                                  size="small"
+                                  error={!!errors.end_date}
+                                  helperText={errors.end_date?.message}
                               InputLabelProps={{ shrink: true }}
                               sx={{
                                 '& .MuiOutlinedInput-root': {
@@ -784,32 +835,39 @@ export default function LeavesPage() {
                                 },
                               }}
                             />
+                            )}
+                          />
                           </Grid>
                           <Grid item xs={12} sm={6}>
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               Session
                             </Typography>
                             <FormControl fullWidth size="small">
-                              <Select
-                                value={form.session_to}
-                                onChange={(e) => setForm({ ...form, session_to: e.target.value })}
-                                sx={{
-                                  bgcolor: '#fafbfd',
-                                  borderRadius: 1.5,
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#e7e9ef',
-                                  },
-                                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#d0cee4',
-                                  },
-                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#928ddd',
-                                  },
-                                }}
-                              >
-                                <MenuItem value="Session 1">Session 1</MenuItem>
-                                <MenuItem value="Session 2">Session 2</MenuItem>
-                              </Select>
+                              <Controller
+                                name="session_to"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    sx={{
+                                      bgcolor: '#fafbfd',
+                                      borderRadius: 1.5,
+                                      '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#e7e9ef',
+                                      },
+                                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#d0cee4',
+                                      },
+                                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#928ddd',
+                                      },
+                                    }}
+                                  >
+                                    <MenuItem value="Session 1">Session 1</MenuItem>
+                                    <MenuItem value="Session 2">Session 2</MenuItem>
+                                  </Select>
+                                )}
+                              />
                             </FormControl>
                           </Grid>
                         </Grid>
@@ -919,13 +977,18 @@ export default function LeavesPage() {
                           <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                             Contact details
                           </Typography>
-                          <TextField
-                            value={form.contact_details}
-                            onChange={(e) => setForm({ ...form, contact_details: e.target.value })}
-                            placeholder="Enter your contact details"
-                            fullWidth
-                            multiline
-                            rows={2}
+                          <Controller
+                            name="contact_details"
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                placeholder="Enter your contact details"
+                                fullWidth
+                                multiline
+                                rows={2}
+                                error={!!errors.contact_details}
+                                helperText={errors.contact_details?.message}
                             sx={{
                               '& .MuiOutlinedInput-root': {
                                 bgcolor: '#fafbfd',
@@ -936,6 +999,8 @@ export default function LeavesPage() {
                               },
                             }}
                           />
+                          )}
+                        />
                         </Box>
 
                         {/* Reason */}
@@ -943,13 +1008,18 @@ export default function LeavesPage() {
                           <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                             Reason
                           </Typography>
-                          <TextField
-                            value={form.reason}
-                            onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                            placeholder="Enter a reason"
-                            fullWidth
-                            multiline
-                            rows={3}
+                          <Controller
+                            name="reason"
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                placeholder="Enter a reason"
+                                fullWidth
+                                multiline
+                                rows={3}
+                                error={!!errors.reason}
+                                helperText={errors.reason?.message}
                             sx={{
                               '& .MuiOutlinedInput-root': {
                                 bgcolor: '#fafbfd',
@@ -960,6 +1030,8 @@ export default function LeavesPage() {
                               },
                             }}
                           />
+                          )}
+                        />
                         </Box>
 
                         {/* File Upload */}
@@ -1032,7 +1104,7 @@ export default function LeavesPage() {
                           <Button
                             type="submit"
                             variant="contained"
-                            disabled={submitting || !form.leave_type_id || !form.start_date || !form.end_date || !canRequestLeave}
+                            disabled={submitting || !formLeaveTypeId || !formStartDate || !formEndDate || !canRequestLeave}
                             sx={{
                               bgcolor: '#928ddd',
                               color: '#fff',
@@ -1052,7 +1124,7 @@ export default function LeavesPage() {
                           <Button
                             variant="outlined"
                             onClick={() => {
-                              setForm({ leave_type_id: '', start_date: '', end_date: '', session_from: 'Session 1', session_to: 'Session 2', reason: '', contact_details: '' });
+                              reset();
                               setCcEmails([]);
                               setCcInput('');
                               setAttachments([]);
@@ -1129,8 +1201,9 @@ export default function LeavesPage() {
                     </Stack>
 
                     {filteredPendingRequests.length > 0 ? (
-                      <Table>
-                        <TableHead>
+                      <Box sx={{ overflowX: 'auto' }}>
+                        <Table sx={{ minWidth: 700 }}>
+                          <TableHead>
                           <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
                             {canApproveLeave && (
                               <TableCell padding="checkbox">
@@ -1147,6 +1220,7 @@ export default function LeavesPage() {
                                 />
                               </TableCell>
                             )}
+                            {canApproveLeave && <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Employee</TableCell>}
                             <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Leave Type</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2 }}>Date Range</TableCell>
                             <TableCell sx={{ fontWeight: 700, color: 'text.primary', py: 2, textAlign: 'center' }}>Days</TableCell>
@@ -1171,6 +1245,7 @@ export default function LeavesPage() {
                                   />
                                 </TableCell>
                               )}
+                              {canApproveLeave && <TableCell sx={{ py: 2 }}>{r.employee_name || 'Unknown'}</TableCell>}
                               <TableCell sx={{ color: 'text.primary', fontWeight: 500, py: 2 }}>{resolveLeaveTypeLabel(r.leave_type_id)}</TableCell>
                               <TableCell sx={{ color: 'text.secondary', py: 2 }}>
                                 {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()}
@@ -1238,7 +1313,8 @@ export default function LeavesPage() {
                             </TableRow>
                           ))}
                         </TableBody>
-                      </Table>
+                        </Table>
+                      </Box>
                     ) : (
                       <Box sx={{ py: 4, textAlign: 'center' }}>
                         <HourglassTopIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />

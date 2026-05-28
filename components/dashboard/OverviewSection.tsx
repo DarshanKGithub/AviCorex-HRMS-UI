@@ -13,6 +13,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { useDashboard } from './DashboardContext';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { useQuery } from '@tanstack/react-query';
 
 interface OverviewStats {
   label: string;
@@ -47,56 +48,36 @@ export function OverviewSection() {
   const { currentSpace, refreshKey } = useDashboard();
   const API_BASE = resolveApiBaseUrl();
 
-  const [mySpaceData, setMySpaceData] = useState<any>(null);
-  const [orgData, setOrgData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
   const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
 
-  useEffect(() => {
-    if (!token) return;
+  const { data: mySpaceData, isLoading: mySpaceLoading, error: mySpaceError } = useQuery({
+    queryKey: ['dashboard', 'my-space', refreshKey],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/dashboard/my-space`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch My Space data');
+      return res.json();
+    },
+    enabled: !!token && currentSpace === 'my-space',
+  });
 
-    const controller = new AbortController();
+  const { data: orgData, isLoading: orgLoading, error: orgError } = useQuery({
+    queryKey: ['dashboard', 'organization', refreshKey],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/dashboard/organization`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch Organization data');
+      return res.json();
+    },
+    enabled: !!token && currentSpace === 'organization',
+  });
 
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (currentSpace === 'my-space') {
-          const res = await fetch(`${API_BASE}/dashboard/my-space`, {
-            headers: { Authorization: `Bearer ${token}` },
-            signal: controller.signal,
-          });
-
-          if (!res.ok) throw new Error('Failed to fetch My Space data');
-          const data = await res.json();
-          setMySpaceData(data);
-        } else {
-          const res = await fetch(`${API_BASE}/dashboard/organization`, {
-            headers: { Authorization: `Bearer ${token}` },
-            signal: controller.signal,
-          });
-
-          if (!res.ok) throw new Error('Failed to fetch Organization data');
-          const data = await res.json();
-          setOrgData(data);
-        }
-      } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          console.error('Failed to fetch data:', err);
-          setError(err.message || 'Failed to load data');
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-    return () => controller.abort();
-  }, [token, currentSpace, API_BASE, refreshKey]);
+  const loading = currentSpace === 'my-space' ? mySpaceLoading : orgLoading;
+  const queryError = currentSpace === 'my-space' ? mySpaceError : orgError;
+  const error = queryError instanceof Error ? queryError.message : (queryError ? String(queryError) : null);
 
   if (loading) {
     return (

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeRegistry } from '@/components/ThemeRegistry';
+import { ToastProvider } from '@/components/providers/ToastProvider';
+import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
 
 export const metadata: Metadata = {
   title: 'GreaterHR - Where Workforce Meets Insight',
@@ -15,9 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeRegistry>
-          {children}
-        </ThemeRegistry>
+        <ReactQueryProvider>
+          <ThemeRegistry>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </ThemeRegistry>
+        </ReactQueryProvider>
       </body>
     </html>
   );
