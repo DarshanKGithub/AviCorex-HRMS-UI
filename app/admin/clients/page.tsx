@@ -157,6 +157,22 @@ export default function AdminClientsPage() {
   useEffect(() => {
     if (!token) return;
     loadData();
+    
+    // Check for Stripe redirect params
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      if (paymentStatus === 'success') {
+        setStatusMessage('Payment successful! The subscription is now active.');
+      } else if (paymentStatus === 'cancelled') {
+        setError('Payment was cancelled.');
+      }
+      
+      // Clean up the URL
+      if (paymentStatus) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
   }, [token]);
 
   async function loadData() {
@@ -341,6 +357,13 @@ export default function AdminClientsPage() {
         body: JSON.stringify({ plan_id: planId }),
       });
       if (!res.ok) throw new Error('Failed to assign subscription');
+      
+      const data = await res.json();
+      
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+        return;
+      }
       
       await loadData();
       showSuccess('Subscription assigned successfully.');
