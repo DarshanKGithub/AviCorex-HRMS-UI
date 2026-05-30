@@ -156,23 +156,37 @@ export default function AdminClientsPage() {
 
   useEffect(() => {
     if (!token) return;
-    loadData();
     
-    // Check for Stripe redirect params
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const paymentStatus = urlParams.get('payment');
-      if (paymentStatus === 'success') {
-        setStatusMessage('Payment successful! The subscription is now active.');
-      } else if (paymentStatus === 'cancelled') {
-        setError('Payment was cancelled.');
+    const verifyPayment = async () => {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        const sessionId = urlParams.get('session_id');
+        
+        if (paymentStatus === 'success' && sessionId) {
+          try {
+            await fetch(`${API_BASE_URL}/admin/subscriptions/verify-payment?session_id=${sessionId}`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            setStatusMessage('Payment successful! The subscription is now active.');
+          } catch (e) {
+            console.error('Failed to verify payment', e);
+          }
+        } else if (paymentStatus === 'success') {
+          setStatusMessage('Payment successful! The subscription is now active.');
+        } else if (paymentStatus === 'cancelled') {
+          setError('Payment was cancelled.');
+        }
+        
+        if (paymentStatus) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       }
-      
-      // Clean up the URL
-      if (paymentStatus) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    }
+      loadData();
+    };
+
+    verifyPayment();
   }, [token]);
 
   async function loadData() {
