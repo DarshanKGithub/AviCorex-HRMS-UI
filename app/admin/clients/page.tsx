@@ -4,6 +4,40 @@ import React, { useEffect, useState } from 'react';
 import { API_BASE_URL } from '@/lib/apiBase';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+  IconButton
+} from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import BusinessIcon from '@mui/icons-material/Business';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 
 const BILLING_PERIOD_OPTIONS = [
   { value: 'trial', label: 'Trial (14 days)' },
@@ -44,10 +78,34 @@ const MODULE_PRICE_MAP: Record<string, number> = Object.fromEntries(
 );
 
 function formatMoney(cents: number | undefined) {
-  if (cents == null) {
-    return '₹0.00';
-  }
+  if (cents == null) return '₹0.00';
   return `₹${(cents / 100).toFixed(2)}`;
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ py: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
 }
 
 export default function AdminClientsPage() {
@@ -56,25 +114,43 @@ export default function AdminClientsPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  const [tabIndex, setTabIndex] = useState(0);
+
   const [tenants, setTenants] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [customPackages, setCustomPackages] = useState<FeaturePackage[]>([]);
 
+  // Dialogs
+  const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [planDialogOpen, setPlanDialogOpen] = useState(false);
+  const [packageDialogOpen, setPackageDialogOpen] = useState(false);
+
+  // Client Form
   const [newTenantName, setNewTenantName] = useState('');
   const [newTenantDomain, setNewTenantDomain] = useState('');
+  const [adminName, setAdminName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
 
+  // Plan Form
   const [newPlanName, setNewPlanName] = useState('');
-  const [newPlanPrice, setNewPlanPrice] = useState('0');
+  const [newPlanPrice, setNewPlanPrice] = useState('');
   const [newPlanBillingPeriod, setNewPlanBillingPeriod] = useState('monthly');
   const [newPlanDescription, setNewPlanDescription] = useState('');
+  const [newPlanFeatures, setNewPlanFeatures] = useState<string[]>([]);
 
-  const [selectedTenantForSubscription, setSelectedTenantForSubscription] = useState<string | null>(null);
-  const [selectedPlanForSubscription, setSelectedPlanForSubscription] = useState<string | null>(null);
-  const [selectedFeaturePackageByTenant, setSelectedFeaturePackageByTenant] = useState<Record<string, string[]>>({});
-  const [customPackages, setCustomPackages] = useState<FeaturePackage[]>([]);
+  // Package Form
   const [newCustomPackageName, setNewCustomPackageName] = useState('');
-  const [newCustomPackagePrice, setNewCustomPackagePrice] = useState('0');
+  const [newCustomPackagePrice, setNewCustomPackagePrice] = useState('');
   const [newCustomPackageFeatures, setNewCustomPackageFeatures] = useState<string[]>([]);
+
+  // Assign Subscription State
+  const [selectedTenantForSubscription, setSelectedTenantForSubscription] = useState<string | null>(null);
+  const [selectedPlanForSubscription, setSelectedPlanForSubscription] = useState<string>('');
+
+  // Assign Package State
+  const [selectedFeaturePackageByTenant, setSelectedFeaturePackageByTenant] = useState<Record<string, string[]>>({});
 
   const featurePackages = React.useMemo(() => [...FEATURE_PACKAGES, ...customPackages], [customPackages]);
 
@@ -84,9 +160,7 @@ export default function AdminClientsPage() {
   }, [token]);
 
   async function loadData() {
-    if (!token) {
-      return;
-    }
+    if (!token) return;
     setLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -125,25 +199,38 @@ export default function AdminClientsPage() {
     }
   }
 
+  const showSuccess = (msg: string) => {
+    setStatusMessage(msg);
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
   async function createTenant(event: React.FormEvent) {
     event.preventDefault();
     if (!token) return;
     setError(null);
-    setStatusMessage(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/admin/tenants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: newTenantName.trim(), domain: newTenantDomain.trim() || undefined }),
+        body: JSON.stringify({ 
+          name: newTenantName.trim(), 
+          domain: newTenantDomain.trim() || undefined,
+          admin_name: adminName.trim(),
+          admin_email: adminEmail.trim(),
+          admin_password: adminPassword
+        }),
       });
-      if (!res.ok) {
-        throw new Error('Failed to create client');
-      }
+      if (!res.ok) throw new Error('Failed to create client');
       await loadData();
+      
+      setClientDialogOpen(false);
       setNewTenantName('');
       setNewTenantDomain('');
-      setStatusMessage('Client created successfully.');
+      setAdminName('');
+      setAdminEmail('');
+      setAdminPassword('');
+      showSuccess('Client created successfully.');
     } catch (err) {
       setError(String(err));
     }
@@ -153,11 +240,14 @@ export default function AdminClientsPage() {
     event.preventDefault();
     if (!token) return;
     setError(null);
-    setStatusMessage(null);
 
     const priceCents = Math.round((Number(newPlanPrice) || 0) * 100);
     if (priceCents <= 0) {
       setError('Enter a valid plan price greater than 0.');
+      return;
+    }
+    if (newPlanFeatures.length === 0) {
+      setError('Select at least one feature for the plan.');
       return;
     }
 
@@ -170,16 +260,18 @@ export default function AdminClientsPage() {
           price_cents: priceCents,
           billing_period: newPlanBillingPeriod,
           description: newPlanDescription.trim() || undefined,
+          feature_keys: newPlanFeatures,
         }),
       });
-      if (!res.ok) {
-        throw new Error('Failed to create plan');
-      }
+      if (!res.ok) throw new Error('Failed to create plan');
       await loadData();
+      
+      setPlanDialogOpen(false);
       setNewPlanName('');
-      setNewPlanPrice('0');
+      setNewPlanPrice('');
       setNewPlanDescription('');
-      setStatusMessage('Plan created successfully.');
+      setNewPlanFeatures([]);
+      showSuccess('Plan created successfully.');
     } catch (err) {
       setError(String(err));
     }
@@ -190,11 +282,15 @@ export default function AdminClientsPage() {
     0,
   );
 
+  const planSuggestedPrice = newPlanFeatures.reduce(
+    (sum, featureKey) => sum + (MODULE_PRICE_MAP[featureKey] || 0),
+    0,
+  );
+
   async function createCustomPackage(event: React.FormEvent) {
     event.preventDefault();
     if (!token) return;
     setError(null);
-    setStatusMessage(null);
 
     if (!newCustomPackageName.trim()) {
       setError('Provide a package name.');
@@ -221,31 +317,22 @@ export default function AdminClientsPage() {
           feature_keys: newCustomPackageFeatures,
         }),
       });
-      if (!res.ok) {
-        throw new Error('Failed to create custom package');
-      }
-      const createdPackage = await res.json();
-      const newPackage: FeaturePackage = {
-        value: createdPackage.id,
-        label: createdPackage.name,
-        description: createdPackage.description || `Custom bundle with ${createdPackage.feature_keys.length} feature(s).`,
-        featureKeys: createdPackage.feature_keys,
-        price_cents: createdPackage.price_cents,
-      };
-      setCustomPackages((prev) => [newPackage, ...prev]);
+      if (!res.ok) throw new Error('Failed to create custom package');
+      await loadData();
+      
+      setPackageDialogOpen(false);
       setNewCustomPackageName('');
-      setNewCustomPackagePrice('0');
+      setNewCustomPackagePrice('');
       setNewCustomPackageFeatures([]);
-      setStatusMessage('Custom package created successfully.');
+      showSuccess('Custom package created successfully.');
     } catch (err) {
       setError(String(err));
     }
   }
 
   async function assignSubscription(tenantId: string, planId: string) {
-    if (!token) return;
+    if (!token || !planId) return;
     setError(null);
-    setStatusMessage(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/admin/tenants/${tenantId}/subscriptions`, {
@@ -253,11 +340,10 @@ export default function AdminClientsPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan_id: planId }),
       });
-      if (!res.ok) {
-        throw new Error('Failed to assign subscription');
-      }
+      if (!res.ok) throw new Error('Failed to assign subscription');
+      
       await loadData();
-      setStatusMessage('Subscription created successfully.');
+      showSuccess('Subscription assigned successfully.');
     } catch (err) {
       setError(String(err));
     }
@@ -276,7 +362,6 @@ export default function AdminClientsPage() {
     const totalPriceCents = selectedPackages.reduce((sum, item) => sum + item.price_cents, 0);
 
     setError(null);
-    setStatusMessage(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/admin/tenants/${tenantId}/features/batch`, {
@@ -284,11 +369,10 @@ export default function AdminClientsPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ feature_keys: featureKeys }),
       });
-      if (!res.ok) {
-        throw new Error('Failed to grant feature access');
-      }
+      if (!res.ok) throw new Error('Failed to grant feature access');
+      
       await loadData();
-      setStatusMessage(`Feature packages granted (${selectedPackages.map((p) => p.label).join(', ')}); total price ${formatMoney(totalPriceCents)}.`);
+      showSuccess(`Feature packages granted. Total price added: ${formatMoney(totalPriceCents)}.`);
     } catch (err) {
       setError(String(err));
     }
@@ -302,336 +386,371 @@ export default function AdminClientsPage() {
   }, {});
 
   return (
-    <div className="p-6">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Clients' }]} />
-      <h1 className="text-2xl font-semibold">Client & Subscription Management</h1>
-      <p className="mt-2 text-sm text-gray-600">Manage client tenant details and assign subscriptions for trial, monthly, 3-month, 6-month, 9-month, and yearly plans.</p>
+      
+      <Box sx={{ mb: 4, mt: 2 }}>
+        <Typography variant="h4" component="h1" fontWeight="bold">
+          Client & Subscription Management
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+          Manage your SaaS clients, define billing tiers, and assemble custom feature packages.
+        </Typography>
+      </Box>
 
-      {loading && <p className="mt-6 text-sm text-slate-500">Loading data...</p>}
-      {error && <div className="mt-6 rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</div>}
-      {statusMessage && <div className="mt-6 rounded border border-green-300 bg-green-50 p-3 text-green-700">{statusMessage}</div>}
+      {error && <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>{error}</Alert>}
+      {statusMessage && <Alert severity="success" sx={{ mb: 3 }} onClose={() => setStatusMessage(null)}>{statusMessage}</Alert>}
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Create Client</h2>
-          <form onSubmit={createTenant} className="mt-4 space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Client Name</label>
-              <input
-                value={newTenantName}
-                onChange={(event) => setNewTenantName(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="Acme Corp"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Domain</label>
-              <input
-                value={newTenantDomain}
-                onChange={(event) => setNewTenantDomain(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="acme.com"
-              />
-            </div>
-            <button className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">Create client</button>
-          </form>
-        </div>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
+        <Tabs value={tabIndex} onChange={(_, val) => setTabIndex(val)} aria-label="admin tabs">
+          <Tab label="Clients Directory" icon={<BusinessIcon />} iconPosition="start" />
+          <Tab label="Subscription Plans" icon={<ViewModuleIcon />} iconPosition="start" />
+          <Tab label="Custom Packages" icon={<SettingsSuggestIcon />} iconPosition="start" />
+        </Tabs>
+      </Box>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Create Plan</h2>
-          <form onSubmit={createPlan} className="mt-4 space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Plan Name</label>
-              <input
-                value={newPlanName}
-                onChange={(event) => setNewPlanName(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="Basic Monthly"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Price (₹)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={newPlanPrice}
-                onChange={(event) => setNewPlanPrice(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="999"
-              />
-              <p className="mt-1 text-sm text-slate-500">Enter the plan price in rupees; the app saves it as cents.</p>
-              <p className="mt-1 text-sm text-slate-700">
-                Preview: <strong>{formatMoney(Math.round((Number(newPlanPrice) || 0) * 100))}</strong>
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Billing Period</label>
-              <select
-                value={newPlanBillingPeriod}
-                onChange={(event) => setNewPlanBillingPeriod(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+      {loading && tenants.length === 0 ? (
+        <Box display="flex" justifyContent="center" py={8}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* TAB 1: CLIENTS DIRECTORY */}
+          <CustomTabPanel value={tabIndex} index={0}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Typography variant="h6">All Clients</Typography>
+              <Button 
+                variant="contained" 
+                startIcon={<AddRoundedIcon />}
+                onClick={() => setClientDialogOpen(true)}
               >
-                {BILLING_PERIOD_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Description</label>
-              <textarea
-                value={newPlanDescription}
-                onChange={(event) => setNewPlanDescription(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="Plan details"
-              />
-            </div>
-            <button className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">Create plan</button>
-          </form>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Build Custom Package</h2>
-          <form onSubmit={createCustomPackage} className="mt-4 space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Package Name</label>
-              <input
-                value={newCustomPackageName}
-                onChange={(event) => setNewCustomPackageName(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="HR Starter Bundle"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Package Features</label>
-              <div className="mt-2 grid gap-2">
-                {AVAILABLE_FEATURE_TYPES.map((feature) => (
-                  <label key={feature.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={newCustomPackageFeatures.includes(feature.value)}
-                      onChange={(event) => {
-                        setNewCustomPackageFeatures((prev) =>
-                          event.target.checked ? [...prev, feature.value] : prev.filter((item) => item !== feature.value),
-                        );
-                      }}
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    {feature.label}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Price (₹)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={newCustomPackagePrice}
-                onChange={(event) => setNewCustomPackagePrice(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="2499"
-              />
-              <p className="mt-1 text-sm text-slate-500">
-                Suggested price: {formatMoney(packageBuilderSuggestedPrice)} based on selected core modules.
-              </p>
-            </div>
-            <button className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">Create package</button>
-          </form>
+                Create Client
+              </Button>
+            </Stack>
 
-          {customPackages.length > 0 ? (
-            <div className="mt-6 space-y-3">
-              <h3 className="text-sm font-semibold text-slate-800">Saved custom bundles</h3>
-              <div className="space-y-2">
-                {customPackages.map((pkg) => (
-                  <div key={pkg.value} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-slate-800">{pkg.label}</p>
-                        <p className="text-slate-600">{pkg.description}</p>
-                      </div>
-                      <div className="text-slate-700">{formatMoney(pkg.price_cents)}</div>
-                    </div>
-                    <p className="mt-2 text-slate-500">Includes: {pkg.featureKeys.join(', ')}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </section>
+            <Grid container spacing={3}>
+              {tenants.length === 0 && (
+                <Grid item xs={12}>
+                  <Card><CardContent><Typography color="text.secondary">No clients found.</Typography></CardContent></Card>
+                </Grid>
+              )}
+              {tenants.map((tenant) => {
+                const subscription = tenantSubscriptionMap[tenant.id];
+                return (
+                  <Grid item xs={12} lg={6} key={tenant.id}>
+                    <Card elevation={0} sx={{ border: '1px solid #e2e8f0', height: '100%' }}>
+                      <CardHeader 
+                        title={tenant.name}
+                        subheader={tenant.domain || 'No domain'}
+                        action={<Chip label={tenant.is_active ? 'Active' : 'Inactive'} color={tenant.is_active ? 'success' : 'default'} size="small" />}
+                      />
+                      <Divider />
+                      <CardContent>
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Current Subscription</Typography>
+                        {subscription ? (
+                          <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 1, mb: 3 }}>
+                            <Grid container spacing={1}>
+                              <Grid item xs={6}><Typography variant="body2" color="text.secondary">Plan</Typography><Typography variant="body2" fontWeight="500">{subscription.plan_name}</Typography></Grid>
+                              <Grid item xs={6}><Typography variant="body2" color="text.secondary">Billing</Typography><Typography variant="body2" fontWeight="500" sx={{ textTransform: 'capitalize' }}>{subscription.billing_period}</Typography></Grid>
+                              <Grid item xs={6}><Typography variant="body2" color="text.secondary">Status</Typography><Typography variant="body2" fontWeight="500" sx={{ textTransform: 'capitalize' }}>{subscription.status}</Typography></Grid>
+                              <Grid item xs={6}><Typography variant="body2" color="text.secondary">Price Paid</Typography><Typography variant="body2" fontWeight="500">{formatMoney(subscription.price_paid_cents)}</Typography></Grid>
+                            </Grid>
+                          </Box>
+                        ) : (
+                          <Alert severity="info" sx={{ mb: 3, py: 0 }}>No active subscription. Assign a plan below.</Alert>
+                        )}
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Clients</h2>
-          <div className="mt-4 space-y-4">
-            {tenants.length === 0 && <p className="text-sm text-slate-500">No clients yet. Create one above.</p>}
-            {tenants.map((tenant) => {
-              const subscription = tenantSubscriptionMap[tenant.id];
-              return (
-                <div key={tenant.id} className="rounded-2xl border border-slate-200 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-base font-semibold">{tenant.name}</p>
-                      <p className="text-sm text-slate-500">{tenant.domain ?? 'No domain'}</p>
-                    </div>
-                    <div className="text-sm text-slate-600">{tenant.is_active ? 'Active' : 'Inactive'}</div>
-                  </div>
-                  <div className="mt-3 space-y-2 text-sm text-slate-700">
-                    {subscription ? (
-                      <>
-                        <p>
-                          <strong>Plan:</strong> {subscription.plan_name} ({subscription.billing_period})
-                        </p>
-                        <p>
-                          <strong>Status:</strong> {subscription.status}
-                        </p>
-                        <p>
-                          <strong>Ends at:</strong> {subscription.ends_at ?? 'Ongoing'}
-                        </p>
-                        <p>
-                          <strong>Paid:</strong> {formatMoney(subscription.price_paid_cents)}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-slate-500">No subscription assigned. Choose a plan to enable access.</p>
-                    )}
-                  </div>
-                  <div className="mt-4 space-y-4">
-                    <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <label className="block text-sm font-medium text-slate-700">Feature package selection</label>
-                      <p className="text-sm text-slate-500">Choose one or more packages. The total price updates automatically.</p>
-                      <div className="grid gap-2">
-                        {featurePackages.map((option) => {
-                          const selectedKeys = selectedFeaturePackageByTenant[tenant.id] ?? [];
-                          const checked = selectedKeys.includes(option.value);
-                          return (
-                            <label key={option.value} className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={(event) => {
-                                  setSelectedFeaturePackageByTenant((prev) => {
-                                    const current = prev[tenant.id] ?? [];
-                                    const next = event.target.checked
-                                      ? [...current, option.value]
-                                      : current.filter((value) => value !== option.value);
-                                    return { ...prev, [tenant.id]: next };
-                                  });
-                                }}
-                                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                              />
-                              <div>
-                                <div className="font-medium text-slate-800">{option.label}</div>
-                                <div className="text-slate-500">{option.description}</div>
-                                <div className="mt-1 text-slate-600">Price: {formatMoney(option.price_cents)}</div>
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
-                      {selectedFeaturePackageByTenant[tenant.id] && selectedFeaturePackageByTenant[tenant.id].length > 0 ? (
-                        <div className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-                          <p className="font-medium text-slate-800">Selected packages</p>
-                          <p className="mt-1 text-slate-600">
-                            {featurePackages.filter((pkg) => selectedFeaturePackageByTenant[tenant.id].includes(pkg.value))
-                              .map((pkg) => pkg.label)
-                              .join(', ')}
-                          </p>
-                          <p className="mt-2 text-slate-500">
-                            {featurePackages.filter((pkg) => selectedFeaturePackageByTenant[tenant.id].includes(pkg.value))
-                              .map((pkg) => pkg.description)
-                              .join(' ')}
-                          </p>
-                          <p className="mt-2 text-slate-700">
-                            <strong>Package count:</strong>{' '}
-                            {featurePackages.filter((pkg) => selectedFeaturePackageByTenant[tenant.id].includes(pkg.value)).length}
-                          </p>
-                          <p className="mt-2 text-slate-700">
-                            <strong>Total price:</strong>{' '}
-                            {formatMoney(
-                              featurePackages.filter((pkg) => selectedFeaturePackageByTenant[tenant.id].includes(pkg.value)).reduce(
-                                (sum, item) => sum + item.price_cents,
-                                0,
-                              ),
-                            )}
-                          </p>
-                        </div>
-                      ) : null}
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          disabled={!selectedFeaturePackageByTenant[tenant.id] || selectedFeaturePackageByTenant[tenant.id].length === 0}
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Assign Base Plan</Typography>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
+                          <FormControl fullWidth size="small">
+                            <Select
+                              displayEmpty
+                              value={selectedTenantForSubscription === tenant.id ? selectedPlanForSubscription : ''}
+                              onChange={(e) => {
+                                setSelectedTenantForSubscription(tenant.id);
+                                setSelectedPlanForSubscription(e.target.value);
+                              }}
+                            >
+                              <MenuItem value="" disabled>Select a plan...</MenuItem>
+                              {plans.map((plan) => (
+                                <MenuItem key={plan.id} value={plan.id}>
+                                  {plan.name} — {formatMoney(plan.price_cents)}/{plan.billing_period}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <Button 
+                            variant="outlined"
+                            disabled={!selectedTenantForSubscription || selectedTenantForSubscription !== tenant.id || !selectedPlanForSubscription}
+                            onClick={() => assignSubscription(tenant.id, selectedPlanForSubscription)}
+                          >
+                            Assign
+                          </Button>
+                        </Stack>
+
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Assign Add-on Packages</Typography>
+                        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                          <Select
+                            multiple
+                            displayEmpty
+                            value={selectedFeaturePackageByTenant[tenant.id] || []}
+                            onChange={(e) => {
+                              setSelectedFeaturePackageByTenant(prev => ({
+                                ...prev,
+                                [tenant.id]: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value,
+                              }));
+                            }}
+                            renderValue={(selected) => {
+                              if (selected.length === 0) return <Typography color="text.secondary">Select packages...</Typography>;
+                              return selected.map(val => featurePackages.find(p => p.value === val)?.label).join(', ');
+                            }}
+                          >
+                            {featurePackages.map((pkg) => (
+                              <MenuItem key={pkg.value} value={pkg.value}>
+                                <Checkbox checked={(selectedFeaturePackageByTenant[tenant.id] || []).includes(pkg.value)} />
+                                <ListItemText primary={pkg.label} secondary={formatMoney(pkg.price_cents)} />
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <Button 
+                          variant="outlined"
+                          disabled={!(selectedFeaturePackageByTenant[tenant.id]?.length > 0)}
                           onClick={() => assignFeaturePackage(tenant.id)}
-                          className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                         >
-                          Grant selected access
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedFeaturePackageByTenant((prev) => ({ ...prev, [tenant.id]: [] }))}
-                          className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-100"
-                        >
-                          Clear selection
-                        </button>
-                      </div>
-                    </div>
+                          Grant Package Access
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </CustomTabPanel>
 
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <select
-                        value={selectedTenantForSubscription === tenant.id ? selectedPlanForSubscription ?? '' : ''}
-                        onChange={(event) => {
-                          setSelectedTenantForSubscription(tenant.id);
-                          setSelectedPlanForSubscription(event.target.value);
-                        }}
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                      >
-                        <option value="">Select a plan</option>
-                        {plans.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.name} — {plan.billing_period} — {formatMoney(plan.price_cents)}
-                          </option>
+          {/* TAB 2: SUBSCRIPTION PLANS */}
+          <CustomTabPanel value={tabIndex} index={1}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Typography variant="h6">Subscription Plans</Typography>
+              <Button 
+                variant="contained" 
+                startIcon={<AddRoundedIcon />}
+                onClick={() => setPlanDialogOpen(true)}
+              >
+                Create Plan
+              </Button>
+            </Stack>
+
+            <Grid container spacing={3}>
+              {plans.length === 0 && (
+                <Grid item xs={12}>
+                  <Card><CardContent><Typography color="text.secondary">No plans available. Create one to get started.</Typography></CardContent></Card>
+                </Grid>
+              )}
+              {plans.map((plan) => (
+                <Grid item xs={12} sm={6} md={4} key={plan.id}>
+                  <Card elevation={0} sx={{ border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <CardHeader 
+                      title={plan.name}
+                      subheader={plan.description || 'No description provided.'}
+                    />
+                    <Divider />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography variant="h4" fontWeight="bold" color="primary.main">
+                        {formatMoney(plan.price_cents)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize', mb: 2 }}>
+                        Per {plan.billing_period}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </CustomTabPanel>
+
+          {/* TAB 3: CUSTOM PACKAGES */}
+          <CustomTabPanel value={tabIndex} index={2}>
+            <Alert severity="info" sx={{ mb: 4 }}>
+              <Typography variant="subtitle2" fontWeight="bold">Why Build Custom Packages?</Typography>
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                While "Plans" dictate a client's core subscription tier, "Custom Packages" act as modular add-ons. 
+                They allow you to bundle specific modules together (e.g., a "Payroll + Timesheets Bundle") and upsell them to clients who may be on a basic plan but require extra features, without forcing them into a higher generalized tier.
+              </Typography>
+            </Alert>
+
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Typography variant="h6">Standard & Custom Packages</Typography>
+              <Button 
+                variant="contained" 
+                startIcon={<AddRoundedIcon />}
+                onClick={() => setPackageDialogOpen(true)}
+              >
+                Build Custom Package
+              </Button>
+            </Stack>
+
+            <Grid container spacing={3}>
+              {featurePackages.map((pkg) => (
+                <Grid item xs={12} sm={6} md={4} key={pkg.value}>
+                  <Card elevation={0} sx={{ border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <CardHeader 
+                      title={pkg.label}
+                      subheader={pkg.description}
+                      titleTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
+                    />
+                    <Divider />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
+                        {formatMoney(pkg.price_cents)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight="bold">Includes Features:</Typography>
+                      <ul style={{ paddingLeft: '20px', marginTop: '4px', fontSize: '14px', color: '#64748b' }}>
+                        {pkg.featureKeys.map(key => (
+                          <li key={key}>{key}</li>
                         ))}
-                      </select>
-                      <button
-                        type="button"
-                        disabled={!selectedTenantForSubscription || !selectedPlanForSubscription || selectedTenantForSubscription !== tenant.id}
-                        onClick={() => selectedTenantForSubscription && selectedPlanForSubscription && assignSubscription(tenant.id, selectedPlanForSubscription)}
-                        className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                      >
-                        Assign / Renew subscription
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </CustomTabPanel>
+        </>
+      )}
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Plans</h2>
-          <div className="mt-4 space-y-3">
-            {plans.length === 0 && <p className="text-sm text-slate-500">No plans available yet. Create a plan above.</p>}
-            {plans.map((plan) => (
-              <div key={plan.id} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-base font-semibold">{plan.name}</p>
-                    <p className="text-sm text-slate-500">{plan.description ?? 'No description'}</p>
-                  </div>
-                  <div className="text-right text-sm text-slate-700">
-                    <div>{plan.billing_period}</div>
-                    <div className="font-semibold">{formatMoney(plan.price_cents)}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
+      {/* DIALOGS */}
+
+      {/* Create Client Dialog */}
+      <Dialog open={clientDialogOpen} onClose={() => setClientDialogOpen(false)} maxWidth="sm" fullWidth>
+        <form onSubmit={createTenant}>
+          <DialogTitle>Create New Client</DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={3}>
+              <TextField label="Client Company Name" fullWidth required value={newTenantName} onChange={e => setNewTenantName(e.target.value)} />
+              <TextField label="Domain" fullWidth value={newTenantDomain} onChange={e => setNewTenantDomain(e.target.value)} helperText="e.g. acme.com (Optional)" />
+              <Divider><Chip label="Admin User Details" size="small" /></Divider>
+              <TextField label="Admin Name" fullWidth required value={adminName} onChange={e => setAdminName(e.target.value)} />
+              <TextField label="Admin Email" type="email" fullWidth required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} />
+              <TextField label="Admin Password" type="password" fullWidth required value={adminPassword} onChange={e => setAdminPassword(e.target.value)} />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setClientDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">Create Client</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* Create Plan Dialog */}
+      <Dialog open={planDialogOpen} onClose={() => setPlanDialogOpen(false)} maxWidth="sm" fullWidth>
+        <form onSubmit={createPlan}>
+          <DialogTitle>Create New Plan</DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={3}>
+              <TextField label="Plan Name" fullWidth required value={newPlanName} onChange={e => setNewPlanName(e.target.value)} placeholder="e.g. Starter Monthly" />
+              <FormControl fullWidth>
+                <InputLabel id="billing-period-label">Billing Period</InputLabel>
+                <Select labelId="billing-period-label" label="Billing Period" value={newPlanBillingPeriod} onChange={e => setNewPlanBillingPeriod(e.target.value)}>
+                  {BILLING_PERIOD_OPTIONS.map(opt => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <TextField label="Description" fullWidth multiline rows={2} value={newPlanDescription} onChange={e => setNewPlanDescription(e.target.value)} />
+              
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Base Plan Features</Typography>
+                <Grid container spacing={1}>
+                  {AVAILABLE_FEATURE_TYPES.map(feature => (
+                    <Grid item xs={12} sm={6} key={feature.value}>
+                      <label className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 p-2 text-sm">
+                        <Checkbox 
+                          size="small"
+                          checked={newPlanFeatures.includes(feature.value)}
+                          onChange={(e) => {
+                            setNewPlanFeatures(prev => {
+                              const next = e.target.checked ? [...prev, feature.value] : prev.filter(f => f !== feature.value);
+                              const price = next.reduce((sum, key) => sum + (MODULE_PRICE_MAP[key] || 0), 0);
+                              setNewPlanPrice((price / 100).toString());
+                              return next;
+                            });
+                          }}
+                        />
+                        {feature.label}
+                      </label>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              <TextField 
+                label="Price (₹)" 
+                type="number" 
+                fullWidth 
+                required 
+                value={newPlanPrice} 
+                onChange={e => setNewPlanPrice(e.target.value)} 
+                helperText={`Suggested price based on features: ${formatMoney(planSuggestedPrice)}`}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPlanDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">Create Plan</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* Create Custom Package Dialog */}
+      <Dialog open={packageDialogOpen} onClose={() => setPackageDialogOpen(false)} maxWidth="sm" fullWidth>
+        <form onSubmit={createCustomPackage}>
+          <DialogTitle>Build Custom Feature Package</DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={3}>
+              <TextField label="Package Name" fullWidth required value={newCustomPackageName} onChange={e => setNewCustomPackageName(e.target.value)} placeholder="e.g. HR Expansion Pack" />
+              
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Select Included Features</Typography>
+                <Grid container spacing={1}>
+                  {AVAILABLE_FEATURE_TYPES.map(feature => (
+                    <Grid item xs={12} sm={6} key={feature.value}>
+                      <label className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 p-2 text-sm">
+                        <Checkbox 
+                          size="small"
+                          checked={newCustomPackageFeatures.includes(feature.value)}
+                          onChange={(e) => {
+                            setNewCustomPackageFeatures(prev => {
+                              const next = e.target.checked ? [...prev, feature.value] : prev.filter(f => f !== feature.value);
+                              const price = next.reduce((sum, key) => sum + (MODULE_PRICE_MAP[key] || 0), 0);
+                              setNewCustomPackagePrice((price / 100).toString());
+                              return next;
+                            });
+                          }}
+                        />
+                        {feature.label}
+                      </label>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              <TextField 
+                label="Price (₹)" 
+                type="number" 
+                fullWidth 
+                required 
+                value={newCustomPackagePrice} 
+                onChange={e => setNewCustomPackagePrice(e.target.value)} 
+                helperText={`Suggested price based on core modules: ${formatMoney(packageBuilderSuggestedPrice)}`}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPackageDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">Create Package</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+    </Container>
   );
 }

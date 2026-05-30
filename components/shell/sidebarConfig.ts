@@ -74,6 +74,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/payroll',
     icon: 'salary',
     requiredAnyPermissions: ['view_payroll', 'view_payslip_own'],
+    requiredAnyEntitlements: ['payroll'],
     children: [
       { label: 'Payslips', href: '/payroll/payslips', icon: 'receipt', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
       { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'expense' },
@@ -91,6 +92,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/leaves',
     icon: 'leave',
     requiredAnyPermissions: ['view_leave', 'view_leave_own', 'request_leave'],
+    requiredAnyEntitlements: ['leave_management'],
     children: [
       {
         label: 'Leave Apply',
@@ -116,6 +118,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/attendance',
     icon: 'attendance',
     requiredAnyPermissions: ['view_attendance', 'view_attendance_own'],
+    requiredAnyEntitlements: ['attendance_tracking'],
     children: [
       {
         label: 'Timesheets',
@@ -156,6 +159,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/performance',
     icon: 'performance',
     requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
+    requiredAnyEntitlements: ['performance_management'],
     children: [
       {
         label: 'Goals & KPIs',
@@ -176,12 +180,14 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/payroll/financials?tab=1',
     icon: 'expense',
     requiredAnyPermissions: ['view_expense_claims_own', 'approve_expenses', 'view_payroll'],
+    requiredAnyEntitlements: ['expense_management'],
   },
   {
     label: 'Document Center',
     href: '/documents',
     icon: 'docs',
-    requiredAnyPermissions: ['view_employee']
+    requiredAnyPermissions: ['view_employee'],
+    requiredAnyEntitlements: ['document_management'],
   },
   {
     label: 'People',
@@ -212,6 +218,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: '/helpdesk',
     icon: 'helpdesk',
     requiredAnyPermissions: ['raise_support_ticket', 'view_announcements', 'manage_helpdesk', 'manage_gatepasses', 'manage_grievances'],
+    requiredAnyEntitlements: ['helpdesk'],
     children: [
       {
         label: 'Support Tickets',

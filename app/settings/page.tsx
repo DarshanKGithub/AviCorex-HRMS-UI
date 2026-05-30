@@ -273,6 +273,18 @@ export default function SettingsPage() {
 
           <Box>
             <Box sx={{ fontSize: '1rem', fontWeight: 600, mb: 2 }}>Other Settings</Box>
+            
+            {isAdmin && (
+              <Box sx={{ mb: 3 }}>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => router.push('/settings/subscription')}
+                >
+                  Manage Workspace Subscription
+                </Button>
+              </Box>
+            )}
+
             <Box sx={{ color: '#666', fontSize: '0.875rem' }}>
               More settings coming in future phases...
             </Box>

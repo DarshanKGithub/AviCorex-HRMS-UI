@@ -37,6 +37,7 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PersonSearchRoundedIcon from '@mui/icons-material/PersonSearchRounded';
+import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -83,6 +84,11 @@ export default function EmployeesPage() {
   const [toastMsg, setToastMsg] = useState('');
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error'>('success');
   const [editConfirmOpen, setEditConfirmOpen] = useState(false);
+  
+  // Role change state
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [roleEmployeeId, setRoleEmployeeId] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>('Employee');
 
   const { data: deptsData = [] } = useQuery<Option[]>({
     queryKey: ['departments'],
@@ -142,7 +148,8 @@ export default function EmployeesPage() {
   const canCreateEmployee = hasPermission('create_employee');
   const canEditEmployee = hasPermission('edit_employee');
   const canDeleteEmployee = hasPermission('delete_employee');
-  const canModify = canEditEmployee || canDeleteEmployee;
+  const canModify = canEditEmployee || canDeleteEmployee || hasPermission('manage_roles');
+  const canManageRoles = hasPermission('manage_roles');
 
 
 
@@ -265,6 +272,43 @@ export default function EmployeesPage() {
 
   const saving = updateMutation.isPending;
 
+  // Role change mutation
+  const roleMutation = useMutation({
+    mutationFn: async ({ id, role }: { id: string, role: string }) => {
+      const response = await fetch(`${API_BASE_URL}/employees/${id}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({ role }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error((body && body.detail) || `Role update failed (${response.status})`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      setToastMsg('Role updated successfully');
+      setToastSeverity('success');
+      setToastOpen(true);
+      setRoleDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+    onError: (err: any) => {
+      setToastMsg(err?.message || 'Failed to update role');
+      setToastSeverity('error');
+      setToastOpen(true);
+    }
+  });
+
+  const handleSaveRole = () => {
+    if (roleEmployeeId) {
+      roleMutation.mutate({ id: roleEmployeeId, role: selectedRole });
+    }
+  };
+
   const handleSave = async (data: EmployeeEditFormValues) => {
     if (!canEditEmployee) {
       setToastMsg('You do not have permission to edit employees');
@@ -323,6 +367,15 @@ export default function EmployeesPage() {
                 </ListItemButton>
                 {canModify && (
                   <Stack direction="row" spacing={1} sx={{ ml: 1 }}>
+                    {canManageRoles && (
+                      <IconButton edge="end" onClick={() => {
+                        setRoleEmployeeId(emp.id);
+                        setSelectedRole('Employee'); // Default, we don't have the current role in the list view, so default to Employee or fetch it
+                        setRoleDialogOpen(true);
+                      }} aria-label="manage roles" size="small" title="Manage Role">
+                        <AdminPanelSettingsRoundedIcon />
+                      </IconButton>
+                    )}
                     {canEditEmployee && (
                       <IconButton edge="end" onClick={() => startEdit(emp)} aria-label="edit" size="small">
                         <EditRoundedIcon />
@@ -472,6 +525,37 @@ export default function EmployeesPage() {
         <DialogActions>
           <Button onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
           <Button onClick={handleDeleteConfirmed} disabled={!!deletingId} color="error">{deletingId ? <CircularProgress size={18} /> : 'Delete'}</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={roleDialogOpen} onClose={() => setRoleDialogOpen(false)}>
+        <DialogTitle>Change Employee Role</DialogTitle>
+        <DialogContent sx={{ minWidth: 300, pt: 2 }}>
+          <FormControl fullWidth sx={{ mt: 1 }}>
+            <InputLabel id="role-select-label">Role</InputLabel>
+            <Select
+              labelId="role-select-label"
+              value={selectedRole}
+              label="Role"
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <MenuItem value="Worker">Worker</MenuItem>
+              <MenuItem value="Employee">Employee</MenuItem>
+              <MenuItem value="Manager">Manager</MenuItem>
+              <MenuItem value="HR">HR</MenuItem>
+              <MenuItem value="Admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRoleDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleSaveRole} 
+            variant="contained"
+            disabled={roleMutation.isPending}
+          >
+            {roleMutation.isPending ? <CircularProgress size={18} /> : 'Save Role'}
+          </Button>
         </DialogActions>
       </Dialog>
 
