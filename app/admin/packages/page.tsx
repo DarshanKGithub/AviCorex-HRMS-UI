@@ -4,6 +4,38 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL } from '@/lib/apiBase';
 import { useAuth } from '@/components/auth/AuthContext';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Checkbox,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+} from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
 
 type FeatureOption = {
   key: string;
@@ -36,22 +68,54 @@ function formatMoney(cents: number | undefined) {
   return `₹${(cents / 100).toFixed(2)}`;
 }
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`package-tabpanel-${index}`}
+      aria-labelledby={`package-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ py: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPackageManagerPage() {
   const { token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  const [tabIndex, setTabIndex] = useState(0);
+
   const [packages, setPackages] = useState<CustomPackage[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [featureOptions, setFeatureOptions] = useState<FeatureOption[]>([]);
+  
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [selectedPlanFeatures, setSelectedPlanFeatures] = useState<string[]>([]);
 
+  // Dialog States
+  const [packageDialogOpen, setPackageDialogOpen] = useState(false);
   const [editingPackageId, setEditingPackageId] = useState<string | null>(null);
+  
   const [packageName, setPackageName] = useState('');
   const [packageDescription, setPackageDescription] = useState('');
-  const [packagePrice, setPackagePrice] = useState('0');
+  const [packagePrice, setPackagePrice] = useState('');
   const [packageFeatures, setPackageFeatures] = useState<string[]>([]);
 
   useEffect(() => {
@@ -114,6 +178,11 @@ export default function AdminPackageManagerPage() {
     }
   }
 
+  const showSuccess = (msg: string) => {
+    setStatusMessage(msg);
+    setTimeout(() => setStatusMessage(null), 5000);
+  };
+
   async function submitPackage(event: React.FormEvent) {
     event.preventDefault();
     if (!token) return;
@@ -126,7 +195,6 @@ export default function AdminPackageManagerPage() {
       return;
     }
     setError(null);
-    setStatusMessage(null);
 
     try {
       const payload = {
@@ -137,15 +205,18 @@ export default function AdminPackageManagerPage() {
       };
       const url = editingPackageId ? `${API_BASE_URL}/admin/packages/${editingPackageId}` : `${API_BASE_URL}/admin/packages`;
       const method = editingPackageId ? 'PATCH' : 'POST';
+      
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Failed to ${editingPackageId ? 'update' : 'create'} package`);
+      
       await loadData();
+      setPackageDialogOpen(false);
       resetPackageForm();
-      setStatusMessage(`Package ${editingPackageId ? 'updated' : 'created'} successfully.`);
+      showSuccess(`Package ${editingPackageId ? 'updated' : 'created'} successfully.`);
     } catch (err) {
       setError(String(err));
     }
@@ -155,16 +226,22 @@ export default function AdminPackageManagerPage() {
     setEditingPackageId(null);
     setPackageName('');
     setPackageDescription('');
-    setPackagePrice('0');
+    setPackagePrice('');
     setPackageFeatures([]);
+  }
+
+  function openCreateDialog() {
+    resetPackageForm();
+    setPackageDialogOpen(true);
   }
 
   function startEditPackage(pkg: CustomPackage) {
     setEditingPackageId(pkg.id);
     setPackageName(pkg.name);
     setPackageDescription(pkg.description ?? '');
-    setPackagePrice((pkg.price_cents / 100).toFixed(2));
+    setPackagePrice((pkg.price_cents / 100).toString());
     setPackageFeatures([...pkg.feature_keys]);
+    setPackageDialogOpen(true);
   }
 
   async function deletePackage(packageId: string) {
@@ -177,7 +254,7 @@ export default function AdminPackageManagerPage() {
       });
       if (!res.ok) throw new Error('Failed to delete package');
       await loadData();
-      setStatusMessage('Package deleted successfully.');
+      showSuccess('Package deleted successfully.');
     } catch (err) {
       setError(String(err));
     }
@@ -190,7 +267,6 @@ export default function AdminPackageManagerPage() {
       return;
     }
     setError(null);
-    setStatusMessage(null);
 
     try {
       const res = await fetch(`${API_BASE_URL}/admin/plans/${selectedPlanId}/features/batch`, {
@@ -200,186 +276,209 @@ export default function AdminPackageManagerPage() {
       });
       if (!res.ok) throw new Error('Failed to save plan feature bundle');
       await loadPlanFeatures(selectedPlanId);
-      setStatusMessage('Plan feature bundle saved successfully.');
+      showSuccess('Plan feature bundle saved successfully.');
     } catch (err) {
       setError(String(err));
     }
   }
 
   return (
-    <div className="p-6">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Package Management' }]} />
-      <h1 className="text-2xl font-semibold">Package Management</h1>
-      <p className="mt-2 text-sm text-gray-600">Create, edit, delete custom packages and assign feature bundles to subscription plans.</p>
+      
+      <Box sx={{ mb: 4, mt: 2 }}>
+        <Typography variant="h4" component="h1" fontWeight="bold">
+          Package & Features Manager
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+          Create custom packages and define which feature modules are bundled with your primary subscription plans.
+        </Typography>
+      </Box>
 
-      {loading && <p className="mt-6 text-sm text-slate-500">Loading package manager...</p>}
-      {error && <div className="mt-6 rounded border border-red-300 bg-red-50 p-3 text-red-700">{error}</div>}
-      {statusMessage && <div className="mt-6 rounded border border-green-300 bg-green-50 p-3 text-green-700">{statusMessage}</div>}
+      {error && <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>{error}</Alert>}
+      {statusMessage && <Alert severity="success" sx={{ mb: 3 }} onClose={() => setStatusMessage(null)}>{statusMessage}</Alert>}
 
-      <section className="mt-8 grid gap-6 xl:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Create / Edit Custom Package</h2>
-          <form onSubmit={submitPackage} className="mt-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Package Name</label>
-              <input
-                value={packageName}
-                onChange={(event) => setPackageName(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="Full HR Suite Bundle"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Description</label>
-              <textarea
-                value={packageDescription}
-                onChange={(event) => setPackageDescription(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="Includes attendance, payroll, HR, and document modules."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Price (₹)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={packagePrice}
-                onChange={(event) => setPackagePrice(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                placeholder="1299"
-              />
-              <p className="mt-1 text-sm text-slate-500">Saved in cents as {formatMoney(packageTotalPrice)}.</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Package Features</label>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {featureOptions.map((feature) => (
-                  <label key={feature.key} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={packageFeatures.includes(feature.key)}
-                      onChange={(event) => {
-                        setPackageFeatures((prev) =>
-                          event.target.checked ? [...prev, feature.key] : prev.filter((key) => key !== feature.key),
-                        );
-                      }}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <div>
-                      <div className="font-medium text-slate-800">{feature.name}</div>
-                      <div className="text-slate-500">{feature.description}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
-                {editingPackageId ? 'Update package' : 'Create package'}
-              </button>
-              {editingPackageId ? (
-                <button type="button" onClick={resetPackageForm} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-100">
-                  Cancel edit
-                </button>
-              ) : null}
-            </div>
-          </form>
-        </div>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
+        <Tabs value={tabIndex} onChange={(_, val) => setTabIndex(val)} aria-label="package manager tabs">
+          <Tab label="Custom Packages Directory" icon={<ExtensionIcon />} iconPosition="start" />
+          <Tab label="Plan Features Manager" icon={<LibraryAddCheckIcon />} iconPosition="start" />
+        </Tabs>
+      </Box>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Plan Feature Bundles</h2>
-          <div className="mt-4 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700">Select plan</label>
-              <select
-                value={selectedPlanId}
-                onChange={(event) => setSelectedPlanId(event.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+      {loading && packages.length === 0 ? (
+        <Box display="flex" justifyContent="center" py={8}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* TAB 0: CUSTOM PACKAGES DIRECTORY */}
+          <CustomTabPanel value={tabIndex} index={0}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+              <Typography variant="h6">All Custom Packages</Typography>
+              <Button 
+                variant="contained" 
+                startIcon={<AddRoundedIcon />}
+                onClick={openCreateDialog}
               >
-                <option value="">Choose a plan</option>
-                {plans.map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.name} — {plan.billing_period} — {formatMoney(plan.price_cents)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedPlanId ? (
-              <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Toggle the feature modules included in this plan.</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {featureOptions.map((feature) => (
-                    <label key={feature.key} className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={selectedPlanFeatures.includes(feature.key)}
-                        onChange={(event) => {
-                          setSelectedPlanFeatures((prev) =>
-                            event.target.checked ? [...prev, feature.key] : prev.filter((key) => key !== feature.key),
-                          );
-                        }}
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <div>
-                        <div className="font-medium text-slate-800">{feature.name}</div>
-                        <div className="text-slate-500">{feature.description}</div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={savePlanFeatureBundle}
-                  className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
-                >
-                  Save plan bundle
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
+                Create Custom Package
+              </Button>
+            </Stack>
 
-      <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold">Custom Packages</h2>
-        <div className="mt-4 grid gap-4">
-          {packages.length === 0 ? (
-            <p className="text-sm text-slate-500">No custom packages yet.</p>
-          ) : (
-            packages.map((pkg) => (
-              <div key={pkg.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-base font-semibold text-slate-900">{pkg.name}</p>
-                    <p className="mt-1 text-sm text-slate-600">{pkg.description ?? 'No description provided.'}</p>
-                    <p className="mt-2 text-sm text-slate-700">Includes: {pkg.feature_keys.join(', ')}</p>
-                  </div>
-                  <div className="flex flex-col items-start gap-2 sm:items-end">
-                    <div className="rounded-full bg-white px-3 py-1 text-sm font-medium text-slate-800 shadow-sm">{formatMoney(pkg.price_cents)}</div>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEditPackage(pkg)}
-                        className="rounded-lg border border-indigo-600 bg-white px-3 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => deletePackage(pkg.id)}
-                        className="rounded-lg border border-red-600 bg-white px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
-    </div>
+            <Grid container spacing={3}>
+              {packages.length === 0 && (
+                <Grid item xs={12}>
+                  <Card><CardContent><Typography color="text.secondary">No custom packages found.</Typography></CardContent></Card>
+                </Grid>
+              )}
+              {packages.map((pkg) => (
+                <Grid item xs={12} sm={6} md={4} key={pkg.id}>
+                  <Card elevation={0} sx={{ border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <CardHeader 
+                      title={pkg.name}
+                      subheader={pkg.description || 'No description provided.'}
+                      action={
+                        <Stack direction="row" spacing={0.5}>
+                          <IconButton size="small" onClick={() => startEditPackage(pkg)} color="primary">
+                            <EditRoundedIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => deletePackage(pkg.id)} color="error">
+                            <DeleteRoundedIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      }
+                    />
+                    <Divider />
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography variant="h5" fontWeight="bold" color="primary.main" sx={{ mb: 2 }}>
+                        {formatMoney(pkg.price_cents)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" fontWeight="bold">Includes Features:</Typography>
+                      <ul style={{ paddingLeft: '20px', marginTop: '4px', fontSize: '14px', color: '#64748b' }}>
+                        {pkg.feature_keys.map(key => (
+                          <li key={key}>{key}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </CustomTabPanel>
+
+          {/* TAB 1: PLAN FEATURES MANAGER */}
+          <CustomTabPanel value={tabIndex} index={1}>
+            <Card elevation={0} sx={{ border: '1px solid #e2e8f0', maxWidth: 800 }}>
+              <CardHeader title="Define Plan Bundles" subheader="Select a base plan and check which modules are included by default." />
+              <Divider />
+              <CardContent>
+                <FormControl fullWidth sx={{ mb: 4 }}>
+                  <InputLabel id="plan-select-label">Select Plan</InputLabel>
+                  <Select
+                    labelId="plan-select-label"
+                    value={selectedPlanId}
+                    label="Select Plan"
+                    onChange={(e) => setSelectedPlanId(e.target.value)}
+                  >
+                    <MenuItem value="" disabled>Choose a plan...</MenuItem>
+                    {plans.map((plan) => (
+                      <MenuItem key={plan.id} value={plan.id}>
+                        {plan.name} — {plan.billing_period} — {formatMoney(plan.price_cents)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {selectedPlanId ? (
+                  <Box sx={{ p: 3, bgcolor: '#f8fafc', borderRadius: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 2 }}>Included Features</Typography>
+                    <Grid container spacing={2}>
+                      {featureOptions.map((feature) => (
+                        <Grid item xs={12} sm={6} key={feature.key}>
+                          <label className="flex cursor-pointer items-start gap-3 rounded border border-slate-200 bg-white p-3 text-sm hover:border-indigo-300">
+                            <Checkbox 
+                              size="small"
+                              checked={selectedPlanFeatures.includes(feature.key)}
+                              onChange={(e) => {
+                                setSelectedPlanFeatures(prev => {
+                                  return e.target.checked 
+                                    ? [...prev, feature.key] 
+                                    : prev.filter(key => key !== feature.key);
+                                });
+                              }}
+                            />
+                            <Box>
+                              <Typography variant="body2" fontWeight="500">{feature.name}</Typography>
+                              <Typography variant="caption" color="text.secondary" display="block">{feature.description}</Typography>
+                            </Box>
+                          </label>
+                        </Grid>
+                      ))}
+                    </Grid>
+                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button variant="contained" color="success" onClick={savePlanFeatureBundle}>
+                        Save Plan Bundle
+                      </Button>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Alert severity="info">Select a plan from the dropdown above to manage its included features.</Alert>
+                )}
+              </CardContent>
+            </Card>
+          </CustomTabPanel>
+        </>
+      )}
+
+      {/* DIALOGS */}
+      <Dialog open={packageDialogOpen} onClose={() => setPackageDialogOpen(false)} maxWidth="sm" fullWidth>
+        <form onSubmit={submitPackage}>
+          <DialogTitle>{editingPackageId ? 'Edit Custom Package' : 'Create Custom Package'}</DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={3}>
+              <TextField label="Package Name" fullWidth required value={packageName} onChange={e => setPackageName(e.target.value)} placeholder="e.g. Analytics Expansion" />
+              <TextField label="Description" fullWidth multiline rows={2} value={packageDescription} onChange={e => setPackageDescription(e.target.value)} />
+              
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Package Features</Typography>
+                <Grid container spacing={1}>
+                  {featureOptions.map(feature => (
+                    <Grid item xs={12} sm={6} key={feature.key}>
+                      <label className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 p-2 text-sm hover:border-indigo-300">
+                        <Checkbox 
+                          size="small"
+                          checked={packageFeatures.includes(feature.key)}
+                          onChange={(e) => {
+                            setPackageFeatures(prev => {
+                              return e.target.checked 
+                                ? [...prev, feature.key] 
+                                : prev.filter(f => f !== feature.key);
+                            });
+                          }}
+                        />
+                        <Typography variant="body2">{feature.name}</Typography>
+                      </label>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+
+              <TextField 
+                label="Price (₹)" 
+                type="number" 
+                fullWidth 
+                required 
+                value={packagePrice} 
+                onChange={e => setPackagePrice(e.target.value)} 
+                helperText={`Saved internally in cents as: ${formatMoney(packageTotalPrice)}`}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPackageDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="contained">{editingPackageId ? 'Save Changes' : 'Create Package'}</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </Container>
   );
 }
