@@ -96,6 +96,12 @@ export default function TimesheetsPage() {
       return;
     }
 
+    const hours = parseFloat(formData.hours_worked);
+    if (isNaN(hours) || hours < 0) {
+      setError('Hours cannot be negative');
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/advanced-attendance/timesheets`, {
         method: 'POST',
@@ -238,7 +244,17 @@ export default function TimesheetsPage() {
               inputProps={{ step: 0.5, min: 0 }}
               fullWidth
               value={formData.hours_worked}
-              onChange={(e) => setFormData({ ...formData, hours_worked: e.target.value })}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val.includes('-')) {
+                  setFormData({ ...formData, hours_worked: val });
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === '-') {
+                  e.preventDefault();
+                }
+              }}
             />
             <TextField
               label="Project ID (Optional)"
