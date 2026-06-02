@@ -716,20 +716,21 @@ export default function LeavesPage() {
                                   {...field}
                                   label="Leave type *"
                                   error={!!errors.leave_type_id}
-                              sx={{
-                                bgcolor: '#fafbfd',
-                                borderRadius: 1.5,
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: '#e7e9ef',
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: '#d0cee4',
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: '#928ddd',
-                                },
-                              }}
-                            >
+                                  MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
+                                  sx={{
+                                    bgcolor: '#fafbfd',
+                                    borderRadius: 1.5,
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: '#e7e9ef',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: '#d0cee4',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: '#928ddd',
+                                    },
+                                  }}
+                                >
                               <MenuItem value="">Select type</MenuItem>
                               {leaveTypes.map((type) => (
                                 <MenuItem key={type.id} value={type.id}>
@@ -784,20 +785,21 @@ export default function LeavesPage() {
                                 render={({ field }) => (
                                   <Select
                                     {...field}
-                                sx={{
-                                  bgcolor: '#fafbfd',
-                                  borderRadius: 1.5,
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#e7e9ef',
-                                  },
-                                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#d0cee4',
-                                  },
-                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: '#928ddd',
-                                  },
-                                }}
-                              >
+                                    MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
+                                    sx={{
+                                      bgcolor: '#fafbfd',
+                                      borderRadius: 1.5,
+                                      '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#e7e9ef',
+                                      },
+                                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#d0cee4',
+                                      },
+                                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#928ddd',
+                                      },
+                                    }}
+                                  >
                                 <MenuItem value="Session 1">Session 1</MenuItem>
                                 <MenuItem value="Session 2">Session 2</MenuItem>
                               </Select>
@@ -849,6 +851,7 @@ export default function LeavesPage() {
                                 render={({ field }) => (
                                   <Select
                                     {...field}
+                                    MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
                                     sx={{
                                       bgcolor: '#fafbfd',
                                       borderRadius: 1.5,
@@ -1181,6 +1184,7 @@ export default function LeavesPage() {
                           value={pendingTypeFilter}
                           label="Type"
                           onChange={(e) => setPendingTypeFilter(e.target.value)}
+                          MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
                         >
                           <MenuItem value="all">All types</MenuItem>
                           {leaveTypes.map((type) => (
@@ -1349,6 +1353,7 @@ export default function LeavesPage() {
                           value={selectedYear}
                           label="Year"
                           onChange={(e) => setSelectedYear(e.target.value as number)}
+                          MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
                           sx={{
                             bgcolor: '#fafbfd',
                             borderRadius: 1.5,
