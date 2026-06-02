@@ -1037,7 +1037,7 @@ export default function LeavesPage() {
                         {/* File Upload */}
                         <Box>
                           <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
-                            Attach File
+                            Attach File (PDF only, max 5MB)
                           </Typography>
                           <Button
                             component="label"
@@ -1060,10 +1060,22 @@ export default function LeavesPage() {
                             <input
                               hidden
                               type="file"
+                              accept=".pdf"
                               multiple
                               onChange={(e) => {
                                 if (e.target.files) {
-                                  setAttachments([...attachments, ...Array.from(e.target.files)]);
+                                  const validFiles = Array.from(e.target.files).filter(file => {
+                                    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                                      alert(`File ${file.name} is not a PDF.`);
+                                      return false;
+                                    }
+                                    if (file.size > 5 * 1024 * 1024) {
+                                      alert(`File ${file.name} exceeds the 5MB limit.`);
+                                      return false;
+                                    }
+                                    return true;
+                                  });
+                                  setAttachments([...attachments, ...validFiles]);
                                 }
                               }}
                             />
