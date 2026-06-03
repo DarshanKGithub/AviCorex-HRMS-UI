@@ -166,7 +166,7 @@ export default function ReimbursementPage() {
                 {reimbursements.map(r => (
                   <TableRow key={r.id} sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { bgcolor: '#f8fafc' }, transition: 'background-color 0.2s' }}>
                     <TableCell sx={{ fontWeight: 600, color: '#1e293b', borderBottom: '1px solid #f1f5f9' }}>{r.expense_type}</TableCell>
-                    <TableCell sx={{ color: '#64748b', fontWeight: 500, borderBottom: '1px solid #f1f5f9', maxWidth: 300 }} noWrap>{r.description || '-'}</TableCell>
+                    <TableCell sx={{ color: '#64748b', fontWeight: 500, borderBottom: '1px solid #f1f5f9', maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.description || '-'}</TableCell>
                     <TableCell sx={{ fontWeight: 700, color: '#1e293b', borderBottom: '1px solid #f1f5f9' }}>₹{r.amount?.toLocaleString()}</TableCell>
                     <TableCell sx={{ color: '#64748b', fontWeight: 500, borderBottom: '1px solid #f1f5f9' }}>{new Date(r.applied_on).toLocaleDateString()}</TableCell>
                     <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
