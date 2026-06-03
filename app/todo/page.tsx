@@ -17,6 +17,17 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import InputAdornment from '@mui/material/InputAdornment';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+
+const commonCardStyles = {
+  borderRadius: 4,
+  border: 'none',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  bgcolor: '#ffffff',
+  height: '100%'
+};
 
 // Icons
 import AddIcon from '@mui/icons-material/Add';
@@ -118,6 +129,50 @@ export default function TodoPage() {
       const created = await response.json();
       setItems((current) => [created, ...current]);
       setQuickTitle('');
+    } catch (creationError) {
+      setError(creationError instanceof Error ? creationError.message : 'Unable to create task');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openCreateDialog() {
+    if (!quickTitle.trim()) return;
+    setEditingItem(null);
+    setEditForm({
+      title: quickTitle.trim(),
+      description: '',
+      due_date: '',
+      status: 'open',
+    });
+    setEditDialogOpen(true);
+  }
+
+  async function createTodoFromDialog() {
+    if (!editForm.title.trim() || !token) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE}/todo/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          title: editForm.title.trim(),
+          description: editForm.description || null,
+          due_date: editForm.due_date || null,
+          status: editForm.status
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.detail || 'Unable to create task');
+      }
+
+      const created = await response.json();
+      setItems((current) => [created, ...current]);
+      setQuickTitle('');
+      setEditDialogOpen(false);
     } catch (creationError) {
       setError(creationError instanceof Error ? creationError.message : 'Unable to create task');
     } finally {
@@ -307,97 +362,152 @@ export default function TodoPage() {
   };
 
   return (
-    <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: 900, mx: 'auto' }}>
-      <Breadcrumbs />
+    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', px: { xs: 2, md: 4 }, py: 3 }}>
+      <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
+        <Breadcrumbs />
 
-      <Box sx={{ mb: 4, mt: 1 }}>
-        <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
-          Tasks
-        </Typography>
-        <Typography sx={{ color: '#64748b', mt: 0.5 }}>
-          Press Enter to quickly add a task. Click the status icon to advance it.
-        </Typography>
-      </Box>
-
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-
-      <Box sx={{ bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
-        
-        {/* Header Tabs */}
-        <Box sx={{ borderBottom: '1px solid #e2e8f0', px: 2, pt: 2, pb: 1.5, display: 'flex', overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
-          <Stack direction="row" spacing={1}>
-            {[
-              { key: 'all', label: 'All' },
-              { key: 'open', label: 'To Do' },
-              { key: 'in_progress', label: 'In Progress' },
-              { key: 'done', label: 'Done' },
-            ].map((tab) => (
-              <Chip
-                key={tab.key}
-                label={tab.label}
-                clickable
-                onClick={() => setStatusFilter(tab.key as any)}
-                sx={{
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  height: 28,
-                  bgcolor: statusFilter === tab.key ? '#0f172a' : 'transparent',
-                  color: statusFilter === tab.key ? '#ffffff' : '#64748b',
-                  '&:hover': { bgcolor: statusFilter === tab.key ? '#0f172a' : '#f1f5f9' }
-                }}
-              />
-            ))}
-          </Stack>
+        <Box sx={{ mb: 4, mt: 2 }}>
+          <Chip label="To Do" sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 800, mb: 1.5, borderRadius: 2 }} />
+          <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: '#1e293b' }}>
+            Tasks
+          </Typography>
+          <Typography sx={{ color: '#64748b', mt: 0.5 }}>
+            Press Enter to quickly add a task. Click the status icon to advance it.
+          </Typography>
         </Box>
 
-        {/* Quick Add Input */}
-        <Box sx={{ px: 2, py: 2, borderBottom: '1px solid #e2e8f0', bgcolor: '#f8fafc' }}>
-          <TextField
-            fullWidth
-            placeholder="What needs to be done?"
-            variant="standard"
-            value={quickTitle}
-            onChange={(e) => setQuickTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                createTodo();
-              }
-            }}
-            disabled={saving}
-            InputProps={{
-              disableUnderline: true,
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AddIcon sx={{ color: '#94a3b8' }} />
-                </InputAdornment>
-              ),
-              sx: { fontSize: '1rem', fontWeight: 500, color: '#334155' }
-            }}
-          />
-        </Box>
+        {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>{error}</Alert>}
 
-        {/* Task List */}
-        <Box sx={{ minHeight: 300 }}>
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress size={30} />
-            </Box>
-          ) : visibleItems.length === 0 ? (
-            <Box sx={{ py: 10, textAlign: 'center' }}>
-              <Typography sx={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 500 }}>
-                {statusFilter === 'all' ? 'All caught up! Add a new task above.' : 'No tasks in this view.'}
-              </Typography>
-            </Box>
-          ) : (
-            visibleItems.map(renderTaskRow)
-          )}
-        </Box>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ ...commonCardStyles, p: 3 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', mb: 2 }}>
+                <RadioButtonUncheckedIcon />
+              </Box>
+              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'open').length}</Typography>
+              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>To Do</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ ...commonCardStyles, p: 3 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', mb: 2 }}>
+                <AutorenewIcon />
+              </Box>
+              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'in_progress').length}</Typography>
+              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ ...commonCardStyles, p: 3 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', mb: 2 }}>
+                <CheckCircleIcon />
+              </Box>
+              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'done').length}</Typography>
+              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>Completed</Typography>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Card sx={{ ...commonCardStyles }}>
+          {/* Header Tabs */}
+          <Box sx={{ borderBottom: '1px solid #f1f5f9', px: 3, pt: 3, pb: 2, display: 'flex', overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
+            <Stack direction="row" spacing={1.5}>
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'open', label: 'To Do' },
+                { key: 'in_progress', label: 'In Progress' },
+                { key: 'done', label: 'Done' },
+              ].map((tab) => (
+                <Chip
+                  key={tab.key}
+                  label={tab.label}
+                  clickable
+                  onClick={() => setStatusFilter(tab.key as any)}
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    height: 32,
+                    px: 1,
+                    borderRadius: 2,
+                    bgcolor: statusFilter === tab.key ? '#6366f1' : '#f8fafc',
+                    color: statusFilter === tab.key ? '#ffffff' : '#64748b',
+                    border: statusFilter === tab.key ? 'none' : '1px solid #e2e8f0',
+                    transition: 'all 0.2s',
+                    '&:hover': { bgcolor: statusFilter === tab.key ? '#4f46e5' : '#f1f5f9' }
+                  }}
+                />
+              ))}
+            </Stack>
+          </Box>
+
+          {/* Quick Add Input */}
+          <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid #f1f5f9', bgcolor: '#f8fafc', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField
+              fullWidth
+              placeholder="What needs to be done?"
+              variant="standard"
+              value={quickTitle}
+              onChange={(e) => setQuickTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  createTodo();
+                }
+              }}
+              disabled={saving}
+              InputProps={{
+                disableUnderline: true,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AddIcon sx={{ color: '#94a3b8' }} />
+                  </InputAdornment>
+                ),
+                sx: { fontSize: '1.05rem', fontWeight: 600, color: '#1e293b' }
+              }}
+            />
+            <Button 
+              variant="contained" 
+              onClick={openCreateDialog} 
+              disabled={saving || !quickTitle.trim()}
+              sx={{ 
+                bgcolor: '#6366f1', 
+                color: '#fff', 
+                textTransform: 'none', 
+                fontWeight: 700, 
+                borderRadius: 2, 
+                px: 3, 
+                py: 1, 
+                whiteSpace: 'nowrap',
+                boxShadow: 'none',
+                '&:hover': { bgcolor: '#4f46e5', boxShadow: 'none' }
+              }}
+            >
+              Add details
+            </Button>
+          </Box>
+
+          {/* Task List */}
+          <Box sx={{ minHeight: 300 }}>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress size={30} />
+              </Box>
+            ) : visibleItems.length === 0 ? (
+              <Box sx={{ py: 10, textAlign: 'center' }}>
+                <Typography sx={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 600 }}>
+                  {statusFilter === 'all' ? 'All caught up! Add a new task above.' : 'No tasks in this view.'}
+                </Typography>
+              </Box>
+            ) : (
+              visibleItems.map(renderTaskRow)
+            )}
+          </Box>
+        </Card>
       </Box>
 
       {/* Edit Task Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { bgcolor: '#ffffff', borderRadius: 3 } }}>
-        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Edit task</DialogTitle>
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { bgcolor: '#ffffff', borderRadius: 4, p: 1 } }}>
+        <DialogTitle sx={{ fontWeight: 800, pb: 1, color: '#1e293b' }}>{editingItem ? 'Edit task' : 'Create task'}</DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
             <TextField fullWidth label="Task title" value={editForm.title} onChange={(e) => setEditForm((current) => ({ ...current, title: e.target.value }))} />
@@ -411,9 +521,9 @@ export default function TodoPage() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
-          <Button onClick={() => setEditDialogOpen(false)} sx={{ textTransform: 'none', fontWeight: 700, color: 'text.secondary' }}>Cancel</Button>
-          <Button onClick={() => updateTodo()} variant="contained" disabled={saving || !editForm.title} sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, px: 3 }}>
-            {saving ? 'Saving...' : 'Save changes'}
+          <Button onClick={() => setEditDialogOpen(false)} sx={{ textTransform: 'none', fontWeight: 700, color: '#64748b' }}>Cancel</Button>
+          <Button onClick={() => editingItem ? updateTodo() : createTodoFromDialog()} variant="contained" disabled={saving || !editForm.title} sx={{ bgcolor: '#6366f1', textTransform: 'none', fontWeight: 700, borderRadius: 2, px: 3 }}>
+            {saving ? 'Saving...' : (editingItem ? 'Save changes' : 'Create task')}
           </Button>
         </DialogActions>
       </Dialog>

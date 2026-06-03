@@ -42,6 +42,14 @@ const DEPARTMENT_DATA = [
 ];
 const COLOR_PALETTE = ['#3b82f6', '#a78bfa', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
 
+const commonCardStyles = {
+  borderRadius: 4,
+  border: 'none',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  bgcolor: '#ffffff',
+  height: '100%'
+};
+
 // Reusable Circular Progress for Task Overview
 function CustomCircularProgress({ value, color }: { value: number, color: string }) {
   return (
@@ -167,16 +175,179 @@ function AttendanceWidget() {
   );
 }
 
+// Dynamic Calendar Widget
+function CalendarWidget() {
+  const { token, status } = useAuth();
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d;
+  });
+  
+  const [weekStart, setWeekStart] = useState(() => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    // Align to Sunday
+    const day = d.getDay();
+    const diff = d.getDate() - day; 
+    return new Date(d.setDate(diff));
+  });
+
+  const [activeTab, setActiveTab] = useState<'all' | 'meeting' | 'task'>('all');
+
+  // Dates for API range
+  const startOfMonthStr = new Date(weekStart.getFullYear(), weekStart.getMonth(), 1).toISOString().split('T')[0];
+  const endOfMonthStr = new Date(weekStart.getFullYear(), weekStart.getMonth() + 2, 0).toISOString().split('T')[0];
+
+  const { data: calendarData, isLoading } = useQuery({
+    queryKey: ['calendar', startOfMonthStr, endOfMonthStr],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/dashboard/calendar/events?start_date=${startOfMonthStr}&end_date=${endOfMonthStr}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch calendar');
+      return res.json();
+    },
+    enabled: status === 'ready' && !!token,
+  });
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const days = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+
+  const prevWeek = () => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() - 7);
+    setWeekStart(d);
+  };
+  const nextWeek = () => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + 7);
+    setWeekStart(d);
+  };
+
+  const selectedDateStr = selectedDate.toISOString().split('T')[0];
+  
+  const filteredEvents = (calendarData?.events || []).filter((e: any) => {
+    const evDate = new Date(e.start_time).toISOString().split('T')[0];
+    if (evDate !== selectedDateStr) return false;
+    
+    if (activeTab === 'meeting') {
+      if (!['meeting', 'interview'].includes(e.event_type)) return false;
+    } else if (activeTab === 'task') {
+      if (e.event_type !== 'task') return false;
+    }
+    // 'all' tab shows everything
+    
+    return true;
+  });
+
+  return (
+    <Card sx={{ ...commonCardStyles, p: 3 }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Calendar</Typography>
+        <IconButton size="small" sx={{ bgcolor: '#6366f1', color: 'white', '&:hover': { bgcolor: '#4f46e5' } }}>
+          <AddIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+      
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <IconButton size="small" onClick={prevWeek}><ChevronLeftIcon /></IconButton>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.85rem' }}>
+          {weekStart.toLocaleString('default', { month: 'long' })}, {weekStart.getFullYear()}
+        </Typography>
+        <IconButton size="small" onClick={nextWeek}><ChevronRightIcon /></IconButton>
+      </Stack>
+      
+      <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
+        {days.map((d, i) => {
+          const isPast = d.getTime() < today.getTime();
+          const isSelected = d.getTime() === selectedDate.getTime();
+          const dayName = d.toLocaleString('default', { weekday: 'short' });
+          const dayNum = d.getDate();
+          
+          return (
+            <Box 
+              key={i} 
+              onClick={() => { if (!isPast) setSelectedDate(d); }}
+              sx={{ 
+                textAlign: 'center', 
+                bgcolor: isSelected ? '#e0e7ff' : 'transparent', 
+                color: isPast ? '#cbd5e1' : (isSelected ? '#6366f1' : 'inherit'), 
+                borderRadius: 2, p: 1, minWidth: 40,
+                cursor: isPast ? 'not-allowed' : 'pointer',
+                opacity: isPast ? 0.5 : 1,
+                '&:hover': { bgcolor: isPast ? 'transparent' : (isSelected ? '#e0e7ff' : '#f8fafc') }
+              }}
+            >
+              <Typography sx={{ fontSize: '0.7rem', color: isPast ? '#cbd5e1' : (isSelected ? '#6366f1' : '#94a3b8'), fontWeight: 600 }}>
+                {dayName}
+              </Typography>
+              <Typography sx={{ fontWeight: 800, mt: 0.5 }}>{dayNum}</Typography>
+            </Box>
+          );
+        })}
+      </Stack>
+
+      <Stack direction="row" spacing={3} sx={{ borderBottom: '1px solid #f1f5f9', mb: 2, pb: 1 }}>
+        <Typography 
+          onClick={() => setActiveTab('all')}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'all' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'all' ? 800 : 600, borderBottom: activeTab === 'all' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+        >
+          All
+        </Typography>
+        <Typography 
+          onClick={() => setActiveTab('meeting')}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'meeting' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'meeting' ? 800 : 600, borderBottom: activeTab === 'meeting' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+        >
+          Meetings
+        </Typography>
+        <Typography 
+          onClick={() => setActiveTab('task')}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'task' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'task' ? 800 : 600, borderBottom: activeTab === 'task' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+        >
+          To-do
+        </Typography>
+      </Stack>
+
+      <Stack spacing={2} sx={{ maxHeight: 250, overflowY: 'auto' }}>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><Typography sx={{ color: '#94a3b8', fontSize: '0.8rem' }}>Loading...</Typography></Box>
+        ) : filteredEvents.length === 0 ? (
+          <Typography sx={{ color: '#94a3b8', fontSize: '0.8rem', textAlign: 'center', py: 2 }}>No events scheduled for this day.</Typography>
+        ) : (
+          filteredEvents.map((ev: any) => (
+            <Box key={ev.id} sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                <Typography sx={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{ev.title}</Typography>
+                <IconButton size="small" sx={{ p: 0 }}><MoreHorizIcon fontSize="small" sx={{ color: '#cbd5e1' }}/></IconButton>
+              </Stack>
+              <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, mb: 1.5, mt: 0.5 }}>
+                {new Date(ev.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(ev.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Typography>
+              <Stack direction="row" spacing={-1}>
+                {ev.attendees && ev.attendees.map((att: any, i: number) => (
+                  <Avatar key={i} sx={{ width: 24, height: 24, border: '2px solid #ffffff', fontSize: '0.65rem' }}>{att[0] || '?'}</Avatar>
+                ))}
+              </Stack>
+            </Box>
+          ))
+        )}
+      </Stack>
+    </Card>
+  );
+}
+
 export default function DashboardPage() {
   const { token, user, status } = useAuth();
   
-  const commonCardStyles = {
-    borderRadius: 4,
-    border: 'none',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
-    bgcolor: '#ffffff',
-    height: '100%'
-  };
+
 
   // LIVE API QUERIES
   const { data: orgData, isLoading: orgLoading } = useQuery({
@@ -377,48 +548,7 @@ export default function DashboardPage() {
 
             {/* CALENDAR */}
             <Grid item xs={12} md={3}>
-              <Card sx={{ ...commonCardStyles, p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Calendar</Typography>
-                  <IconButton size="small" sx={{ bgcolor: '#6366f1', color: 'white', '&:hover': { bgcolor: '#4f46e5' } }}><AddIcon fontSize="small" /></IconButton>
-                </Stack>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                  <IconButton size="small"><ChevronLeftIcon /></IconButton>
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.85rem' }}>{new Date().toLocaleString('default', { month: 'long' })}, {new Date().getFullYear()}</Typography>
-                  <IconButton size="small"><ChevronRightIcon /></IconButton>
-                </Stack>
-                
-                <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
-                  {[
-                    { d: 'Sun', n: '12' }, { d: 'Mon', n: '13' }, 
-                    { d: 'Tue', n: '14', active: true }, { d: 'Wed', n: '15' }, { d: 'Thru', n: '16' }
-                  ].map((day, i) => (
-                    <Box key={i} sx={{ textAlign: 'center', bgcolor: day.active ? '#e0e7ff' : 'transparent', color: day.active ? '#6366f1' : 'inherit', borderRadius: 2, p: 1, minWidth: 40 }}>
-                      <Typography sx={{ fontSize: '0.7rem', color: day.active ? '#6366f1' : '#94a3b8', fontWeight: 600 }}>{day.d}</Typography>
-                      <Typography sx={{ fontWeight: 800, mt: 0.5 }}>{day.n}</Typography>
-                    </Box>
-                  ))}
-                </Stack>
-
-                <Stack direction="row" spacing={3} sx={{ borderBottom: '1px solid #f1f5f9', mb: 2, pb: 1 }}>
-                  <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>Meetings</Typography>
-                  <Typography sx={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 800, borderBottom: '2px solid #3b82f6', pb: 1, mb: -1 }}>Interviews</Typography>
-                  <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>To-do</Typography>
-                </Stack>
-
-                <Stack spacing={2}>
-                  <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3 }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                      <Typography sx={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>SDE_Round 2</Typography>
-                      <IconButton size="small" sx={{ p: 0 }}><MoreHorizIcon fontSize="small" sx={{ color: '#cbd5e1' }}/></IconButton>
-                    </Stack>
-                    <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600, mb: 1.5, mt: 0.5 }}>6PM - 10 PM IST</Typography>
-                    <Stack direction="row" spacing={-1}>
-                      <Avatar src="" sx={{ width: 24, height: 24, border: '2px solid #ffffff' }} />
-                    </Stack>
-                  </Box>
-                </Stack>
-              </Card>
+              <CalendarWidget />
             </Grid>
           </Grid>
         </Grid>
