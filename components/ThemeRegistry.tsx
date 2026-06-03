@@ -27,17 +27,17 @@ function buildTheme(mode: ColorMode) {
         main: isDark ? '#ffffff' : '#000000' // White / Black
       },
       background: {
-        default: isDark ? '#080b13' : '#fcfcfe',
-        paper: isDark ? '#0f172a' : 'rgba(255, 255, 255, 0.82)'
+        default: isDark ? '#080b13' : '#f4f6fc',
+        paper: isDark ? '#0f172a' : '#ffffff'
       },
       divider: isDark ? '#273449' : '#e7e9ef',
       text: {
-        primary: isDark ? '#e2e8f0' : '#15162c',
-        secondary: isDark ? '#94a3b8' : '#5b5f7a'
+        primary: isDark ? '#e2e8f0' : '#1e293b',
+        secondary: isDark ? '#94a3b8' : '#64748b'
       }
     },
     shape: {
-      borderRadius: 18
+      borderRadius: 16
     },
     typography: {
       fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -78,6 +78,14 @@ function buildTheme(mode: ColorMode) {
         styleOverrides: {
           root: {
             backgroundImage: 'none'
+          }
+        }
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            boxShadow: isDark ? 'none' : '0 4px 24px rgba(0,0,0,0.02)',
+            border: 'none'
           }
         }
       }

@@ -1,25 +1,32 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
-import Grid from '@mui/material/Grid';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import MenuItem from '@mui/material/MenuItem';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import Tooltip from '@mui/material/Tooltip';
+import InputAdornment from '@mui/material/InputAdornment';
+
+// Icons
+import AddIcon from '@mui/icons-material/Add';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { useAuth } from '@/components/auth/AuthContext';
 
@@ -36,14 +43,14 @@ type TodoItem = {
   updated_at?: string | null;
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Open',
-  in_progress: 'In progress',
-  done: 'Done',
+const STATUS_CONFIG: Record<string, { label: string, color: string, icon: any, next: string }> = {
+  open: { label: 'To Do', color: '#94a3b8', icon: RadioButtonUncheckedIcon, next: 'in_progress' },
+  in_progress: { label: 'In Progress', color: '#3b82f6', icon: AutorenewIcon, next: 'done' },
+  done: { label: 'Done', color: '#10b981', icon: CheckCircleIcon, next: 'open' },
 };
 
-function formatStatus(status: string) {
-  return STATUS_LABELS[status] ?? status;
+function getStatusConfig(status: string) {
+  return STATUS_CONFIG[status] || STATUS_CONFIG.open;
 }
 
 export default function TodoPage() {
@@ -52,11 +59,15 @@ export default function TodoPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Filters
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'in_progress' | 'done'>('all');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Quick Add Form
+  const [quickTitle, setQuickTitle] = useState('');
+
+  // Edit Modal
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TodoItem | null>(null);
   const [editForm, setEditForm] = useState({ title: '', description: '', due_date: '', status: 'open' });
 
@@ -79,26 +90,13 @@ export default function TodoPage() {
     fetchTodos();
   }, [token]);
 
-  function resetCreateForm() {
-    setTitle('');
-    setDescription('');
-    setDueDate('');
-  }
-
-  const counts = useMemo(() => ({
-    all: items.length,
-    open: items.filter((item) => item.status === 'open').length,
-    in_progress: items.filter((item) => item.status === 'in_progress').length,
-    done: items.filter((item) => item.status === 'done').length,
-  }), [items]);
-
   const visibleItems = useMemo(
     () => (statusFilter === 'all' ? items : items.filter((item) => item.status === statusFilter)),
     [items, statusFilter]
   );
 
   async function createTodo() {
-    if (!title || !token) return;
+    if (!quickTitle.trim() || !token) return;
     setSaving(true);
     setError(null);
     try {
@@ -106,9 +104,9 @@ export default function TodoPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          title,
-          description: description || null,
-          due_date: dueDate || null,
+          title: quickTitle.trim(),
+          description: null,
+          due_date: null,
         }),
       });
 
@@ -119,7 +117,7 @@ export default function TodoPage() {
 
       const created = await response.json();
       setItems((current) => [created, ...current]);
-      resetCreateForm();
+      setQuickTitle('');
     } catch (creationError) {
       setError(creationError instanceof Error ? creationError.message : 'Unable to create task');
     } finally {
@@ -135,22 +133,29 @@ export default function TodoPage() {
       due_date: item.due_date || '',
       status: item.status || 'open',
     });
-    setDialogOpen(true);
+    setEditDialogOpen(true);
   }
 
-  async function updateTodo() {
-    if (!token || !editingItem) return;
+  async function updateTodo(overrideStatus?: string) {
+    const targetItem = overrideStatus ? (items.find(i => i.id === editingItem?.id) || editingItem) : editingItem;
+    if (!token || !targetItem) return;
+    
     setSaving(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/todo/${editingItem.id}`, {
+      const statusToSave = overrideStatus || editForm.status;
+      const titleToSave = overrideStatus ? targetItem.title : editForm.title;
+      const descToSave = overrideStatus ? targetItem.description : editForm.description;
+      const dateToSave = overrideStatus ? targetItem.due_date : editForm.due_date;
+
+      const response = await fetch(`${API_BASE}/todo/${targetItem.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          title: editForm.title,
-          description: editForm.description || null,
-          due_date: editForm.due_date || null,
-          status: editForm.status,
+          title: titleToSave,
+          description: descToSave || null,
+          due_date: dateToSave || null,
+          status: statusToSave,
         }),
       });
 
@@ -161,13 +166,22 @@ export default function TodoPage() {
 
       const updated = await response.json();
       setItems((current) => current.map((item) => (item.id === updated.id ? updated : item)));
-      setDialogOpen(false);
-      setEditingItem(null);
+      if (!overrideStatus) {
+        setEditDialogOpen(false);
+        setEditingItem(null);
+      }
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : 'Unable to update task');
     } finally {
       setSaving(false);
     }
+  }
+
+  async function cycleStatus(item: TodoItem) {
+    const config = getStatusConfig(item.status);
+    setEditingItem(item);
+    await updateTodo(config.next);
+    setEditingItem(null);
   }
 
   async function deleteTodo(todoId: string) {
@@ -193,167 +207,212 @@ export default function TodoPage() {
     }
   }
 
-  return (
-    <Box sx={{ px: { xs: 2, md: 4 }, py: 3 }}>
-      <Breadcrumbs />
+  const renderTaskRow = (item: TodoItem) => {
+    const config = getStatusConfig(item.status);
+    const StatusIcon = config.icon;
+    const isOverdue = item.due_date && new Date(item.due_date) < new Date(new Date().setHours(0,0,0,0)) && item.status !== 'done';
+    const isDone = item.status === 'done';
 
-      <Stack spacing={3}>
-        <Box>
-          <Chip label="To Do" sx={{ bgcolor: '#ede9fe', color: '#6d28d9', fontWeight: 700 }} />
-          <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', color: 'text.primary' }}>
-            Task tracker
-          </Typography>
-          <Typography sx={{ color: 'text.secondary', maxWidth: 780 }}>
-            Create, organize, and update your personal work items. This view saves to the backend so your tasks persist after refresh.
-          </Typography>
-        </Box>
-
-        {error && <Alert severity="error">{error}</Alert>}
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} lg={4}>
-            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Add a task</Typography>
-                <Typography sx={{ color: 'text.secondary', fontSize: 14, mb: 2 }}>Capture what needs attention next.</Typography>
-                <Stack spacing={2}>
-                  <TextField fullWidth label="Task title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                  <TextField fullWidth label="Description" multiline minRows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
-                  <TextField fullWidth label="Due date" type="date" InputLabelProps={{ shrink: true }} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-                  <Button variant="contained" onClick={createTodo} disabled={!title || saving} sx={{ textTransform: 'none', fontWeight: 700 }}>
-                    {saving ? 'Saving...' : 'Add task'}
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} lg={8}>
-            <Card sx={{ borderRadius: 4, border: '1px solid #e2e8f0' }}>
-              <CardContent sx={{ p: { xs: 2.5, md: 3 } }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>Your tasks</Typography>
-                    <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>Edit status, update details, or remove items when done.</Typography>
-                  </Box>
-                  <Button component={Link} href="/engage" variant="outlined" sx={{ textTransform: 'none', fontWeight: 700 }}>
-                    Visit Engage
-                  </Button>
-                </Stack>
-
-                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
-                  {[
-                    { key: 'all', label: `All (${counts.all})` },
-                    { key: 'open', label: `Open (${counts.open})` },
-                    { key: 'in_progress', label: `In progress (${counts.in_progress})` },
-                    { key: 'done', label: `Done (${counts.done})` },
-                  ].map((chip) => (
-                    <Chip
-                      key={chip.key}
-                      label={chip.label}
-                      clickable
-                      onClick={() => setStatusFilter(chip.key as typeof statusFilter)}
-                      variant={statusFilter === chip.key ? 'filled' : 'outlined'}
-                      sx={{
-                        fontWeight: 700,
-                        bgcolor: statusFilter === chip.key ? '#0f172a' : '#fff',
-                        color: statusFilter === chip.key ? '#fff' : '#334155',
-                        borderColor: '#cbd5e1',
-                      }}
-                    />
-                  ))}
-                </Stack>
-
-                <Divider sx={{ mb: 2.5 }} />
-
-                {loading ? (
-                  <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 240 }}>
-                    <CircularProgress />
-                  </Box>
-                ) : visibleItems.length === 0 ? (
-                  <Box sx={{ py: 6, textAlign: 'center' }}>
-                    <Typography sx={{ color: 'text.secondary' }}>
-                      {statusFilter === 'all' ? 'No tasks yet. Add your first item on the left.' : 'No tasks match the selected filter.'}
+    return (
+      <Box 
+        key={item.id} 
+        sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          py: 1.5,
+          px: 2,
+          borderBottom: '1px solid #f1f5f9',
+          bgcolor: '#ffffff',
+          transition: 'background-color 0.2s',
+          '&:hover': {
+            bgcolor: '#f8fafc',
+            '& .actions': { opacity: 1, visibility: 'visible' }
+          },
+          '&:last-child': {
+            borderBottom: 'none',
+            borderBottomLeftRadius: 12,
+            borderBottomRightRadius: 12,
+          }
+        }}
+      >
+        <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ flex: 1, minWidth: 0 }}>
+          <IconButton 
+            onClick={() => cycleStatus(item)} 
+            size="small" 
+            sx={{ color: config.color, mt: -0.2, '&:hover': { bgcolor: `${config.color}15` } }}
+          >
+            <StatusIcon fontSize="small" />
+          </IconButton>
+          
+          <Box sx={{ flex: 1, minWidth: 0, pt: 0.3 }}>
+            <Typography 
+              sx={{ 
+                fontWeight: 600, 
+                color: isDone ? '#94a3b8' : '#1e293b', 
+                fontSize: '0.95rem',
+                textDecoration: isDone ? 'line-through' : 'none',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {item.title}
+            </Typography>
+            
+            {(item.description || item.due_date) && (
+              <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 0.5 }}>
+                {item.due_date && (
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <CalendarTodayIcon sx={{ fontSize: 13, color: isOverdue ? '#ef4444' : '#94a3b8' }} />
+                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: isOverdue ? '#ef4444' : '#94a3b8' }}>
+                      {new Date(item.due_date).toLocaleDateString()}
                     </Typography>
-                  </Box>
-                ) : (
-                  <Stack spacing={2}>
-                    {visibleItems.map((item) => (
-                      <Card key={item.id} sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                        <CardContent>
-                          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={2}>
-                            <Box sx={{ flex: 1 }}>
-                              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.75 }}>
-                                <Typography sx={{ fontWeight: 800, color: 'text.primary' }}>{item.title}</Typography>
-                                <Chip label={formatStatus(item.status)} size="small" sx={{ fontWeight: 700 }} />
-                              </Stack>
-                              {item.description && <Typography sx={{ color: 'text.secondary', lineHeight: 1.7 }}>{item.description}</Typography>}
-                              {item.due_date && (
-                                <Typography sx={{ mt: 1, color: 'text.secondary', fontSize: 12 }}>Due {new Date(item.due_date).toLocaleDateString()}</Typography>
-                              )}
-                            </Box>
-                            <Stack direction="row" spacing={1} flexWrap="wrap">
-                              <Button size="small" variant="outlined" onClick={() => openEditDialog(item)} sx={{ textTransform: 'none', fontWeight: 700 }}>
-                                Edit
-                              </Button>
-                              <Button size="small" color="error" variant="outlined" onClick={() => deleteTodo(item.id)} sx={{ textTransform: 'none', fontWeight: 700 }}>
-                                Delete
-                              </Button>
-                            </Stack>
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    ))}
                   </Stack>
                 )}
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Stack>
+                {item.description && (
+                  <Typography sx={{ color: '#94a3b8', fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 300 }}>
+                    {item.description}
+                  </Typography>
+                )}
+              </Stack>
+            )}
+          </Box>
+        </Stack>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ fontWeight: 800 }}>Edit task</DialogTitle>
+        <Stack 
+          direction="row" 
+          spacing={0.5} 
+          className="actions"
+          sx={{ 
+            opacity: { xs: 1, md: 0 }, 
+            visibility: { xs: 'visible', md: 'hidden' }, 
+            transition: 'opacity 0.2s',
+            pl: 2
+          }}
+        >
+          <Tooltip title="Edit task">
+            <IconButton size="small" onClick={() => openEditDialog(item)} sx={{ color: '#94a3b8', '&:hover': { color: '#6366f1', bgcolor: '#eef2ff' } }}>
+              <EditOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete task">
+            <IconButton size="small" onClick={() => deleteTodo(item.id)} sx={{ color: '#94a3b8', '&:hover': { color: '#ef4444', bgcolor: '#fef2f2' } }}>
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Box>
+    );
+  };
+
+  return (
+    <Box sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: 900, mx: 'auto' }}>
+      <Breadcrumbs />
+
+      <Box sx={{ mb: 4, mt: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '-0.04em', color: '#0f172a' }}>
+          Tasks
+        </Typography>
+        <Typography sx={{ color: '#64748b', mt: 0.5 }}>
+          Press Enter to quickly add a task. Click the status icon to advance it.
+        </Typography>
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+
+      <Box sx={{ bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
+        
+        {/* Header Tabs */}
+        <Box sx={{ borderBottom: '1px solid #e2e8f0', px: 2, pt: 2, pb: 1.5, display: 'flex', overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
+          <Stack direction="row" spacing={1}>
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'open', label: 'To Do' },
+              { key: 'in_progress', label: 'In Progress' },
+              { key: 'done', label: 'Done' },
+            ].map((tab) => (
+              <Chip
+                key={tab.key}
+                label={tab.label}
+                clickable
+                onClick={() => setStatusFilter(tab.key as any)}
+                sx={{
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  height: 28,
+                  bgcolor: statusFilter === tab.key ? '#0f172a' : 'transparent',
+                  color: statusFilter === tab.key ? '#ffffff' : '#64748b',
+                  '&:hover': { bgcolor: statusFilter === tab.key ? '#0f172a' : '#f1f5f9' }
+                }}
+              />
+            ))}
+          </Stack>
+        </Box>
+
+        {/* Quick Add Input */}
+        <Box sx={{ px: 2, py: 2, borderBottom: '1px solid #e2e8f0', bgcolor: '#f8fafc' }}>
+          <TextField
+            fullWidth
+            placeholder="What needs to be done?"
+            variant="standard"
+            value={quickTitle}
+            onChange={(e) => setQuickTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                createTodo();
+              }
+            }}
+            disabled={saving}
+            InputProps={{
+              disableUnderline: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AddIcon sx={{ color: '#94a3b8' }} />
+                </InputAdornment>
+              ),
+              sx: { fontSize: '1rem', fontWeight: 500, color: '#334155' }
+            }}
+          />
+        </Box>
+
+        {/* Task List */}
+        <Box sx={{ minHeight: 300 }}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <CircularProgress size={30} />
+            </Box>
+          ) : visibleItems.length === 0 ? (
+            <Box sx={{ py: 10, textAlign: 'center' }}>
+              <Typography sx={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 500 }}>
+                {statusFilter === 'all' ? 'All caught up! Add a new task above.' : 'No tasks in this view.'}
+              </Typography>
+            </Box>
+          ) : (
+            visibleItems.map(renderTaskRow)
+          )}
+        </Box>
+      </Box>
+
+      {/* Edit Task Dialog */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { bgcolor: '#ffffff', borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 800, pb: 1 }}>Edit task</DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="Task title"
-              value={editForm.title}
-              onChange={(e) => setEditForm((current) => ({ ...current, title: e.target.value }))}
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              multiline
-              minRows={3}
-              value={editForm.description}
-              onChange={(e) => setEditForm((current) => ({ ...current, description: e.target.value }))}
-            />
-            <TextField
-              fullWidth
-              label="Due date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={editForm.due_date}
-              onChange={(e) => setEditForm((current) => ({ ...current, due_date: e.target.value }))}
-            />
-            <TextField
-              select
-              fullWidth
-              label="Status"
-              value={editForm.status}
-              onChange={(e) => setEditForm((current) => ({ ...current, status: e.target.value }))}
-            >
-              <MenuItem value="open">Open</MenuItem>
-              <MenuItem value="in_progress">In progress</MenuItem>
+          <Stack spacing={2.5} sx={{ mt: 1 }}>
+            <TextField fullWidth label="Task title" value={editForm.title} onChange={(e) => setEditForm((current) => ({ ...current, title: e.target.value }))} />
+            <TextField fullWidth label="Description" multiline minRows={3} value={editForm.description} onChange={(e) => setEditForm((current) => ({ ...current, description: e.target.value }))} />
+            <TextField fullWidth label="Due date" type="date" InputLabelProps={{ shrink: true }} value={editForm.due_date} onChange={(e) => setEditForm((current) => ({ ...current, due_date: e.target.value }))} />
+            <TextField select fullWidth label="Status" value={editForm.status} onChange={(e) => setEditForm((current) => ({ ...current, status: e.target.value }))} SelectProps={{ MenuProps: { PaperProps: { sx: { bgcolor: '#ffffff' } } } }}>
+              <MenuItem value="open">To Do</MenuItem>
+              <MenuItem value="in_progress">In Progress</MenuItem>
               <MenuItem value="done">Done</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setDialogOpen(false)} sx={{ textTransform: 'none', fontWeight: 700 }}>Cancel</Button>
-          <Button onClick={updateTodo} variant="contained" disabled={saving || !editForm.title} sx={{ textTransform: 'none', fontWeight: 700 }}>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
+          <Button onClick={() => setEditDialogOpen(false)} sx={{ textTransform: 'none', fontWeight: 700, color: 'text.secondary' }}>Cancel</Button>
+          <Button onClick={() => updateTodo()} variant="contained" disabled={saving || !editForm.title} sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2, px: 3 }}>
             {saving ? 'Saving...' : 'Save changes'}
           </Button>
         </DialogActions>
