@@ -1,39 +1,28 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 import { AuthProvider } from '@/components/auth/AuthContext';
 
-type ColorMode = 'light' | 'dark';
-
-type ThemeModeContextValue = {
-  mode: ColorMode;
-  toggleMode: () => void;
-};
-
-const ThemeModeContext = createContext<ThemeModeContextValue | undefined>(undefined);
-
-function buildTheme(mode: ColorMode) {
-  const isDark = mode === 'dark';
-
+function buildTheme() {
   let theme = createTheme({
     palette: {
-      mode,
+      mode: 'light',
       primary: {
-        main: isDark ? '#a78bfa' : '#7c3aed' // Purple
+        main: '#7c3aed' // Purple
       },
       secondary: {
-        main: isDark ? '#ffffff' : '#000000' // White / Black
+        main: '#000000' // Black
       },
       background: {
-        default: isDark ? '#080b13' : '#f4f6fc',
-        paper: isDark ? '#0f172a' : '#ffffff'
+        default: '#f4f6fc',
+        paper: '#ffffff'
       },
-      divider: isDark ? '#273449' : '#e7e9ef',
+      divider: '#e7e9ef',
       text: {
-        primary: isDark ? '#e2e8f0' : '#1e293b',
-        secondary: isDark ? '#94a3b8' : '#64748b'
+        primary: '#1e293b',
+        secondary: '#64748b'
       }
     },
     shape: {
@@ -66,7 +55,7 @@ function buildTheme(mode: ColorMode) {
       MuiTextField: {
         styleOverrides: {
           root: {
-            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.55)' : 'rgba(255, 255, 255, 0.78)',
+            backgroundColor: 'rgba(255, 255, 255, 0.78)',
             borderRadius: 14,
             '@media (max-width:600px)': {
               borderRadius: 12
@@ -84,7 +73,7 @@ function buildTheme(mode: ColorMode) {
       MuiCard: {
         styleOverrides: {
           root: {
-            boxShadow: isDark ? 'none' : '0 4px 24px rgba(0,0,0,0.02)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
             border: 'none'
           }
         }
@@ -96,49 +85,13 @@ function buildTheme(mode: ColorMode) {
   return theme;
 }
 
-export function useThemeMode() {
-  const context = useContext(ThemeModeContext);
-  if (!context) {
-    throw new Error('useThemeMode must be used within ThemeRegistry');
-  }
-  return context;
-}
-
 export function ThemeRegistry({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<ColorMode>('light');
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem('hrms_color_mode');
-    if (stored === 'dark' || stored === 'light') {
-      setMode(stored);
-      return;
-    }
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setMode(prefersDark ? 'dark' : 'light');
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    document.documentElement.dataset.theme = mode;
-    window.localStorage.setItem('hrms_color_mode', mode);
-  }, [mode]);
-
-  const theme = useMemo(() => buildTheme(mode), [mode]);
-  const value = useMemo<ThemeModeContextValue>(
-    () => ({
-      mode,
-      toggleMode: () => setMode((prev) => (prev === 'dark' ? 'light' : 'dark'))
-    }),
-    [mode]
-  );
+  const theme = buildTheme();
 
   return (
-    <ThemeModeContext.Provider value={value}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>{children}</AuthProvider>
-      </ThemeProvider>
-    </ThemeModeContext.Provider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>{children}</AuthProvider>
+    </ThemeProvider>
   );
 }

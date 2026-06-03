@@ -33,6 +33,21 @@ import OrgChartIcon from '@mui/icons-material/AccountTreeRounded';
 import GradeRoundedIcon from '@mui/icons-material/GradeRounded';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEventsRounded';
 
+import InsertChartOutlinedRoundedIcon from '@mui/icons-material/InsertChartOutlinedRounded';
+import GavelRoundedIcon from '@mui/icons-material/GavelRounded';
+import CurrencyExchangeRoundedIcon from '@mui/icons-material/CurrencyExchangeRounded';
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
+import AutoGraphRoundedIcon from '@mui/icons-material/AutoGraphRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import ModelTrainingRoundedIcon from '@mui/icons-material/ModelTrainingRounded';
+import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
+import PersonAddAlt1RoundedIcon from '@mui/icons-material/PersonAddAlt1Rounded';
+import HandshakeRoundedIcon from '@mui/icons-material/HandshakeRounded';
+import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
+import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumberRounded';
+import MarkEmailUnreadRoundedIcon from '@mui/icons-material/MarkEmailUnreadRounded';
+import DisplaySettingsRoundedIcon from '@mui/icons-material/DisplaySettingsRounded';
+
 export const iconMap: Record<string, React.ComponentType<any>> = {
   'dashboard': DashboardRoundedIcon,
   'home': DashboardRoundedIcon,
@@ -71,4 +86,21 @@ export const iconMap: Record<string, React.ComponentType<any>> = {
   'notifications': NotificationsRoundedIcon,
   'worklife': EmojiEventsIcon,
   'org': OrgChartIcon,
+  
+  // New unique icons
+  'ytd': InsertChartOutlinedRoundedIcon,
+  'itDeclaration': GavelRoundedIcon,
+  'reimbursement': CurrencyExchangeRoundedIcon,
+  'investment': TrendingUpRoundedIcon,
+  'revision': AutoGraphRoundedIcon,
+  'goals': FlagRoundedIcon,
+  'training': ModelTrainingRoundedIcon,
+  'directory': ContactPhoneRoundedIcon,
+  'hierarchy': OrgChartIcon,
+  'recruitment': PersonAddAlt1RoundedIcon,
+  'clients': HandshakeRoundedIcon,
+  'packages': Inventory2RoundedIcon,
+  'tickets': ConfirmationNumberRoundedIcon,
+  'notificationCenter': MarkEmailUnreadRoundedIcon,
+  'notificationSettings': DisplaySettingsRoundedIcon,
 };

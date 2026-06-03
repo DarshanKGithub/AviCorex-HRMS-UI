@@ -37,7 +37,22 @@ export type SidebarItem = {
     | 'biometrics'
     | 'campaign'
     | 'badge'
-    | 'problem';
+    | 'problem'
+    | 'ytd'
+    | 'itDeclaration'
+    | 'reimbursement'
+    | 'investment'
+    | 'revision'
+    | 'goals'
+    | 'training'
+    | 'directory'
+    | 'hierarchy'
+    | 'recruitment'
+    | 'clients'
+    | 'packages'
+    | 'tickets'
+    | 'notificationCenter'
+    | 'notificationSettings';
   requiredAnyPermissions?: string[];
   requiredAnyEntitlements?: string[];
   adminOnly?: boolean;
@@ -78,13 +93,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     children: [
       { label: 'Payslips', href: '/payroll/payslips', icon: 'receipt', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
       { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'expense' },
-      { label: 'YTD Reports', href: '#ytd', icon: 'dashboard' },
-      { label: 'IT Statement', href: '#it-statement', icon: 'docs' },
-      { label: 'IT Declaration', href: '#it-declaration', icon: 'settings' },
-      { label: 'Loans and Advances', href: '#loans', icon: 'savings' },
-      { label: 'Reimbursement', href: '#reimbursement', icon: 'expense' },
-      { label: 'Proof Of Investment', href: '#poi', icon: 'worklife' },
-      { label: 'Salary Revision', href: '#revision', icon: 'performance' },
+      { label: 'YTD Reports', href: '/payroll/ytd', icon: 'ytd' },
+      { label: 'IT Statement', href: '/payroll/it-statement', icon: 'docs' },
+      { label: 'IT Declaration', href: '/payroll/it-declaration', icon: 'itDeclaration' },
+      { label: 'Loans and Advances', href: '/payroll/loans', icon: 'savings' },
+      { label: 'Reimbursement', href: '/payroll/reimbursement', icon: 'reimbursement' },
+      { label: 'Proof Of Investment', href: '/payroll/poi', icon: 'investment' },
+      { label: 'Salary Revision', href: '/payroll/revision', icon: 'revision' },
     ]
   },
   {
@@ -120,6 +135,11 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyPermissions: ['view_attendance', 'view_attendance_own'],
     requiredAnyEntitlements: ['attendance_tracking'],
     children: [
+      {
+        label: 'Dashboard',
+        href: '/attendance',
+        icon: 'dashboard',
+      },
       {
         label: 'Timesheets',
         href: '/attendance/timesheets',
@@ -164,13 +184,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Goals & KPIs',
         href: '/performance',
-        icon: 'performance',
+        icon: 'goals',
         requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
       },
       {
         label: 'Training & Certifications',
         href: '/performance/training',
-        icon: 'performance',
+        icon: 'training',
         requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
       }
     ]
@@ -195,22 +215,22 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     icon: 'people',
     requiredAnyPermissions: ['view_employee'],
     children: [
-      { label: 'Directory', href: '/employees', icon: 'people', requiredAnyPermissions: ['view_employee'] },
-      { label: 'Org Hierarchy', href: '/org-chart', icon: 'people', requiredAnyPermissions: ['view_employee'] },
-      { label: 'Recruitment & ATS', href: '/recruitment', icon: 'people', requiredAnyPermissions: ['manage_recruitment'] },
+      { label: 'Directory', href: '/employees', icon: 'directory', requiredAnyPermissions: ['view_employee'] },
+      { label: 'Org Hierarchy', href: '/org-chart', icon: 'hierarchy', requiredAnyPermissions: ['view_employee'] },
+      { label: 'Recruitment & ATS', href: '/recruitment', icon: 'recruitment', requiredAnyPermissions: ['manage_recruitment'] },
       { label: 'Lifecycle', href: '/lifecycle', icon: 'workflow', requiredAnyPermissions: ['create_employee', 'delete_employee', 'manage_org'] },
     ]
   },
   {
     label: 'Clients',
     href: '/admin/clients',
-    icon: 'people',
+    icon: 'clients',
     adminOnly: true,
   },
   {
     label: 'Package Manager',
     href: '/admin/packages',
-    icon: 'settings',
+    icon: 'packages',
     adminOnly: true,
   },
   {
@@ -223,7 +243,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Support Tickets',
         href: '/helpdesk',
-        icon: 'helpdesk',
+        icon: 'tickets',
         requiredAnyPermissions: ['raise_support_ticket', 'manage_helpdesk'],
       },
       {
@@ -255,13 +275,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       {
         label: 'Notification Center',
         href: '/notifications',
-        icon: 'notifications',
+        icon: 'notificationCenter',
         requiredAnyPermissions: ['view_announcements', 'manage_notifications'],
       },
       {
         label: 'Settings',
         href: '/settings/notifications',
-        icon: 'settings',
+        icon: 'notificationSettings',
         requiredAnyPermissions: ['manage_notifications'],
       }
     ]

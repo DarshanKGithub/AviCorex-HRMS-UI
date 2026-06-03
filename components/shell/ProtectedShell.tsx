@@ -29,7 +29,6 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import Tooltip from '@mui/material/Tooltip';
-import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { SIDEBAR_ITEMS } from '@/components/shell/sidebarConfig';
@@ -89,7 +88,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -212,7 +210,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
             minHeight: collapsed ? 56 : 44,
             py: collapsed ? 0.6 : 0.8,
             '&.Mui-selected': {
-              bgcolor: isDark ? 'rgba(124, 58, 237, 0.25)' : 'rgba(124, 58, 237, 0.12)',
+              bgcolor: 'rgba(124, 58, 237, 0.12)',
               color: 'text.primary'
             },
             '&.Mui-selected:hover': {
@@ -319,10 +317,10 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
               borderRadius: 3,
               display: 'grid',
               placeItems: 'center',
-              bgcolor: isDark ? '#1e293b' : '#fff',
+              bgcolor: '#fff',
               overflow: 'hidden',
-              boxShadow: isDark ? 'none' : '0 12px 24px rgba(146, 141, 221, 0.18)',
-              border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(231, 233, 239, 0.9)'
+              boxShadow: '0 12px 24px rgba(146, 141, 221, 0.18)',
+              border: '1px solid rgba(231, 233, 239, 0.9)'
             }}
           >
             <Image src="/logo.png" alt="GreaterHR logo" width={44} height={44} style={{ objectFit: 'cover' }} priority />
@@ -372,7 +370,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
         sx={{
           ml: { lg: `${currentDrawerWidth}px` },
           width: { lg: `calc(100% - ${currentDrawerWidth}px)` },
-          bgcolor: isDark ? 'rgba(15, 23, 42, 0.82)' : 'rgba(255, 255, 255, 0.82)',
+          bgcolor: 'rgba(255, 255, 255, 0.82)',
           backdropFilter: 'blur(18px)',
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -401,7 +399,6 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           </Stack>
 
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <ThemeToggle />
             <Chip label={user.role} sx={{ bgcolor: 'rgba(124, 58, 237, 0.18)', color: '#6d28d9', fontWeight: 800 }} />
             <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 0.5 }}>
               <Avatar

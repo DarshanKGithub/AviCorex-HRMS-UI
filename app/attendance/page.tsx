@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
@@ -22,6 +22,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import PinDropIcon from '@mui/icons-material/PinDrop';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
@@ -29,6 +31,15 @@ import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+
+const commonCardStyles = {
+  borderRadius: 4,
+  border: 'none',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  bgcolor: '#ffffff',
+  height: '100%',
+  transition: 'transform 0.2s, box-shadow 0.2s',
+};
 
 type AttendanceRecord = {
   id: string;
@@ -109,7 +120,7 @@ export default function AttendancePage() {
     try {
       const empId = employeeId;
       const response = await fetch(
-        `${API_BASE_URL}/attendance?employee_id=${empId}&page=1&size=10`,
+        `${API_BASE_URL}/attendance?employee_id=${empId}&page=1&size=31`,
         {
           headers: {
             Authorization: `Bearer ${auth.token}`,
@@ -252,7 +263,7 @@ export default function AttendancePage() {
 
   const formatTime = (dateString: string | null) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleTimeString();
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatDate = (dateString: string) => {
@@ -260,40 +271,40 @@ export default function AttendancePage() {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'present':
-        return '#4caf50';
+        return { bg: 'rgba(16, 185, 129, 0.1)', text: '#10b981' };
       case 'absent':
-        return '#f44336';
+        return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444' };
       case 'half-day':
-        return '#ff9800';
+        return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' };
       case 'work-from-home':
-        return '#2196f3';
+        return { bg: 'rgba(59, 130, 246, 0.1)', text: '#3b82f6' };
       default:
-        return '#9e9e9e';
+        return { bg: 'rgba(100, 116, 139, 0.1)', text: '#64748b' };
     }
   };
 
   const attendanceStats = [
-    { label: 'Today status', value: todayAttendance?.status || 'Pending', accent: '#7c3aed' },
+    { label: 'Today status', value: todayAttendance?.status ? todayAttendance.status.charAt(0).toUpperCase() + todayAttendance.status.slice(1) : 'Pending', accent: '#6366f1' },
     { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
-    { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f97316' },
+    { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f59e0b' },
   ];
 
   if (auth.status === 'loading' || loading) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: { xs: 2, md: 4 } }}>
+      <Box sx={{ minHeight: '100vh', bgcolor: '#f4f6fc', p: { xs: 2, md: 4 } }}>
         <Box sx={{ mx: 'auto', maxWidth: 1120 }}>
           <Stack spacing={3}>
-            <Skeleton variant="rounded" height={140} sx={{ borderRadius: 5 }} />
-            <Grid container spacing={2.5}>
-              {[1, 2, 3, 4].map((item) => (
-                <Grid item xs={12} sm={6} lg={3} key={item}>
-                  <Skeleton variant="rounded" height={128} sx={{ borderRadius: 4 }} />
+            <Skeleton variant="rounded" height={140} sx={{ borderRadius: 4 }} />
+            <Grid container spacing={3}>
+              {[1, 2, 3].map((item) => (
+                <Grid item xs={12} sm={4} key={item}>
+                  <Skeleton variant="rounded" height={120} sx={{ borderRadius: 4 }} />
                 </Grid>
               ))}
             </Grid>
-            <Grid container spacing={2.5}>
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <Skeleton variant="rounded" height={220} sx={{ borderRadius: 4 }} />
               </Grid>
@@ -309,196 +320,242 @@ export default function AttendancePage() {
   }
 
   return (
-    <Box className="min-h-screen bg-[linear-gradient(180deg,#fcfcfe_0%,#f6f7ff_100%)] p-4 sm:p-6 lg:p-8">
-      <Box className="mx-auto max-w-5xl">
-        <Breadcrumbs />
-        <Stack spacing={3}>
-          <Card sx={{ borderRadius: 5, overflow: 'hidden', bgcolor: '#0f172a', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px -24px rgba(15,23,42,0.45)' }}>
-            <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
-              <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 22%), radial-gradient(circle at bottom left, rgba(139,92,246,0.12), transparent 25%)' }} />
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between" sx={{ position: 'relative' }}>
-                <Box sx={{ maxWidth: 720 }}>
-                  <Chip
-                    icon={<ScheduleIcon sx={{ color: '#93c5fd !important' }} />}
-                    label="Attendance Command Center"
-                    sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#e2e8f0', fontWeight: 800, border: '1px solid rgba(255,255,255,0.12)' }}
-                  />
-                  <Typography variant="h4" sx={{ mt: 1.5, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05 }}>
-                    Check-in / Check-out with a premium, AI-friendly flow.
-                  </Typography>
-                  <Typography sx={{ mt: 1, color: 'rgba(226,232,240,0.78)', maxWidth: 600 }}>
-                    View your shift status, see insights in context, and keep every attendance action calm and easy to scan.
-                  </Typography>
-                </Box>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#93c5fd !important' }} />} label="Live sync" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
-                  <Chip icon={<InsightsRoundedIcon sx={{ color: '#86efac !important' }} />} label="AI signals" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
-                </Stack>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, md: 4 } }}>
+      <Breadcrumbs />
+      
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FingerprintIcon sx={{ color: '#6366f1' }} /> 
+          Attendance Dashboard
+        </Typography>
+      </Stack>
+
+      <Stack spacing={4}>
+        {/* Soft UI Hero Banner */}
+        <Card sx={{ 
+          borderRadius: 4, 
+          overflow: 'hidden', 
+          bgcolor: '#ffffff', 
+          border: 'none', 
+          boxShadow: '0 4px 24px rgba(99, 102, 241, 0.08)',
+          position: 'relative'
+        }}>
+          <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(99,102,241,0.05) 0%, rgba(255,255,255,0) 100%)' }} />
+          <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between">
+              <Box sx={{ maxWidth: 720 }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em', mb: 1 }}>
+                  Good morning, let's get to work!
+                </Typography>
+                <Typography sx={{ color: '#64748b', fontSize: '1.05rem', fontWeight: 500, maxWidth: 600 }}>
+                  Log your hours, check your shifts, and view actionable AI insights directly from your command center.
+                </Typography>
+              </Box>
+              <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
+                <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#6366f1 !important' }} />} label="Live Sync Active" sx={{ bgcolor: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', fontWeight: 700 }} />
               </Stack>
-            </CardContent>
-          </Card>
+            </Stack>
+          </CardContent>
+        </Card>
 
-          <Grid container spacing={2.5}>
-            {attendanceStats.map((stat) => (
-              <Grid item xs={12} sm={4} key={stat.label}>
-                <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-                  <CardContent>
-                    <Typography sx={{ color: 'text.secondary', fontSize: 13, fontWeight: 700 }}>{stat.label}</Typography>
-                    <Typography variant="h5" sx={{ mt: 1, fontWeight: 900, color: stat.accent }}>{stat.value}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+        {/* Top KPIs */}
+        <Grid container spacing={3}>
+          {attendanceStats.map((stat) => (
+            <Grid item xs={12} sm={4} key={stat.label}>
+              <Card sx={{ ...commonCardStyles, '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' } }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</Typography>
+                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: stat.accent }}>{stat.value}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-          {/* Error Alert */}
-          {error && <Alert severity="error">{error}</Alert>}
+        {/* Alerts */}
+        {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+        {!canMarkAttendance && <Alert severity="warning" sx={{ borderRadius: 2 }}>You do not have permission to mark attendance.</Alert>}
+        {success && <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>}
 
-          {!canMarkAttendance && <Alert severity="warning">You do not have permission to mark attendance.</Alert>}
-
-          {/* Success Alert */}
-          {success && <Alert severity="success">{success}</Alert>}
-
-          {/* Today's Check-in/Check-out */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef', height: '100%' }}>
-                <CardContent>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 700, mb: 2 }}>Check In</Typography>
-                  {todayAttendance?.check_in_time ? (
-                    <Stack spacing={1.5}>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: '#4caf50' }}>
-                        {formatTime(todayAttendance.check_in_time)}
-                      </Typography>
-                      {todayAttendance.is_late && (
-                        <Chip
-                          label={`Late by ${todayAttendance.late_minutes} min`}
-                          sx={{ bgcolor: 'rgba(255, 152, 0, 0.16)', color: '#ff9800', width: 'fit-content' }}
-                        />
-                      )}
-                      <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                        {formatDate(todayAttendance.attendance_date)}
-                      </Typography>
-                    </Stack>
-                  ) : (
-                    <Typography sx={{ color: '#9e9e9e', mb: 2 }}>No check-in yet</Typography>
-                  )}
+        {/* Action Cards (Check-In / Check-Out) */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={commonCardStyles}>
+              <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography sx={{ color: '#1e293b', fontWeight: 800, fontSize: '1.1rem' }}>Check In</Typography>
+                  <FingerprintIcon sx={{ color: '#10b981', opacity: 0.2, fontSize: 32 }} />
+                </Box>
+                
+                {todayAttendance?.check_in_time ? (
+                  <Stack spacing={1.5} sx={{ mb: 4, flex: 1 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#10b981', letterSpacing: '-0.02em' }}>
+                      {formatTime(todayAttendance.check_in_time)}
+                    </Typography>
+                    {todayAttendance.is_late && (
+                      <Chip
+                        label={`Late by ${todayAttendance.late_minutes} min`}
+                        sx={{ bgcolor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', width: 'fit-content', fontWeight: 700 }}
+                      />
+                    )}
+                    <Typography sx={{ color: '#64748b', fontWeight: 600 }}>
+                      {formatDate(todayAttendance.attendance_date)}
+                    </Typography>
+                  </Stack>
+                ) : (
+                  <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', mb: 4 }}>
+                    <Typography sx={{ color: '#94a3b8', fontSize: '1.1rem', fontWeight: 500 }}>Ready to start your day?</Typography>
+                  </Box>
+                )}
+                
+                <Stack spacing={2} sx={{ mt: 'auto' }}>
                   <Button
                     variant="contained"
-                    startIcon={<CheckCircleIcon />}
                     onClick={handleCheckIn}
                     disabled={checking || !!todayAttendance?.check_in_time || !canMarkAttendance}
-                    sx={{ mt: 2 }}
+                    sx={{ 
+                      py: 1.5, 
+                      borderRadius: 2, 
+                      bgcolor: '#10b981', 
+                      fontWeight: 700, 
+                      fontSize: '1rem',
+                      boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+                      '&:hover': { bgcolor: '#059669' }
+                    }}
                     fullWidth
                   >
-                    {checking ? 'Checking in...' : 'Check In (Network)'}
+                    {checking ? 'Processing...' : 'Mark Check In (Network)'}
                   </Button>
                   <Button
                     variant="outlined"
-                    startIcon={<CheckCircleIcon />}
+                    startIcon={<PinDropIcon />}
                     onClick={handleGeoCheckIn}
                     disabled={checking || !!todayAttendance?.check_in_time || !canMarkAttendance}
-                    sx={{ mt: 1 }}
+                    sx={{ 
+                      py: 1.2, 
+                      borderRadius: 2, 
+                      borderColor: '#e2e8f0', 
+                      color: '#475569', 
+                      fontWeight: 700,
+                      '&:hover': { bgcolor: '#f8fafc', borderColor: '#cbd5e1' }
+                    }}
                     fullWidth
                   >
                     Geo-Location Check In (GPS)
                   </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef', height: '100%' }}>
-                <CardContent>
-                  <Typography sx={{ color: 'text.secondary', fontWeight: 700, mb: 2 }}>Check Out</Typography>
-                  {todayAttendance?.check_out_time ? (
-                    <Stack spacing={1.5}>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: '#f44336' }}>
-                        {formatTime(todayAttendance.check_out_time)}
-                      </Typography>
-                      {todayAttendance.is_half_day && (
-                        <Chip
-                          label="Half Day"
-                          sx={{ bgcolor: 'rgba(255, 193, 7, 0.16)', color: '#ffc107', width: 'fit-content' }}
-                        />
-                      )}
-                    </Stack>
-                  ) : (
-                    <Typography sx={{ color: '#9e9e9e', mb: 2 }}>No check-out yet</Typography>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<LogoutIcon />}
-                    onClick={handleCheckOut}
-                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time || !canMarkAttendance}
-                    sx={{ mt: 2 }}
-                    fullWidth
-                  >
-                    {checking ? 'Checking out...' : 'Check Out'}
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
+                </Stack>
+              </CardContent>
+            </Card>
           </Grid>
 
-          {/* Recent Attendance Records */}
-          <Card sx={{ borderRadius: 1, border: '1px solid #e7e9ef' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', mb: 2 }}>
-                Recent Attendance
-              </Typography>
+          <Grid item xs={12} md={6}>
+            <Card sx={commonCardStyles}>
+              <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography sx={{ color: '#1e293b', fontWeight: 800, fontSize: '1.1rem' }}>Check Out</Typography>
+                  <LogoutIcon sx={{ color: '#ef4444', opacity: 0.2, fontSize: 32 }} />
+                </Box>
+                
+                {todayAttendance?.check_out_time ? (
+                  <Stack spacing={1.5} sx={{ mb: 4, flex: 1 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#ef4444', letterSpacing: '-0.02em' }}>
+                      {formatTime(todayAttendance.check_out_time)}
+                    </Typography>
+                    {todayAttendance.is_half_day && (
+                      <Chip
+                        label="Half Day Marked"
+                        sx={{ bgcolor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', width: 'fit-content', fontWeight: 700 }}
+                      />
+                    )}
+                  </Stack>
+                ) : (
+                  <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', mb: 4 }}>
+                    <Typography sx={{ color: '#94a3b8', fontSize: '1.1rem', fontWeight: 500 }}>You are currently punched in.</Typography>
+                  </Box>
+                )}
+                
+                <Box sx={{ mt: 'auto' }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleCheckOut}
+                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time || !canMarkAttendance}
+                    sx={{ 
+                      py: 1.5, 
+                      borderRadius: 2, 
+                      bgcolor: '#ef4444', 
+                      fontWeight: 700, 
+                      fontSize: '1rem',
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                      '&:hover': { bgcolor: '#dc2626' }
+                    }}
+                    fullWidth
+                  >
+                    {checking ? 'Processing...' : 'Mark Check Out'}
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
-              {recentRecords.length > 0 ? (
-                <Box sx={{ overflowX: 'auto' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: '#f8f9fb' }}>
-                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Date</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Check In</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Check Out</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Status</TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: 'text.primary' }}>Late</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {recentRecords.map((record) => (
-                        <TableRow key={record.id} sx={{ '&:hover': { bgcolor: '#f8f9fb' } }}>
-                          <TableCell sx={{ color: 'text.secondary' }}>{formatDate(record.attendance_date)}</TableCell>
-                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(record.check_in_time)}</TableCell>
-                          <TableCell sx={{ color: 'text.secondary' }}>{formatTime(record.check_out_time)}</TableCell>
+        {/* Recent Attendance Table */}
+        <Card sx={commonCardStyles}>
+          <CardContent sx={{ p: 4, pb: '32px !important' }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>
+              Monthly Attendance Log
+            </Typography>
+
+            {recentRecords.length > 0 ? (
+              <Box sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 600 }}>
+                  <TableHead>
+                    <TableRow sx={{ '& th': { borderBottom: '1px solid #f1f5f9', py: 2 } }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Date</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check In</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check Out</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', align: 'right' }}>Late</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentRecords.map((record) => {
+                      const colors = getStatusColor(record.status);
+                      return (
+                        <TableRow key={record.id} sx={{ '& td': { borderBottom: '1px solid #f8fafc', py: 2.5 } }}>
+                          <TableCell sx={{ color: '#1e293b', fontWeight: 600 }}>{formatDate(record.attendance_date)}</TableCell>
+                          <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_in_time)}</TableCell>
+                          <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_out_time)}</TableCell>
                           <TableCell>
                             <Chip
-                              label={record.status}
+                              label={record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                               size="small"
                               sx={{
-                                bgcolor: `${getStatusColor(record.status)}20`,
-                                color: getStatusColor(record.status),
-                                fontWeight: 600,
+                                bgcolor: colors.bg,
+                                color: colors.text,
+                                fontWeight: 700,
+                                px: 1
                               }}
                             />
                           </TableCell>
-                          <TableCell sx={{ color: 'text.secondary' }}>
+                          <TableCell align="right" sx={{ color: '#64748b', fontWeight: 500 }}>
                             {record.is_late ? `${record.late_minutes} min` : '-'}
                           </TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Box>
-              ) : (
-                <Card sx={{ borderRadius: 4, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-                  <CardContent sx={{ py: 5, textAlign: 'center' }}>
-                    <InsightsRoundedIcon sx={{ fontSize: 44, color: '#cbd5e1', mb: 1.5 }} />
-                    <Typography sx={{ color: 'text.primary', fontWeight: 800, mb: 0.5 }}>No attendance records yet</Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>Check in to populate your timeline and attendance analytics.</Typography>
-                  </CardContent>
-                </Card>
-              )}
-            </CardContent>
-          </Card>
-        </Stack>
-      </Box>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </Box>
+            ) : (
+              <Box sx={{ py: 6, textAlign: 'center' }}>
+                <InsightsRoundedIcon sx={{ fontSize: 48, color: '#cbd5e1', mb: 2 }} />
+                <Typography sx={{ color: '#1e293b', fontWeight: 700, mb: 1, fontSize: '1.1rem' }}>No attendance records found</Typography>
+                <Typography sx={{ color: '#64748b' }}>Check in to populate your timeline and attendance analytics.</Typography>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      </Stack>
     </Box>
   );
 }

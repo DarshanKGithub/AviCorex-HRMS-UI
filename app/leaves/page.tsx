@@ -197,10 +197,8 @@ export default function LeavesPage() {
       setTabValue(0);
     } else if (tab === 'pending') {
       setTabValue(1);
-    } else if (tab === 'balance') {
-      setTabValue(2);
     } else if (tab === 'history') {
-      setTabValue(3);
+      setTabValue(2);
     }
   }, [searchParams]);
 
@@ -537,7 +535,7 @@ export default function LeavesPage() {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    const tab = newValue === 0 ? 'apply' : newValue === 1 ? 'pending' : newValue === 2 ? 'balance' : 'history';
+    const tab = newValue === 0 ? 'apply' : newValue === 1 ? 'pending' : 'history';
     router.replace(`/leaves?tab=${tab}`);
   };
 
@@ -670,24 +668,24 @@ export default function LeavesPage() {
                     onChange={handleTabChange}
                     sx={{
                       '& .MuiTabs-indicator': {
-                        bgcolor: '#928ddd',
+                        bgcolor: '#6366f1',
                         height: 3,
+                        borderRadius: 3
                       },
                       '& .MuiTab-root': {
                         textTransform: 'none',
-                        fontWeight: 500,
+                        fontWeight: 700,
                         fontSize: '0.95rem',
-                        color: 'text.secondary',
+                        color: '#64748b',
                         py: 1.5,
                         '&.Mui-selected': {
-                          color: '#928ddd',
+                          color: '#6366f1',
                         },
                       },
                     }}
                   >
                     <Tab label="Apply" />
                     <Tab label="Pending" />
-                    <Tab label="Balance" />
                     <Tab label="History" />
                   </Tabs>
                 </Box>
@@ -1342,107 +1340,8 @@ export default function LeavesPage() {
                   </CardContent>
                 </TabPanel>
 
-                {/* Tab Panel: Balance */}
-                <TabPanel value={tabValue} index={2}>
-                  <CardContent sx={{ p: 3.5 }}>
-                    <Box sx={{ mb: 3 }}>
-                      <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 2, fontSize: '1.1rem' }}>
-                        Leave Balance
-                      </Typography>
-                      <FormControl sx={{ minWidth: 120 }}>
-                        <InputLabel sx={{ color: 'text.secondary' }}>Year</InputLabel>
-                        <Select
-                          value={selectedYear}
-                          label="Year"
-                          onChange={(e) => setSelectedYear(e.target.value as number)}
-                          MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
-                          sx={{
-                            bgcolor: '#fafbfd',
-                            borderRadius: 1.5,
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#e7e9ef',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#d0cee4',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#928ddd',
-                            },
-                          }}
-                        >
-                          {yearOptions.map((year) => (
-                            <MenuItem key={year} value={year}>{year}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Box>
-
-                    {currentYearBalances.length > 0 ? (
-                      <Grid container spacing={2}>
-                        {currentYearBalances.map((balance) => {
-                          const percentageUsed = balance.granted_days > 0
-                            ? Math.round(((balance.granted_days - balance.balance_days) / balance.granted_days) * 100)
-                            : 0;
-                          const takenDays = Math.max(balance.granted_days - balance.balance_days, 0);
-                          const isTaken = takenDays > 0;
-                          return (
-                            <Grid item xs={12} sm={6} md={4} key={balance.id}>
-                              <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 2px 8px rgba(146, 141, 221, 0.05)', transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 4px 12px rgba(146, 141, 221, 0.12)', borderColor: '#928ddd' } }}>
-                                <CardContent sx={{ p: 2.5 }}>
-                                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1} sx={{ mb: 2 }}>
-                                    <Typography sx={{ fontWeight: 700, color: 'text.primary', fontSize: '1rem' }}>{balance.leave_type_name || 'Leave'}</Typography>
-                                    <Chip
-                                      label={isTaken ? 'Taken' : 'Not Taken'}
-                                      size="small"
-                                      sx={{
-                                        height: 24,
-                                        fontWeight: 700,
-                                        bgcolor: isTaken ? 'rgba(16, 185, 129, 0.12)' : 'rgba(107, 114, 128, 0.12)',
-                                        color: isTaken ? '#10b981' : '#6b7280',
-                                      }}
-                                    />
-                                  </Stack>
-                                  <Stack spacing={2}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Granted</Typography>
-                                      <Typography sx={{ color: 'text.primary', fontWeight: 700, fontSize: '0.95rem' }}>{balance.granted_days}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Taken</Typography>
-                                      <Typography sx={{ color: 'text.primary', fontWeight: 700, fontSize: '0.95rem' }}>{takenDays}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Available</Typography>
-                                      <Typography sx={{ color: '#10b981', fontWeight: 700, fontSize: '0.95rem' }}>{balance.balance_days}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', fontWeight: 500 }}>Used</Typography>
-                                      <Typography sx={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.95rem' }}>{percentageUsed}%</Typography>
-                                    </Box>
-                                    <Box sx={{ width: '100%', height: 6, bgcolor: '#e7e9ef', borderRadius: 10, overflow: 'hidden', mt: 1 }}>
-                                      <Box sx={{ height: '100%', width: `${percentageUsed}%`, bgcolor: percentageUsed > 80 ? '#ef4444' : percentageUsed > 60 ? '#f59e0b' : '#10b981', transition: 'width 0.3s ease' }} />
-                                    </Box>
-                                    <Button variant="text" sx={{ textTransform: 'none', fontSize: '0.9rem', color: '#928ddd', fontWeight: 600, mt: 1, '&:hover': { bgcolor: 'rgba(146, 141, 221, 0.1)' } }}>
-                                      View Details
-                                    </Button>
-                                  </Stack>
-                                </CardContent>
-                              </Card>
-                            </Grid>
-                          );
-                        })}
-                      </Grid>
-                    ) : (
-                      <Box sx={{ py: 6, textAlign: 'center' }}>
-                        <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No leave balances for selected year</Typography>
-                      </Box>
-                    )}
-                  </CardContent>
-                </TabPanel>
-
                 {/* Tab Panel: History */}
-                <TabPanel value={tabValue} index={3}>
+                <TabPanel value={tabValue} index={2}>
                   <CardContent sx={{ p: 3.5 }}>
                     {historyRequests.length > 0 ? (
                       <Stack spacing={1.5}>

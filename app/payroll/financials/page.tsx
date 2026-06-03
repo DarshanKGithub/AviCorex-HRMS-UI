@@ -1,19 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Table, TableHead, TableRow, TableCell, TableBody, Tabs, Tab, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, Divider, Chip, MenuItem } from '@mui/material';
+import { Box, Card, CardContent, Typography, Stack, CircularProgress, Alert, Button, TextField, Grid, Divider, Chip, MenuItem } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
-import AddIcon from '@mui/icons-material/Add';
 import SavingsIcon from '@mui/icons-material/Savings';
 import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+
+const commonCardStyles = {
+  borderRadius: 4,
+  border: 'none',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  bgcolor: '#ffffff',
+  height: '100%'
+};
 
 type EmployeeOption = {
   id: string;
@@ -78,51 +83,31 @@ export default function FinancialsPage() {
   const { token, user, status } = useAuth();
   const { hasPermission } = usePermissions();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [savingStructure, setSavingStructure] = useState(false);
   const [employees, setEmployees] = useState<EmployeeOption[]>([]);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   
-  const [reimbursements, setReimbursements] = useState<any[]>([]);
-  const [loans, setLoans] = useState<any[]>([]);
   const [salaryStructure, setSalaryStructure] = useState<SalaryStructure | null>(null);
   const [salaryForm, setSalaryForm] = useState<SalaryStructure>(defaultSalaryStructure);
   const [salaryFields, setSalaryFields] = useState<Record<SalaryFieldKey, string>>(salaryFieldsToStrings(defaultSalaryStructure));
   const [structureMessage, setStructureMessage] = useState<string | null>(null);
   const [structureError, setStructureError] = useState<string | null>(null);
   
-  const [openReimModal, setOpenReimModal] = useState(false);
-  const [reimForm, setReimForm] = useState({ expense_type: 'Travel', amount: 0, description: '' });
-
-  const [openLoanModal, setOpenLoanModal] = useState(false);
-  const [loanForm, setLoanForm] = useState({ loan_type: 'Personal', amount: 0, interest_rate: 0, emi_amount: 0, remaining_balance: 0 });
   const canManagePayroll = hasPermission('process_payroll');
-
-  useEffect(() => {
-    const tab = searchParams?.get('tab');
-    if (tab === '1') setActiveTab(1);
-    else if (tab === '2') setActiveTab(2);
-    else if (tab === '0') setActiveTab(0);
-  }, [searchParams]);
 
   useEffect(() => {
     if (status === 'ready' && !user) {
       router.push('/login');
       return;
     }
-
     if (token && user) {
       fetchData();
     }
   }, [status, token, user, router]);
 
   useEffect(() => {
-    if (!token || !user) {
-      return;
-    }
-
+    if (!token || !user) return;
     if (canManagePayroll) {
       fetchEmployees();
     } else {
@@ -131,30 +116,22 @@ export default function FinancialsPage() {
   }, [token, user, canManagePayroll]);
 
   useEffect(() => {
-    if (!token || !selectedEmployeeId) {
-      return;
-    }
-
+    if (!token || !selectedEmployeeId) return;
     fetchSalaryStructure(selectedEmployeeId);
   }, [token, selectedEmployeeId]);
 
   async function fetchData() {
     setLoading(true);
     try {
-      const [reimRes, loanRes, salaryRes] = await Promise.all([
-        fetch(`${API_BASE}/financials/reimbursements`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE}/financials/loans`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE}/financials/salary-structures/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } })
-      ]);
-      
-      if (reimRes.ok) setReimbursements(await reimRes.json());
-      if (loanRes.ok) setLoans(await loanRes.json());
-      if (salaryRes.ok && !selectedEmployeeId && !canManagePayroll) {
-        const salary = await salaryRes.json();
-        const normalized = normalizeSalaryStructure(salary);
-        setSalaryStructure(normalized);
-        setSalaryForm(normalized);
-        setSalaryFields(salaryFieldsToStrings(normalized));
+      if (!selectedEmployeeId && !canManagePayroll) {
+        const res = await fetch(`${API_BASE}/financials/salary-structures/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const salary = await res.json();
+          const normalized = normalizeSalaryStructure(salary);
+          setSalaryStructure(normalized);
+          setSalaryForm(normalized);
+          setSalaryFields(salaryFieldsToStrings(normalized));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -262,44 +239,6 @@ export default function FinancialsPage() {
     }
   }
 
-  async function applyReimbursement() {
-    try {
-      const res = await fetch(`${API_BASE}/financials/reimbursements`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(reimForm)
-      });
-      if (res.ok) {
-        setOpenReimModal(false);
-        setReimForm({ expense_type: 'Travel', amount: 0, description: '' });
-        fetchData();
-      } else {
-        alert('Failed to submit reimbursement');
-      }
-    } catch (e) {
-      alert('Network error');
-    }
-  }
-
-  async function applyLoan() {
-    try {
-      const form = { ...loanForm, remaining_balance: loanForm.amount };
-      const res = await fetch(`${API_BASE}/financials/loans`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form)
-      });
-      if (res.ok) {
-        setOpenLoanModal(false);
-        fetchData();
-      } else {
-        alert('Failed to submit loan application');
-      }
-    } catch (e) {
-      alert('Network error');
-    }
-  }
-
   const monthlyGross = salaryForm.base_salary + salaryForm.hra + salaryForm.da + salaryForm.special_allowance;
   const pfDeduction = (monthlyGross * salaryForm.pf_percentage) / 100;
   const esiDeduction = (monthlyGross * salaryForm.esi_percentage) / 100;
@@ -309,335 +248,244 @@ export default function FinancialsPage() {
   const selectedEmployee = selectedEmployeeId ? employees.find(e => e.id === selectedEmployeeId) : null;
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <AccountBalanceWalletIcon color="primary" /> 
-          Financials & Compensation
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <AccountBalanceWalletIcon sx={{ color: '#6366f1' }} /> 
+          Compensation & Claims
         </Typography>
       </Stack>
 
-      <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ mb: 3, borderBottom: '1px solid #e5e7eb' }}>
-        <Tab label="Salary Structure & Tax" icon={<AccountBalanceWalletIcon fontSize="small" />} iconPosition="start" />
-        <Tab label="Reimbursements" icon={<ReceiptIcon fontSize="small" />} iconPosition="start" />
-        <Tab label="Loans & Advances" icon={<CreditCardIcon fontSize="small" />} iconPosition="start" />
-      </Tabs>
-
       {loading ? (
-        <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4 }} />
-      ) : activeTab === 0 ? (
-        canManagePayroll ? (
-          <Stack spacing={3}>
-            {(structureMessage || structureError) && (
-              <Alert severity={structureError ? 'error' : 'success'} onClose={() => {
-                setStructureError(null);
-                setStructureMessage(null);
-              }}>
-                {structureError || structureMessage}
-              </Alert>
-            )}
+        <CircularProgress sx={{ display: 'block', mx: 'auto', my: 4, color: '#6366f1' }} />
+      ) : canManagePayroll ? (
+        <Stack spacing={3}>
+          {(structureMessage || structureError) && (
+            <Alert severity={structureError ? 'error' : 'success'} onClose={() => {
+              setStructureError(null);
+              setStructureMessage(null);
+            }} sx={{ borderRadius: 2 }}>
+              {structureError || structureMessage}
+            </Alert>
+          )}
 
-            <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-              <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-                <Stack spacing={2}>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <WorkOutlineIcon sx={{ color: '#6d28d9' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                      Choose Employee
-                    </Typography>
-                  </Stack>
-                  <TextField
-                    select
-                    label="Employee"
-                    value={selectedEmployeeId}
-                    onChange={(event) => setSelectedEmployeeId(event.target.value)}
-                    fullWidth
-                  >
-                    {employees.map((employee) => (
-                      <MenuItem key={employee.id} value={employee.id}>
-                        {employee.full_name} ({employee.email})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  {selectedEmployee && (
-                    <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
-                      Managing compensation for {selectedEmployee.full_name}
-                    </Typography>
-                  )}
+          <Card sx={commonCardStyles}>
+            <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+              <Stack spacing={2}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <WorkOutlineIcon sx={{ color: '#6366f1' }} />
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                    Choose Employee
+                  </Typography>
                 </Stack>
-              </CardContent>
-            </Card>
-
-            <Card sx={{ borderRadius: 3, border: '1px solid #e7e9ef', boxShadow: '0 14px 32px rgba(17, 24, 39, 0.06)' }}>
-              <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
-                <Stack spacing={3}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                        Salary Structure Editor
-                      </Typography>
-                      <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
-                        Update the base package and compliance rates used for payroll processing.
-                      </Typography>
-                    </Stack>
-                    <Button
-                      variant="contained"
-                      startIcon={<SavingsIcon />}
-                      onClick={saveSalaryStructure}
-                      disabled={savingStructure || !selectedEmployeeId}
-                      sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
-                    >
-                      {savingStructure ? 'Saving...' : 'Save Structure'}
-                    </Button>
-                  </Stack>
-
-                  <Grid container spacing={2.5}>
-                    {[
-                      { label: 'Base Salary', key: 'base_salary', prefix: '₹' },
-                      { label: 'HRA', key: 'hra', prefix: '₹' },
-                      { label: 'DA', key: 'da', prefix: '₹' },
-                      { label: 'Special Allowance', key: 'special_allowance', prefix: '₹' },
-                      { label: 'PF %', key: 'pf_percentage', suffix: '%' },
-                      { label: 'ESI %', key: 'esi_percentage', suffix: '%' },
-                      { label: 'Tax Bracket %', key: 'tax_bracket_percentage', suffix: '%' },
-                    ].map((field) => (
-                      <Grid item xs={12} sm={6} md={4} key={field.key}>
-                        <TextField
-                          label={field.label}
-                          type="number"
-                          value={salaryFields[field.key as SalaryFieldKey]}
-                          onChange={(event) => {
-                            const key = field.key as SalaryFieldKey;
-                            const nextFields = { ...salaryFields, [key]: event.target.value };
-                            setSalaryFields(nextFields);
-                            setSalaryForm(stringsToSalaryForm(nextFields, selectedEmployeeId));
-                          }}
-                          fullWidth
-                          InputProps={{
-                            startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: 'text.secondary' }}>{field.prefix}</Typography> : undefined,
-                            endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: 'text.secondary' }}>{field.suffix}</Typography> : undefined,
-                          }}
-                        />
-                      </Grid>
-                    ))}
-                  </Grid>
-
-                  <Divider />
-
-                  <Grid container spacing={2.5}>
-                    <Grid item xs={12} md={4}>
-                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                        <CardContent>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Monthly Gross</Typography>
-                          <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
-                            ₹{monthlyGross.toLocaleString()}
-                          </Typography>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>Base + allowance components</Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                        <CardContent>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Estimated Take Home</Typography>
-                          <Typography variant="h5" sx={{ fontWeight: 800, color: '#16a34a', mt: 1 }}>
-                            ₹{estimatedTakeHome.toLocaleString()}
-                          </Typography>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>After PF, ESI and tax</Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#dbe4f0' }}>
-                        <CardContent>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Annual Gross</Typography>
-                          <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
-                            ₹{annualGross.toLocaleString()}
-                          </Typography>
-                          <Typography sx={{ color: 'text.secondary', fontSize: '0.82rem', mt: 0.5 }}>Projected yearly payroll cost</Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  </Grid>
-
-                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: 'background.default', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                      <CardContent>
-                        <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Compliance Breakdown</Typography>
-                        <Stack spacing={1.25}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>PF deduction</Typography>
-                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{pfDeduction.toLocaleString()}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>ESI deduction</Typography>
-                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{esiDeduction.toLocaleString()}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>Estimated tax</Typography>
-                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>₹{estimatedTax.toLocaleString()}</Typography>
-                          </Box>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-
-                    <Card sx={{ flex: 1, borderRadius: 3, bgcolor: 'background.default', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-                      <CardContent>
-                        <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 700, mb: 1 }}>Current Assignment</Typography>
-                        <Stack spacing={1.25}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>Employee</Typography>
-                            <Typography sx={{ fontWeight: 700, color: 'text.primary', textAlign: 'right' }}>
-                              {selectedEmployee?.full_name || user?.full_name || 'Current user'}
-                            </Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>Structure status</Typography>
-                            <Typography sx={{ fontWeight: 700, color: salaryStructure ? '#16a34a' : '#f59e0b' }}>
-                              {salaryStructure ? 'Saved' : 'Draft'}
-                            </Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                            <Typography sx={{ color: 'text.primary' }}>PF / ESI / Tax</Typography>
-                            <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
-                              {salaryForm.pf_percentage}% / {salaryForm.esi_percentage}% / {salaryForm.tax_bracket_percentage}%
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </Stack>
-
-                  <Alert severity="info">Your salary structure and compliance rates are configured here.</Alert>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Stack>
-        ) : (
-          <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
-            <CardContent>
-              {salaryStructure ? (
-                <Box>
-                  <Typography variant="h6" sx={{ mb: 2 }}>Current Salary Structure</Typography>
-                  <Stack spacing={1.5} sx={{ mb: 4 }}>
-                    <Chip label="Compensation" sx={{ bgcolor: 'rgba(124, 58, 237, 0.12)', color: '#6d28d9', fontWeight: 700, alignSelf: 'flex-start' }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.04em', color: 'text.primary' }}>
-                      Salary Structure, Tax, PF & ESI
-                    </Typography>
-                    <Typography sx={{ color: 'text.secondary', lineHeight: 1.8, maxWidth: 900 }}>
-                      Your compensation bands, statutory deductions, and salary components.
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Base Salary:</Typography><Typography fontWeight={600}>₹{salaryStructure.base_salary?.toLocaleString()}</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>HRA:</Typography><Typography fontWeight={600}>₹{salaryStructure.hra?.toLocaleString()}</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>DA:</Typography><Typography fontWeight={600}>₹{salaryStructure.da?.toLocaleString()}</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Special Allowance:</Typography><Typography fontWeight={600}>₹{salaryStructure.special_allowance?.toLocaleString()}</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>PF Contribution:</Typography><Typography fontWeight={600}>{salaryStructure.pf_percentage}%</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>ESI Contribution:</Typography><Typography fontWeight={600}>{salaryStructure.esi_percentage}%</Typography></Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Tax Bracket:</Typography><Typography fontWeight={600}>{salaryStructure.tax_bracket_percentage}%</Typography></Box>
-                  </Stack>
-                </Box>
-              ) : (
-                <Alert severity="info">No salary structure defined for your profile yet.</Alert>
-              )}
+                <TextField
+                  select
+                  label="Employee"
+                  value={selectedEmployeeId}
+                  onChange={(event) => setSelectedEmployeeId(event.target.value)}
+                  fullWidth
+                >
+                  {employees.map((employee) => (
+                    <MenuItem key={employee.id} value={employee.id}>
+                      {employee.full_name} ({employee.email})
+                    </MenuItem>
+                  ))}
+                </TextField>
+                {selectedEmployee && (
+                  <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600 }}>
+                    Managing compensation for {selectedEmployee.full_name}
+                  </Typography>
+                )}
+              </Stack>
             </CardContent>
           </Card>
-        )
-      ) : activeTab === 1 ? (
-        <Box>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenReimModal(true)} sx={{ mb: 2, bgcolor: '#7c3aed', textTransform: 'none' }}>Claim Reimbursement</Button>
-          <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f9fafb' }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Type</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Applied On</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {reimbursements.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>No claims found.</TableCell></TableRow>
-                ) : (
-                  reimbursements.map(r => (
-                    <TableRow key={r.id}>
-                      <TableCell>{r.expense_type}</TableCell>
-                      <TableCell>₹{r.amount?.toLocaleString()}</TableCell>
-                      <TableCell>{r.status}</TableCell>
-                      <TableCell>{new Date(r.applied_on).toLocaleDateString()}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+
+          <Card sx={commonCardStyles}>
+            <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+              <Stack spacing={3}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+                  <Stack spacing={0.5}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                      Salary Structure Editor
+                    </Typography>
+                    <Typography sx={{ color: '#64748b', fontSize: '0.95rem' }}>
+                      Update the base package and compliance rates used for payroll processing.
+                    </Typography>
+                  </Stack>
+                  <Button
+                    variant="contained"
+                    startIcon={<SavingsIcon />}
+                    onClick={saveSalaryStructure}
+                    disabled={savingStructure || !selectedEmployeeId}
+                    sx={{ bgcolor: '#6366f1', textTransform: 'none', fontWeight: 700, borderRadius: 2, boxShadow: 'none', '&:hover': { bgcolor: '#4f46e5', boxShadow: 'none' } }}
+                  >
+                    {savingStructure ? 'Saving...' : 'Save Structure'}
+                  </Button>
+                </Stack>
+
+                <Grid container spacing={2.5}>
+                  {[
+                    { label: 'Base Salary', key: 'base_salary', prefix: '₹' },
+                    { label: 'HRA', key: 'hra', prefix: '₹' },
+                    { label: 'DA', key: 'da', prefix: '₹' },
+                    { label: 'Special Allowance', key: 'special_allowance', prefix: '₹' },
+                    { label: 'PF %', key: 'pf_percentage', suffix: '%' },
+                    { label: 'ESI %', key: 'esi_percentage', suffix: '%' },
+                    { label: 'Tax Bracket %', key: 'tax_bracket_percentage', suffix: '%' },
+                  ].map((field) => (
+                    <Grid item xs={12} sm={6} md={4} key={field.key}>
+                      <TextField
+                        label={field.label}
+                        type="number"
+                        value={salaryFields[field.key as SalaryFieldKey]}
+                        onChange={(event) => {
+                          const key = field.key as SalaryFieldKey;
+                          const nextFields = { ...salaryFields, [key]: event.target.value };
+                          setSalaryFields(nextFields);
+                          setSalaryForm(stringsToSalaryForm(nextFields, selectedEmployeeId));
+                        }}
+                        fullWidth
+                        InputProps={{
+                          startAdornment: field.prefix ? <Typography sx={{ mr: 0.5, color: '#94a3b8', fontWeight: 600 }}>{field.prefix}</Typography> : undefined,
+                          endAdornment: field.suffix ? <Typography sx={{ ml: 0.5, color: '#94a3b8', fontWeight: 600 }}>{field.suffix}</Typography> : undefined,
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Divider sx={{ borderColor: '#f1f5f9' }} />
+
+                <Grid container spacing={2.5}>
+                  <Grid item xs={12} md={4}>
+                    <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#e2e8f0' }}>
+                      <CardContent>
+                        <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700 }}>Monthly Gross</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', mt: 1 }}>
+                          ₹{monthlyGross.toLocaleString()}
+                        </Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5, fontWeight: 500 }}>Base + allowance components</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#e2e8f0', bgcolor: 'rgba(16, 185, 129, 0.05)' }}>
+                      <CardContent>
+                        <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700 }}>Estimated Take Home</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#059669', mt: 1 }}>
+                          ₹{estimatedTakeHome.toLocaleString()}
+                        </Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5, fontWeight: 500 }}>After PF, ESI and tax</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, borderColor: '#e2e8f0' }}>
+                      <CardContent>
+                        <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700 }}>Annual Gross</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', mt: 1 }}>
+                          ₹{annualGross.toLocaleString()}
+                        </Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5, fontWeight: 500 }}>Projected yearly payroll cost</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                  <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: 'none', boxShadow: 'none' }}>
+                    <CardContent>
+                      <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700, mb: 1.5 }}>Compliance Breakdown</Typography>
+                      <Stack spacing={1.25}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>PF deduction</Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#1e293b' }}>₹{pfDeduction.toLocaleString()}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>ESI deduction</Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#1e293b' }}>₹{esiDeduction.toLocaleString()}</Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>Estimated tax</Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#1e293b' }}>₹{estimatedTax.toLocaleString()}</Typography>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+
+                  <Card sx={{ flex: 1, borderRadius: 3, bgcolor: '#f8fafc', border: 'none', boxShadow: 'none' }}>
+                    <CardContent>
+                      <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700, mb: 1.5 }}>Current Assignment</Typography>
+                      <Stack spacing={1.25}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>Employee</Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#1e293b', textAlign: 'right' }}>
+                            {selectedEmployee?.full_name || user?.full_name || 'Current user'}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>Structure status</Typography>
+                          <Typography sx={{ fontWeight: 800, color: salaryStructure ? '#059669' : '#f59e0b' }}>
+                            {salaryStructure ? 'Saved' : 'Draft'}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                          <Typography sx={{ color: '#334155', fontWeight: 600 }}>PF / ESI / Tax</Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#1e293b' }}>
+                            {salaryForm.pf_percentage}% / {salaryForm.esi_percentage}% / {salaryForm.tax_bracket_percentage}%
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Stack>
+              </Stack>
+            </CardContent>
           </Card>
-        </Box>
+        </Stack>
       ) : (
-        <Box>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenLoanModal(true)} sx={{ mb: 2, bgcolor: '#7c3aed', textTransform: 'none' }}>Apply for Loan/Advance</Button>
-          <Card sx={{ borderRadius: 2, border: '1px solid #e5e7eb', boxShadow: 'none' }}>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f9fafb' }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Loan Type</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>EMI</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Remaining Balance</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loans.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>No active loans.</TableCell></TableRow>
-                ) : (
-                  loans.map(l => (
-                    <TableRow key={l.id}>
-                      <TableCell>{l.loan_type}</TableCell>
-                      <TableCell>₹{l.amount?.toLocaleString()}</TableCell>
-                      <TableCell>₹{l.emi_amount?.toLocaleString()}</TableCell>
-                      <TableCell>₹{l.remaining_balance?.toLocaleString()}</TableCell>
-                      <TableCell>{l.status}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-        </Box>
+        <Card sx={commonCardStyles}>
+          <CardContent sx={{ p: 4 }}>
+            {salaryStructure ? (
+              <Box>
+                <Stack spacing={2} sx={{ mb: 4 }}>
+                  <Chip label="Compensation Structure" sx={{ bgcolor: 'rgba(99, 102, 241, 0.12)', color: '#6366f1', fontWeight: 800, alignSelf: 'flex-start' }} />
+                  <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#1e293b' }}>
+                    Salary & Tax Details
+                  </Typography>
+                  <Typography sx={{ color: '#64748b', lineHeight: 1.8, maxWidth: 900, fontWeight: 500 }}>
+                    Your assigned compensation bands, statutory deductions, and base salary components.
+                  </Typography>
+                </Stack>
+                
+                <Grid container spacing={3}>
+                  {[
+                    { label: 'Base Salary', val: `₹${salaryStructure.base_salary?.toLocaleString()}` },
+                    { label: 'HRA', val: `₹${salaryStructure.hra?.toLocaleString()}` },
+                    { label: 'DA', val: `₹${salaryStructure.da?.toLocaleString()}` },
+                    { label: 'Special Allowance', val: `₹${salaryStructure.special_allowance?.toLocaleString()}` },
+                    { label: 'PF Contribution', val: `${salaryStructure.pf_percentage}%` },
+                    { label: 'ESI Contribution', val: `${salaryStructure.esi_percentage}%` },
+                    { label: 'Tax Bracket', val: `${salaryStructure.tax_bracket_percentage}%` },
+                  ].map((item, idx) => (
+                    <Grid item xs={12} sm={6} md={4} key={idx}>
+                       <Card sx={{ bgcolor: '#f8fafc', border: 'none', boxShadow: 'none', borderRadius: 3 }}>
+                         <CardContent>
+                            <Typography sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.85rem' }}>{item.label}</Typography>
+                            <Typography sx={{ color: '#1e293b', fontWeight: 800, fontSize: '1.25rem', mt: 0.5 }}>{item.val}</Typography>
+                         </CardContent>
+                       </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            ) : (
+              <Alert severity="info" sx={{ borderRadius: 2 }}>No salary structure defined for your profile yet. Please contact HR.</Alert>
+            )}
+          </CardContent>
+        </Card>
       )}
-
-      {/* Reimbursement Modal */}
-      <Dialog open={openReimModal} onClose={() => setOpenReimModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Claim Reimbursement</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <TextField label="Expense Type" fullWidth value={reimForm.expense_type} onChange={e => setReimForm({...reimForm, expense_type: e.target.value})} />
-            <TextField label="Amount (₹)" type="number" fullWidth value={reimForm.amount} onChange={e => setReimForm({...reimForm, amount: parseFloat(e.target.value) || 0})} />
-            <TextField label="Description" fullWidth multiline rows={3} value={reimForm.description} onChange={e => setReimForm({...reimForm, description: e.target.value})} />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenReimModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={applyReimbursement} sx={{ bgcolor: '#7c3aed' }}>Submit Claim</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Loan Modal */}
-      <Dialog open={openLoanModal} onClose={() => setOpenLoanModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Apply for Loan</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <TextField label="Loan Type" fullWidth value={loanForm.loan_type} onChange={e => setLoanForm({...loanForm, loan_type: e.target.value})} placeholder="e.g. Personal, Salary Advance" />
-            <TextField label="Amount (₹)" type="number" fullWidth value={loanForm.amount} onChange={e => setLoanForm({...loanForm, amount: parseFloat(e.target.value) || 0})} />
-            <TextField label="EMI Amount (₹)" type="number" fullWidth value={loanForm.emi_amount} onChange={e => setLoanForm({...loanForm, emi_amount: parseFloat(e.target.value) || 0})} />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenLoanModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={applyLoan} sx={{ bgcolor: '#7c3aed' }}>Submit Application</Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
