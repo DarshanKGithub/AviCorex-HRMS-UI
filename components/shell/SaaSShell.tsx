@@ -8,7 +8,6 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import InsightsRoundedIcon from '@mui/icons-material/InsightsRounded';
-import ThemeToggle from '@/components/ThemeToggle';
 
 interface SaaSShellProps {
   children: ReactNode;
