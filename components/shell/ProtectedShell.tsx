@@ -91,7 +91,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const currentDrawerWidth = isDesktop ? (collapsed ? collapsedWidth : expandedWidth) : expandedWidth;
 
   useEffect(() => {
@@ -106,14 +106,28 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem(SIDEBAR_EXPANDED_KEY);
-      if (stored) {
-        setExpandedItems(JSON.parse(stored) as Record<string, boolean>);
+      const storedExpanded = sessionStorage.getItem(SIDEBAR_EXPANDED_KEY);
+      if (storedExpanded) {
+        setExpandedItems(JSON.parse(storedExpanded) as Record<string, boolean>);
+      }
+      const storedCollapsed = sessionStorage.getItem('hrms-sidebar-collapsed');
+      if (storedCollapsed !== null) {
+        setCollapsed(storedCollapsed === 'true');
       }
     } catch {
       // ignore invalid session storage
     }
   }, []);
+
+  const handleToggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        sessionStorage.setItem('hrms-sidebar-collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   // Filter sidebar items based on permissions
   const visibleItems = useMemo(() => {
@@ -332,7 +346,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
 
           <Box sx={{ ml: 'auto', display: { xs: 'none', lg: 'block' } }}>
             <Tooltip title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-              <IconButton size="small" onClick={() => setCollapsed((v) => !v)} sx={{ color: 'text.primary' }}>
+              <IconButton size="small" onClick={handleToggleCollapsed} sx={{ color: 'text.primary' }}>
                 {collapsed ? <ChevronRight /> : <ChevronLeft />}
               </IconButton>
             </Tooltip>
