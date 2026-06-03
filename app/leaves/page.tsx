@@ -39,7 +39,7 @@ import { usePermissions } from '../../components/auth/usePermissions';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { apiFetch, buildApiUrl, getApiBaseUrl, isNetworkFetchError } from '@/lib/apiBase';
-
+import { useToast } from '@/components/providers/ToastProvider';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -127,6 +127,7 @@ export default function LeavesPage() {
   const { hasPermission } = usePermissions();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showToast } = useToast();
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
   const [balancesWithDetails, setBalancesWithDetails] = useState<LeaveBalance[]>([]);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
@@ -1069,17 +1070,18 @@ export default function LeavesPage() {
                                 if (e.target.files) {
                                   const validFiles = Array.from(e.target.files).filter(file => {
                                     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-                                      alert(`File ${file.name} is not a PDF.`);
+                                      showToast(`File ${file.name} is not a PDF.`, 'error');
                                       return false;
                                     }
                                     if (file.size > 5 * 1024 * 1024) {
-                                      alert(`File ${file.name} exceeds the 5MB limit.`);
+                                      showToast(`File ${file.name} exceeds the 5MB limit.`, 'error');
                                       return false;
                                     }
                                     return true;
                                   });
                                   setAttachments([...attachments, ...validFiles]);
                                 }
+                                e.target.value = '';
                               }}
                             />
                           </Button>
