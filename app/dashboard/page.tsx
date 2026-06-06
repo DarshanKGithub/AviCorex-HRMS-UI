@@ -19,7 +19,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import Skeleton from '@mui/material/Skeleton';
-import { alpha, useTheme } from '@mui/material/styles';
+import { alpha } from '@mui/material/styles';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/components/auth/AuthContext';
@@ -77,7 +77,6 @@ function CustomCircularProgress({ value, color }: { value: number, color: string
 
 // Attendance Widget
 function AttendanceWidget() {
-  const theme = useTheme();
   const { token, user, status } = useAuth();
   const employeeId = useEmployeeId();
   const queryClient = useQueryClient();
@@ -141,7 +140,7 @@ function AttendanceWidget() {
   const displayError = error || (fetchError instanceof Error ? fetchError.message : null);
 
   return (
-    <Card sx={{ borderRadius: 4, border: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.02)', bgcolor: '#ffffff', p: 3, textAlign: 'center' }}>
+    <Card sx={{ borderRadius: 1, border: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.02)', bgcolor: '#ffffff', p: 2, textAlign: 'center' }}>
       <Box sx={{ fontSize: 32, mb: 1 }}>📍</Box>
       <Box sx={{ fontSize: 12, color: 'text.secondary', mb: 1 }}>Attendance Check-in</Box>
       <Box sx={{ fontSize: 18, fontWeight: 900, mb: 2 }}>{loading ? <Skeleton width={100} sx={{ mx: 'auto' }} /> : 'Manual only'}</Box>
@@ -159,7 +158,28 @@ function AttendanceWidget() {
       
       {displayError && <Alert severity="error" sx={{ mb: 1.5, textAlign: 'left', py: 0 }}>{displayError}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 1.5, textAlign: 'left', py: 0 }}>{success}</Alert>}
-      
+
+      <Stack spacing={1} sx={{ textAlign: 'left', mb: 2 }}>
+        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
+          <Typography>Check In</Typography>
+          <Typography sx={{ fontWeight: 700, color: todayAttendance?.check_in_time ? '#0f172a' : '#94a3b8' }}>
+            {todayAttendance?.check_in_time ? new Date(todayAttendance.check_in_time).toLocaleTimeString() : '—'}
+          </Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
+          <Typography>Check Out</Typography>
+          <Typography sx={{ fontWeight: 700, color: todayAttendance?.check_out_time ? '#0f172a' : '#94a3b8' }}>
+            {todayAttendance?.check_out_time ? new Date(todayAttendance.check_out_time).toLocaleTimeString() : '—'}
+          </Typography>
+        </Stack>
+        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
+          <Typography>Status</Typography>
+          <Typography sx={{ fontWeight: 700, color: '#10b981' }}>
+            {todayAttendance?.check_out_time ? 'Checked out' : todayAttendance?.check_in_time ? 'Checked in' : 'Pending'}
+          </Typography>
+        </Stack>
+      </Stack>
+
       <Button
         fullWidth variant="contained"
         onClick={() => checkInMutation.mutate()}
@@ -351,7 +371,8 @@ function CalendarWidget() {
 
 export default function DashboardPage() {
   const { token, user, status } = useAuth();
-  
+  const roleName = user?.role?.toLowerCase() ?? '';
+  const canViewDashboardDetails = ['super admin', 'superadmin', 'admin', 'ceo', 'hr', 'manager'].includes(roleName);
 
 
   // LIVE API QUERIES
@@ -409,13 +430,23 @@ export default function DashboardPage() {
   const teamMembers = orgData?.team_members?.slice(0, 5) || [];
   const leaveRequests = mySpaceData?.pending_leave_approvals?.slice(0, 4) || [];
 
+  const hour = new Date().getHours();
+  const greetingText = hour >= 17 ? 'Good evening' : hour >= 12 ? 'Good afternoon' : 'Good morning';
+
+  const kpiItems = canViewDashboardDetails ? [
+    { title: 'Total employee', value: totalEmployees, icon: <PersonOutlineIcon />, color: '#6366f1', pill: '+ 2%', pillBg: '#dcfce7', pillColor: '#10b981' },
+    { title: 'Active today', value: activeToday, icon: <PersonAddOutlinedIcon />, color: '#6366f1', pill: '+ 1%', pillBg: '#dcfce7', pillColor: '#10b981' },
+    { title: 'Pending tasks', value: pendingTasks, icon: <AssignmentOutlinedIcon />, color: '#6366f1', pill: '- 5%', pillBg: '#fee2e2', pillColor: '#ef4444' },
+    { title: 'Employee on leave', value: onLeave, icon: <DirectionsWalkOutlinedIcon />, color: '#6366f1', pill: '0%', pillBg: '#f1f5f9', pillColor: '#64748b' },
+  ] : [];
+
   return (
     <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', p: { xs: 2, md: 4 } }}>
       
       {/* HEADER */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.03em' }}>
-          Hello {user?.full_name?.split(' ')[0] },
+          {greetingText}, {user?.full_name?.split(' ')[0]}
         </Typography>
         <Typography sx={{ color: '#64748b', mt: 0.5 }}>
           Lets get you get going.
@@ -428,35 +459,32 @@ export default function DashboardPage() {
       <Grid container spacing={3}>
         
         {/* KPI ROW */}
-        <Grid item xs={12}>
-          <Grid container spacing={2}>
-            {[
-              { title: 'Total employee', value: totalEmployees, icon: <PersonOutlineIcon />, color: '#6366f1', pill: '+ 2%', pillBg: '#dcfce7', pillColor: '#10b981' },
-              { title: 'Active today', value: activeToday, icon: <PersonAddOutlinedIcon />, color: '#6366f1', pill: '+ 1%', pillBg: '#dcfce7', pillColor: '#10b981' },
-              { title: 'Pending tasks', value: pendingTasks, icon: <AssignmentOutlinedIcon />, color: '#6366f1', pill: '- 5%', pillBg: '#fee2e2', pillColor: '#ef4444' },
-              { title: 'Employee on leave', value: onLeave, icon: <DirectionsWalkOutlinedIcon />, color: '#6366f1', pill: '0%', pillBg: '#f1f5f9', pillColor: '#64748b' },
-            ].map((kpi, idx) => (
-              <Grid item xs={12} sm={6} md={3} key={idx}>
-                <Card sx={{ ...commonCardStyles, p: 2.5 }}>
-                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, mb: 2 }}>
-                    {kpi.icon}
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>
-                    {kpi.value}
-                  </Typography>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>
-                      {kpi.title}
-                    </Typography>
-                    <Box sx={{ bgcolor: kpi.pillBg, color: kpi.pillColor, px: 1, py: 0.5, borderRadius: 1.5, fontSize: '0.75rem', fontWeight: 700 }}>
-                      {kpi.pill}
+        {kpiItems.length > 0 && (
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              {kpiItems.map((kpi, idx) => (
+                <Grid item xs={12} sm={6} md={3} key={idx}>
+                  <Card sx={{ ...commonCardStyles, p: 2.5 }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, mb: 2 }}>
+                      {kpi.icon}
                     </Box>
-                  </Stack>
-                </Card>
-              </Grid>
-            ))}
+                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>
+                      {kpi.value}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 500 }}>
+                        {kpi.title}
+                      </Typography>
+                      <Box sx={{ bgcolor: kpi.pillBg, color: kpi.pillColor, px: 1, py: 0.5, borderRadius: 1.5, fontSize: '0.75rem', fontWeight: 700 }}>
+                        {kpi.pill}
+                      </Box>
+                    </Stack>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
 
         {/* MIDDLE ROW */}
         <Grid item xs={12}>
@@ -522,32 +550,36 @@ export default function DashboardPage() {
                     <Grid item xs={4}><Typography sx={{ fontSize: 10, color: '#64748b' }}>On leave</Typography><Typography sx={{ fontWeight: 800 }}>{onLeave}</Typography></Grid>
                   </Grid>
                 </Card>
+
+                <AttendanceWidget />
                 
-                <Card sx={{ ...commonCardStyles, p: 3, flex: 1.5, position: 'relative' }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Department</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ width: 100, height: 100 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie data={deptData} innerRadius={25} outerRadius={45} paddingAngle={2} dataKey="value" stroke="none">
-                            {deptData.map((entry: any, index: number) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                {canViewDashboardDetails && (
+                  <Card sx={{ ...commonCardStyles, p: 3, flex: 1.5, position: 'relative' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Department</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ width: 100, height: 100 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie data={deptData} innerRadius={25} outerRadius={45} paddingAngle={2} dataKey="value" stroke="none">
+                              {deptData.map((entry: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </Box>
+                      <Box sx={{ ml: 1 }}>
+                        {deptData.map((dept: any, i: number) => (
+                          <Stack direction="row" alignItems="center" spacing={1} key={i} sx={{ mb: 1 }}>
+                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: dept.color }} />
+                            <Typography sx={{ fontSize: '0.65rem', color: '#64748b', width: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dept.name}</Typography>
+                            <Typography sx={{ fontSize: '0.65rem', fontWeight: 800 }}>{dept.value}</Typography>
+                          </Stack>
+                        ))}
+                      </Box>
                     </Box>
-                    <Box sx={{ ml: 1 }}>
-                      {deptData.map((dept: any, i: number) => (
-                        <Stack direction="row" alignItems="center" spacing={1} key={i} sx={{ mb: 1 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: dept.color }} />
-                          <Typography sx={{ fontSize: '0.65rem', color: '#64748b', width: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{dept.name}</Typography>
-                          <Typography sx={{ fontSize: '0.65rem', fontWeight: 800 }}>{dept.value}</Typography>
-                        </Stack>
-                      ))}
-                    </Box>
-                  </Box>
-                </Card>
+                  </Card>
+                )}
               </Stack>
             </Grid>
 
@@ -562,86 +594,90 @@ export default function DashboardPage() {
         <Grid item xs={12}>
           <Grid container spacing={3}>
             {/* RECENT */}
-            <Grid item xs={12} md={6}>
-              <Card sx={{ ...commonCardStyles, p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Recent</Typography>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9', borderRadius: 2, px: 2, py: 0.5 }}>
-                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 20, mr: 1 }} />
-                      <InputBase placeholder="Search for employee" sx={{ fontSize: '0.85rem' }} />
-                    </Box>
-                    <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700 }}>Filter</Button>
+            {canViewDashboardDetails && (
+              <Grid item xs={12} md={6}>
+                <Card sx={{ ...commonCardStyles, p: 3 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Recent</Typography>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f1f5f9', borderRadius: 2, px: 2, py: 0.5 }}>
+                        <SearchIcon sx={{ color: '#94a3b8', fontSize: 20, mr: 1 }} />
+                        <InputBase placeholder="Search for employee" sx={{ fontSize: '0.85rem' }} />
+                      </Box>
+                      <Button variant="outlined" startIcon={<FilterListIcon />} sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700 }}>Filter</Button>
+                    </Stack>
                   </Stack>
-                </Stack>
-                <Box sx={{ overflowX: 'auto' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                        <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}>Date</TableCell>
-                        <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Name</TableCell>
-                        <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Role</TableCell>
-                        <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopRightRadius: 8, borderBottomRightRadius: 8 }}>Status</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {teamMembers.length === 0 ? (
-                        <TableRow><TableCell colSpan={5} sx={{ textAlign: 'center', py: 4, color: '#94a3b8' }}>No recent activity</TableCell></TableRow>
-                      ) : teamMembers.map((emp: any, i: number) => (
-                        <TableRow key={i}>
-                          <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{new Date().toLocaleDateString()}</TableCell>
-                          <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <Stack direction="row" spacing={1.5} alignItems="center">
-                              <Avatar src={emp.avatar_url || ''} sx={{ width: 28, height: 28 }} />
-                              <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>{emp.full_name}</Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{emp.role}</TableCell>
-                          <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <Chip label={emp.status} size="small" sx={{ bgcolor: '#dcfce7', color: '#10b981', fontWeight: 700, borderRadius: 1.5, fontSize: '0.7rem' }} />
-                          </TableCell>
+                  <Box sx={{ overflowX: 'auto' }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                          <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}>Date</TableCell>
+                          <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Name</TableCell>
+                          <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Role</TableCell>
+                          <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopRightRadius: 8, borderBottomRightRadius: 8 }}>Status</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Box>
-              </Card>
-            </Grid>
+                      </TableHead>
+                      <TableBody>
+                        {teamMembers.length === 0 ? (
+                          <TableRow><TableCell colSpan={4} sx={{ textAlign: 'center', py: 4, color: '#94a3b8' }}>No recent activity</TableCell></TableRow>
+                        ) : teamMembers.map((emp: any, i: number) => (
+                          <TableRow key={i}>
+                            <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{new Date().toLocaleDateString()}</TableCell>
+                            <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <Stack direction="row" spacing={1.5} alignItems="center">
+                                <Avatar src={emp.avatar_url || ''} sx={{ width: 28, height: 28 }} />
+                                <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>{emp.full_name}</Typography>
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{emp.role}</TableCell>
+                            <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
+                              <Chip label={emp.status} size="small" sx={{ bgcolor: '#dcfce7', color: '#10b981', fontWeight: 700, borderRadius: 1.5, fontSize: '0.7rem' }} />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Box>
+                </Card>
+              </Grid>
+            )}
 
             {/* SATISFACTION */}
-            <Grid item xs={12} md={3}>
-              <Card sx={{ ...commonCardStyles, p: 3, display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>Satisfaction</Typography>
-                <Box sx={{ position: 'relative', height: 160, display: 'flex', justifyContent: 'center' }}>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <PieChart>
-                      <Pie
-                        data={[{ value: 67 }, { value: 33 }]}
-                        cx="50%" cy="92%"
-                        startAngle={180} endAngle={0}
-                        innerRadius={60} outerRadius={80}
-                        paddingAngle={0}
-                        dataKey="value"
-                        stroke="none"
-                        cornerRadius={40}
-                      >
-                        <Cell fill="#3b82f6" />
-                        <Cell fill="#f1f5f9" />
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <Box sx={{ position: 'absolute', bottom: 10, textAlign: 'center' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#3b82f6' }}>67.09%</Typography>
+            {canViewDashboardDetails && (
+              <Grid item xs={12} md={3}>
+                <Card sx={{ ...commonCardStyles, p: 3, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>Satisfaction</Typography>
+                  <Box sx={{ position: 'relative', height: 160, display: 'flex', justifyContent: 'center' }}>
+                    <ResponsiveContainer width="100%" height={160}>
+                      <PieChart>
+                        <Pie
+                          data={[{ value: 67 }, { value: 33 }]}
+                          cx="50%" cy="92%"
+                          startAngle={180} endAngle={0}
+                          innerRadius={60} outerRadius={80}
+                          paddingAngle={0}
+                          dataKey="value"
+                          stroke="none"
+                          cornerRadius={40}
+                        >
+                          <Cell fill="#3b82f6" />
+                          <Cell fill="#f1f5f9" />
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <Box sx={{ position: 'absolute', bottom: 10, textAlign: 'center' }}>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#3b82f6' }}>67.09%</Typography>
+                    </Box>
                   </Box>
-                </Box>
-                <Typography sx={{ color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center', mt: 2, px: 2 }}>
-                  Out of all employees, <strong style={{color:'#6366f1'}}>{Math.round(totalEmployees * 0.67)}</strong> are satisfied and have increased 12% from last month
-                </Typography>
-              </Card>
-            </Grid>
+                  <Typography sx={{ color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center', mt: 2, px: 2 }}>
+                    Out of all employees, <strong style={{color:'#6366f1'}}>{Math.round(totalEmployees * 0.67)}</strong> are satisfied and have increased 12% from last month
+                  </Typography>
+                </Card>
+              </Grid>
+            )}
 
             {/* LEAVE REQUESTS (LIVE) */}
-            <Grid item xs={12} md={3}>
+            <Grid item xs={12} md={canViewDashboardDetails ? 3 : 12}>
               <Card sx={{ ...commonCardStyles, p: 3 }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Leave requests</Typography>

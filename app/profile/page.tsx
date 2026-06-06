@@ -16,15 +16,16 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
   CircularProgress,
   Container,
+  Grid,
   TextField,
   Alert,
   Chip,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
+import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 interface ProfileData {
   id: string;
@@ -334,98 +335,124 @@ export default function ProfilePage() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
-      <Card>
-        <CardHeader title="My Profile" />
-        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {error && <Alert severity="error">{error}</Alert>}
-          {success && <Alert severity="success">{success}</Alert>}
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Breadcrumbs sx={{ mb: 3 }} />
+      <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a' }}>
+          My Profile
+        </Typography>
+        <Typography sx={{ color: '#64748b' }}>
+          Manage your account information, update your profile picture, and keep your details up to date.
+        </Typography>
+      </Box>
 
-          <Box>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-              <Avatar src={resolveAvatarUrl(profile.avatar_url)} sx={{ width: 72, height: 72, bgcolor: '#928ddd' }}>
-                {initials}
-              </Avatar>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <input
-                  accept="image/*"
-                  id="avatar-upload"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={handlePickAvatarFile}
-                />
-                <label htmlFor="avatar-upload">
-                  <IconButton color="primary" aria-label="upload avatar" component="span">
-                    <PhotoCameraIcon />
-                  </IconButton>
-                </label>
-                <IconButton aria-label="remove avatar" onClick={handleRemoveAvatar} disabled={avatarUploading || !profile.avatar_url}>
-                  <DeleteIcon />
-                </IconButton>
-                {avatarUploading ? <CircularProgress size={20} /> : null}
-              </Stack>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Box sx={{ fontSize: '0.875rem', color: '#666' }}>Full Name</Box>
-                {!isEditing && (
-                  <Button size="small" variant="text" onClick={() => setIsEditing(true)}>
-                    Edit
+      <Card sx={{ borderRadius: 3, boxShadow: '0 24px 80px rgba(15, 23, 42, 0.08)' }}>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
+
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 2 }}>
+                <Avatar src={resolveAvatarUrl(profile.avatar_url)} sx={{ width: 120, height: 120, bgcolor: '#928ddd', fontSize: 32 }}>
+                  {initials}
+                </Avatar>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{profile.full_name}</Typography>
+                  <Typography variant="body2" sx={{ color: '#64748b' }}>{profile.role}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <label htmlFor="avatar-upload">
+                    <input
+                      accept="image/*"
+                      id="avatar-upload"
+                      type="file"
+                      style={{ display: 'none' }}
+                      onChange={handlePickAvatarFile}
+                    />
+                    <Button variant="outlined" component="span" startIcon={<PhotoCameraIcon />}>
+                      Upload
+                    </Button>
+                  </label>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleRemoveAvatar}
+                    disabled={avatarUploading || !profile.avatar_url}
+                    startIcon={<DeleteIcon />}
+                  >
+                    Remove
                   </Button>
+                </Box>
+                {avatarUploading && <CircularProgress size={24} />}
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} md={8}>
+              <Box sx={{ display: 'grid', gap: 3 }}>
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography sx={{ fontSize: '0.875rem', color: '#666' }}>Full Name</Typography>
+                    {!isEditing && (
+                      <Button size="small" variant="text" onClick={() => setIsEditing(true)}>
+                        Edit
+                      </Button>
+                    )}
+                  </Box>
+                  {isEditing ? (
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Full Name"
+                    />
+                  ) : (
+                    <Typography sx={{ fontWeight: 500 }}>{profile.full_name}</Typography>
+                  )}
+                </Box>
+
+                <Box>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Email</Typography>
+                  <Typography sx={{ fontWeight: 500 }}>{profile.email}</Typography>
+                </Box>
+
+                <Box>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Role</Typography>
+                  <Chip label={profile.role} color="primary" variant="outlined" />
+                </Box>
+
+                <Box>
+                  <Typography sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>ID</Typography>
+                  <Typography sx={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#666' }}>{profile.id}</Typography>
+                </Box>
+
+                {isEditing && (
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleUpdateProfile}
+                      disabled={updating}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {updating ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setFullName(profile.full_name);
+                        setIsEditing(false);
+                        setError('');
+                      }}
+                      disabled={updating}
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
                 )}
               </Box>
-              {isEditing ? (
-                <TextField
-                  fullWidth
-                  size="small"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Full Name"
-                />
-              ) : (
-                <Box sx={{ fontWeight: 500 }}>{profile.full_name}</Box>
-              )}
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Email</Box>
-              <Box sx={{ fontWeight: 500 }}>{profile.email}</Box>
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>Role</Box>
-              <Chip label={profile.role} color="primary" variant="outlined" />
-            </Box>
-
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ fontSize: '0.875rem', color: '#666', mb: 1 }}>ID</Box>
-              <Box sx={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#666' }}>{profile.id}</Box>
-            </Box>
-          </Box>
-
-          {isEditing && (
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                variant="contained"
-                onClick={handleUpdateProfile}
-                disabled={updating}
-                sx={{ flex: 1 }}
-              >
-                {updating ? 'Saving...' : 'Save'}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setFullName(profile.full_name);
-                  setIsEditing(false);
-                  setError('');
-                }}
-                disabled={updating}
-              >
-                Cancel
-              </Button>
-            </Box>
-          )}
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 

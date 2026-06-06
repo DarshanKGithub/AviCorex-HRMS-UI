@@ -336,32 +336,6 @@ export default function AttendancePage() {
 
       <Stack spacing={4}>
         {/* Soft UI Hero Banner */}
-        <Card sx={{ 
-          borderRadius: 4, 
-          overflow: 'hidden', 
-          bgcolor: '#ffffff', 
-          border: 'none', 
-          boxShadow: '0 4px 24px rgba(99, 102, 241, 0.08)',
-          position: 'relative'
-        }}>
-          <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(99,102,241,0.05) 0%, rgba(255,255,255,0) 100%)' }} />
-          <CardContent sx={{ p: { xs: 3, md: 4 }, position: 'relative' }}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent="space-between">
-              <Box sx={{ maxWidth: 720 }}>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em', mb: 1 }}>
-                  Good morning, let's get to work!
-                </Typography>
-                <Typography sx={{ color: '#64748b', fontSize: '1.05rem', fontWeight: 500, maxWidth: 600 }}>
-                  Log your hours, check your shifts, and view actionable AI insights directly from your command center.
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-                <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#6366f1 !important' }} />} label="Live Sync Active" sx={{ bgcolor: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', fontWeight: 700 }} />
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-
         {/* Top KPIs */}
         <Grid container spacing={3}>
           {attendanceStats.map((stat) => (
@@ -503,62 +477,66 @@ export default function AttendancePage() {
         </Grid>
 
         {/* Recent Attendance Table */}
-        <Card sx={commonCardStyles}>
-          <CardContent sx={{ p: 4, pb: '32px !important' }}>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>
-              Monthly Attendance Log
-            </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Card sx={commonCardStyles}>
+              <CardContent sx={{ p: 4, pb: '32px !important' }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>
+                  Monthly Attendance Log
+                </Typography>
 
-            {recentRecords.length > 0 ? (
-              <Box sx={{ overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 600 }}>
-                  <TableHead>
-                    <TableRow sx={{ '& th': { borderBottom: '1px solid #f1f5f9', py: 2 } }}>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Date</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check In</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check Out</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', align: 'right' }}>Late</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recentRecords.map((record) => {
-                      const colors = getStatusColor(record.status);
-                      return (
-                        <TableRow key={record.id} sx={{ '& td': { borderBottom: '1px solid #f8fafc', py: 2.5 } }}>
-                          <TableCell sx={{ color: '#1e293b', fontWeight: 600 }}>{formatDate(record.attendance_date)}</TableCell>
-                          <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_in_time)}</TableCell>
-                          <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_out_time)}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                              size="small"
-                              sx={{
-                                bgcolor: colors.bg,
-                                color: colors.text,
-                                fontWeight: 700,
-                                px: 1
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="right" sx={{ color: '#64748b', fontWeight: 500 }}>
-                            {record.is_late ? `${record.late_minutes} min` : '-'}
-                          </TableCell>
+                {recentRecords.length > 0 ? (
+                  <Box sx={{ overflowX: 'auto' }}>
+                    <Table sx={{ minWidth: 600 }}>
+                      <TableHead>
+                        <TableRow sx={{ '& th': { borderBottom: '1px solid #f1f5f9', py: 2 } }}>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Date</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check In</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check Out</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', align: 'right' }}>Late</TableCell>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </Box>
-            ) : (
-              <Box sx={{ py: 6, textAlign: 'center' }}>
-                <InsightsRoundedIcon sx={{ fontSize: 48, color: '#cbd5e1', mb: 2 }} />
-                <Typography sx={{ color: '#1e293b', fontWeight: 700, mb: 1, fontSize: '1.1rem' }}>No attendance records found</Typography>
-                <Typography sx={{ color: '#64748b' }}>Check in to populate your timeline and attendance analytics.</Typography>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
+                      </TableHead>
+                      <TableBody>
+                        {recentRecords.map((record) => {
+                          const colors = getStatusColor(record.status);
+                          return (
+                            <TableRow key={record.id} sx={{ '& td': { borderBottom: '1px solid #f8fafc', py: 2.5 } }}>
+                              <TableCell sx={{ color: '#1e293b', fontWeight: 600 }}>{formatDate(record.attendance_date)}</TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_in_time)}</TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_out_time)}</TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                                  size="small"
+                                  sx={{
+                                    bgcolor: colors.bg,
+                                    color: colors.text,
+                                    fontWeight: 700,
+                                    px: 1
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell align="right" sx={{ color: '#64748b', fontWeight: 500 }}>
+                                {record.is_late ? `${record.late_minutes} min` : '-'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </Box>
+                ) : (
+                  <Box sx={{ py: 6, textAlign: 'center' }}>
+                    <InsightsRoundedIcon sx={{ fontSize: 48, color: '#cbd5e1', mb: 2 }} />
+                    <Typography sx={{ color: '#1e293b', fontWeight: 700, mb: 1, fontSize: '1.1rem' }}>No attendance records found</Typography>
+                    <Typography sx={{ color: '#64748b' }}>Check in to populate your timeline and attendance analytics.</Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Stack>
     </Box>
   );
