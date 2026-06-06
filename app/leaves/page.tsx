@@ -166,16 +166,16 @@ export default function LeavesPage() {
     resolver: zodResolver(leaveRequestSchema),
     mode: 'onChange',
     defaultValues: {
-      leave_type_id: '', 
-      start_date: '', 
-      end_date: '', 
+      leave_type_id: '',
+      start_date: '',
+      end_date: '',
       session_from: 'Session 1',
       session_to: 'Session 2',
       reason: '',
       contact_details: '',
     }
   });
-  
+
   const formLeaveTypeId = watch('leave_type_id');
   const formStartDate = watch('start_date');
   const formEndDate = watch('end_date');
@@ -303,7 +303,7 @@ export default function LeavesPage() {
         }),
         { headers: { Authorization: `Bearer ${auth.token}` } }
       );
-      
+
       let allRequests: LeaveRequest[] = [];
       if (res.ok) {
         const payload = await res.json();
@@ -596,231 +596,140 @@ export default function LeavesPage() {
 
         <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
 
-            {loading ? (
-              <Box sx={{ py: 2 }}>
-                <Skeleton variant="rounded" height={120} sx={{ borderRadius: 3, mb: 2 }} />
-                <Grid container spacing={2.5}>
-                  {[1, 2, 3, 4].map((i) => (
-                    <Grid item xs={12} sm={6} key={i}>
-                      <Skeleton variant="rounded" height={110} sx={{ borderRadius: 2 }} />
+          {loading ? (
+            <Box sx={{ py: 2 }}>
+              <Skeleton variant="rounded" height={120} sx={{ borderRadius: 3, mb: 2 }} />
+              <Grid container spacing={2.5}>
+                {[1, 2, 3, 4].map((i) => (
+                  <Grid item xs={12} sm={6} key={i}>
+                    <Skeleton variant="rounded" height={110} sx={{ borderRadius: 2 }} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          ) : (
+            <Card ref={formRef} sx={{ ...commonCardStyles, border: '1px solid #e7e9ef', overflow: 'hidden' }}>
+              <Box sx={{ p: 2, borderBottom: '1px solid #eef2f7', bgcolor: '#fcfdff' }}>
+                <Grid container spacing={1.5}>
+                  {[
+                    { label: 'Total Requests', value: leaveAnalytics.totalRequests, color: 'text.primary' },
+                    { label: 'Pending', value: leaveAnalytics.pending, color: '#d97706' },
+                    { label: 'Approved', value: leaveAnalytics.approved, color: '#059669' },
+                    { label: 'Rejected', value: leaveAnalytics.rejected, color: '#dc2626' },
+                    { label: 'Requested Days', value: leaveAnalytics.totalDaysRequested, color: '#4f46e5' },
+                  ].map((metric) => (
+                    <Grid key={metric.label} item xs={6} sm={4} md={3} lg={2}>
+                      <Card sx={{ ...commonCardStyles, border: '1px solid #eef2f7' }}>
+                        <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
+                          <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>{metric.label}</Typography>
+                          <Typography sx={{ fontSize: '1.1rem', color: metric.color, fontWeight: 800 }}>{metric.value}</Typography>
+                        </CardContent>
+                      </Card>
                     </Grid>
                   ))}
                 </Grid>
               </Box>
-            ) : (
-              <Card ref={formRef} sx={{ ...commonCardStyles, border: '1px solid #e7e9ef', overflow: 'hidden' }}>
-                <Box sx={{ p: 2, borderBottom: '1px solid #eef2f7', bgcolor: '#fcfdff' }}>
-                  <Grid container spacing={1.5}>
-                    {[
-                      { label: 'Total Requests', value: leaveAnalytics.totalRequests, color: 'text.primary' },
-                      { label: 'Pending', value: leaveAnalytics.pending, color: '#d97706' },
-                      { label: 'Approved', value: leaveAnalytics.approved, color: '#059669' },
-                      { label: 'Rejected', value: leaveAnalytics.rejected, color: '#dc2626' },
-                      { label: 'Requested Days', value: leaveAnalytics.totalDaysRequested, color: '#4f46e5' },
-                    ].map((metric) => (
-                      <Grid key={metric.label} item xs={6} sm={4} md={3} lg={2}>
-                        <Card sx={{ ...commonCardStyles, border: '1px solid #eef2f7' }}>
-                          <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
-                            <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>{metric.label}</Typography>
-                            <Typography sx={{ fontSize: '1.1rem', color: metric.color, fontWeight: 800 }}>{metric.value}</Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Box>
 
-                {/* Tab Navigation */}
-                <Box sx={{ borderBottom: '1px solid #e7e9ef', bgcolor: '#fafbfd' }}>
-                  <Tabs 
-                    value={tabValue} 
-                    onChange={handleTabChange}
-                    sx={{
-                      '& .MuiTabs-indicator': {
-                        bgcolor: '#6366f1',
-                        height: 3,
-                        borderRadius: 3
+              {/* Tab Navigation */}
+              <Box sx={{ borderBottom: '1px solid #e7e9ef', bgcolor: '#fafbfd' }}>
+                <Tabs
+                  value={tabValue}
+                  onChange={handleTabChange}
+                  sx={{
+                    '& .MuiTabs-indicator': {
+                      bgcolor: '#6366f1',
+                      height: 3,
+                      borderRadius: 3
+                    },
+                    '& .MuiTab-root': {
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                      color: '#64748b',
+                      py: 1.5,
+                      '&.Mui-selected': {
+                        color: '#6366f1',
                       },
-                      '& .MuiTab-root': {
-                        textTransform: 'none',
-                        fontWeight: 700,
-                        fontSize: '0.95rem',
-                        color: '#64748b',
-                        py: 1.5,
-                        '&.Mui-selected': {
-                          color: '#6366f1',
-                        },
-                      },
-                    }}
-                  >
-                    <Tab label="Apply" />
-                    <Tab label="Pending" />
-                    <Tab label="History" />
-                  </Tabs>
-                </Box>
+                    },
+                  }}
+                >
+                  <Tab label="Apply" />
+                  <Tab label="Pending" />
+                  <Tab label="History" />
+                </Tabs>
+              </Box>
 
-                {/* Tab Panel: Apply */}
-                <TabPanel value={tabValue} index={0}>
-                  <CardContent sx={{ p: 3.5 }}>
-                    <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 3.5, fontSize: '1.1rem' }}>
-                      Applying for Leave
-                    </Typography>
-                    {!canRequestLeave && (
-                      <Alert severity="warning" sx={{ mb: 2 }}>
-                        You do not have permission to submit leave requests.
-                      </Alert>
-                    )}
-                    <form onSubmit={handleSubmit(submitRequest)}>
-                      <Stack spacing={3}>
-                        {/* Leave Type */}
-                        <Box>
-                          <FormControl fullWidth size="small">
-                            <InputLabel sx={{ color: 'text.secondary' }}>Leave type *</InputLabel>
-                            <Controller
-                              name="leave_type_id"
-                              control={control}
-                              render={({ field }) => (
-                                <Select
-                                  {...field}
-                                  label="Leave type *"
-                                  error={!!errors.leave_type_id}
-                                  MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
-                                  sx={{
-                                    bgcolor: '#fafbfd',
-                                    borderRadius: 1.5,
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: '#e7e9ef',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: '#d0cee4',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: '#928ddd',
-                                    },
-                                  }}
-                                >
-                              <MenuItem value="">Select type</MenuItem>
-                              {leaveTypes.map((type) => (
-                                <MenuItem key={type.id} value={type.id}>
-                                  {type.name}
-                                </MenuItem>
-                              ))}
-                            </Select>
+              {/* Tab Panel: Apply */}
+              <TabPanel value={tabValue} index={0}>
+                <CardContent sx={{ p: 3.5 }}>
+                  <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 3.5, fontSize: '1.1rem' }}>
+                    Applying for Leave
+                  </Typography>
+                  {!canRequestLeave && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                      You do not have permission to submit leave requests.
+                    </Alert>
+                  )}
+                  <form onSubmit={handleSubmit(submitRequest)}>
+                    <Stack spacing={3}>
+                      {/* Leave Type */}
+                      <Box>
+                        <FormControl fullWidth size="small">
+                          <InputLabel sx={{ color: 'text.secondary' }}>Leave type *</InputLabel>
+                          <Controller
+                            name="leave_type_id"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                {...field}
+                                label="Leave type *"
+                                error={!!errors.leave_type_id}
+                                MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
+                                sx={{
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#e7e9ef',
+                                  },
+                                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#d0cee4',
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#928ddd',
+                                  },
+                                }}
+                              >
+                                <MenuItem value="">Select type</MenuItem>
+                                {leaveTypes.map((type) => (
+                                  <MenuItem key={type.id} value={type.id}>
+                                    {type.name}
+                                  </MenuItem>
+                                ))}
+                              </Select>
                             )}
                           />
-                          </FormControl>
-                        </Box>
+                        </FormControl>
+                      </Box>
 
-                        {/* Date Range Row */}
-                        {/* Dates Row */}
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                              From date *
-                            </Typography>
-                            <Controller
-                              name="start_date"
-                              control={control}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  type="date"
-                                  fullWidth
-                                  size="small"
-                                  error={!!errors.start_date}
-                                  helperText={errors.start_date?.message}
-                                  InputLabelProps={{ shrink: true }}
-                                  sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                      bgcolor: '#fafbfd',
-                                      borderRadius: 1.5,
-                                      '& fieldset': { borderColor: '#e7e9ef' },
-                                      '&:hover fieldset': { borderColor: '#d0cee4' },
-                                      '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                                    },
-                                  }}
-                                />
-                              )}
-                            />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                              To date *
-                            </Typography>
-                            <Controller
-                              name="end_date"
-                              control={control}
-                              render={({ field }) => (
-                                <TextField
-                                  {...field}
-                                  type="date"
-                                  fullWidth
-                                  size="small"
-                                  error={!!errors.end_date}
-                                  helperText={errors.end_date?.message}
-                                  InputLabelProps={{ shrink: true }}
-                                  sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                      bgcolor: '#fafbfd',
-                                      borderRadius: 1.5,
-                                      '& fieldset': { borderColor: '#e7e9ef' },
-                                      '&:hover fieldset': { borderColor: '#d0cee4' },
-                                      '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                                    },
-                                  }}
-                                />
-                              )}
-                            />
-                          </Grid>
-                        </Grid>
-
-                       
-
-                        {/* Applying To */}
-                        <Box sx={{ p: 2.5, bgcolor: '#fafbfd', borderRadius: 1.5, border: '1px solid #e7e9ef', display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Avatar sx={{ bgcolor: '#928ddd', width: 40, height: 40, fontSize: '0.9rem' }}>
-                            {auth.user?.full_name?.charAt(0).toUpperCase()}
-                          </Avatar>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 500 }}>
-                              Applying to
-                            </Typography>
-                            <Typography sx={{ fontSize: '0.95rem', color: 'text.primary', fontWeight: 600 }}>
-                              {auth.user?.full_name}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {/* CC To */}
-                        <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
-                            CC to
+                      {/* Date Range Row */}
+                      {/* Dates Row */}
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                            From date *
                           </Typography>
-                          <Stack spacing={1.5}>
-                            {ccEmails.length > 0 && (
-                              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                                {ccEmails.map((email, idx) => (
-                                  <Chip
-                                    key={idx}
-                                    label={email}
-                                    onDelete={() => setCcEmails(ccEmails.filter((_, i) => i !== idx))}
-                                    sx={{
-                                      bgcolor: 'rgba(146, 141, 221, 0.1)',
-                                      color: '#928ddd',
-                                      fontWeight: 500,
-                                      fontSize: '0.85rem',
-                                    }}
-                                  />
-                                ))}
-                              </Stack>
-                            )}
-                            <Stack direction="row" spacing={1}>
+                          <Controller
+                            name="start_date"
+                            control={control}
+                            render={({ field }) => (
                               <TextField
-                                value={ccInput}
-                                onChange={(e) => setCcInput(e.target.value)}
-                                placeholder="Enter email"
+                                {...field}
+                                type="date"
                                 fullWidth
                                 size="small"
+                                error={!!errors.start_date}
+                                helperText={errors.start_date?.message}
+                                InputLabelProps={{ shrink: true }}
                                 sx={{
                                   '& .MuiOutlinedInput-root': {
                                     bgcolor: '#fafbfd',
@@ -831,276 +740,360 @@ export default function LeavesPage() {
                                   },
                                 }}
                               />
-                              <IconButton
-                                onClick={() => {
-                                  const sanitizedEmail = ccInput.trim().toLowerCase();
-                                  if (
-                                    sanitizedEmail &&
-                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail) &&
-                                    !ccEmails.includes(sanitizedEmail)
-                                  ) {
-                                    setCcEmails([...ccEmails, sanitizedEmail]);
-                                    setCcInput('');
-                                  }
-                                }}
+                            )}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                            To date *
+                          </Typography>
+                          <Controller
+                            name="end_date"
+                            control={control}
+                            render={({ field }) => (
+                              <TextField
+                                {...field}
+                                type="date"
+                                fullWidth
+                                size="small"
+                                error={!!errors.end_date}
+                                helperText={errors.end_date?.message}
+                                InputLabelProps={{ shrink: true }}
                                 sx={{
-                                  bgcolor: 'rgba(146, 141, 221, 0.1)',
-                                  color: '#928ddd',
-                                  '&:hover': { bgcolor: 'rgba(146, 141, 221, 0.2)' },
-                                }}
-                              >
-                                <AddIcon />
-                              </IconButton>
-                            </Stack>
-                          </Stack>
-                        </Box>
-
-                        {/* Contact Details */}
-                        <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                            Contact details
-                          </Typography>
-                          <Controller
-                            name="contact_details"
-                            control={control}
-                            render={({ field }) => (
-                              <TextField
-                                {...field}
-                                placeholder="Enter your contact details"
-                                fullWidth
-                                multiline
-                                rows={2}
-                                error={!!errors.contact_details}
-                                helperText={errors.contact_details?.message}
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                bgcolor: '#fafbfd',
-                                borderRadius: 1.5,
-                                '& fieldset': { borderColor: '#e7e9ef' },
-                                '&:hover fieldset': { borderColor: '#d0cee4' },
-                                '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                              },
-                            }}
-                          />
-                          )}
-                        />
-                        </Box>
-
-                        {/* Reason */}
-                        <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                            Reason
-                          </Typography>
-                          <Controller
-                            name="reason"
-                            control={control}
-                            render={({ field }) => (
-                              <TextField
-                                {...field}
-                                placeholder="Enter a reason"
-                                fullWidth
-                                multiline
-                                rows={3}
-                                error={!!errors.reason}
-                                helperText={errors.reason?.message}
-                            sx={{
-                              '& .MuiOutlinedInput-root': {
-                                bgcolor: '#fafbfd',
-                                borderRadius: 1.5,
-                                '& fieldset': { borderColor: '#e7e9ef' },
-                                '&:hover fieldset': { borderColor: '#d0cee4' },
-                                '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                              },
-                            }}
-                          />
-                          )}
-                        />
-                        </Box>
-
-                        {/* File Upload */}
-                        <Box>
-                          <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
-                            Attach File (PDF only, max 5MB)
-                          </Typography>
-                          <Button
-                            component="label"
-                            variant="outlined"
-                            startIcon={<CloudUploadIcon />}
-                            sx={{
-                              borderColor: '#e7e9ef',
-                              color: 'text.secondary',
-                              textTransform: 'none',
-                              fontWeight: 500,
-                              borderRadius: 1.5,
-                              py: 1,
-                              '&:hover': {
-                                borderColor: '#928ddd',
-                                bgcolor: 'rgba(146, 141, 221, 0.04)',
-                              },
-                            }}
-                          >
-                            Upload
-                            <input
-                              hidden
-                              type="file"
-                              accept=".pdf"
-                              multiple
-                              onChange={(e) => {
-                                if (e.target.files) {
-                                  const validFiles = Array.from(e.target.files).filter(file => {
-                                    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-                                      showToast(`File ${file.name} is not a PDF.`, 'error');
-                                      return false;
-                                    }
-                                    if (file.size > 5 * 1024 * 1024) {
-                                      showToast(`File ${file.name} exceeds the 5MB limit.`, 'error');
-                                      return false;
-                                    }
-                                    return true;
-                                  });
-                                  setAttachments([...attachments, ...validFiles]);
-                                }
-                                e.target.value = '';
-                              }}
-                            />
-                          </Button>
-                          {attachments.length > 0 && (
-                            <Stack spacing={1} sx={{ mt: 1.5 }}>
-                              {attachments.map((file, idx) => (
-                                <Typography
-                                  key={idx}
-                                  sx={{
-                                    fontSize: '0.85rem',
-                                    color: 'text.secondary',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    p: 1,
+                                  '& .MuiOutlinedInput-root': {
                                     bgcolor: '#fafbfd',
-                                    borderRadius: 1,
+                                    borderRadius: 1.5,
+                                    '& fieldset': { borderColor: '#e7e9ef' },
+                                    '&:hover fieldset': { borderColor: '#d0cee4' },
+                                    '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                  },
+                                }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                      </Grid>
+
+
+
+                      {/* Applying To */}
+                      <Box sx={{ p: 2.5, bgcolor: '#fafbfd', borderRadius: 1.5, border: '1px solid #e7e9ef', display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar sx={{ bgcolor: '#928ddd', width: 40, height: 40, fontSize: '0.9rem' }}>
+                          {auth.user?.full_name?.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 500 }}>
+                            Applying to
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.95rem', color: 'text.primary', fontWeight: 600 }}>
+                            {auth.user?.full_name}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* CC To */}
+                      <Box>
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
+                          CC to
+                        </Typography>
+                        <Stack spacing={1.5}>
+                          {ccEmails.length > 0 && (
+                            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+                              {ccEmails.map((email, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={email}
+                                  onDelete={() => setCcEmails(ccEmails.filter((_, i) => i !== idx))}
+                                  sx={{
+                                    bgcolor: 'rgba(146, 141, 221, 0.1)',
+                                    color: '#928ddd',
+                                    fontWeight: 500,
+                                    fontSize: '0.85rem',
                                   }}
-                                >
-                                  {file.name}
-                                  <IconButton
-                                    size="small"
-                                    onClick={() =>
-                                      setAttachments(attachments.filter((_, i) => i !== idx))
-                                    }
-                                  >
-                                    <CloseIcon sx={{ fontSize: 16 }} />
-                                  </IconButton>
-                                </Typography>
+                                />
                               ))}
                             </Stack>
                           )}
-                        </Box>
-
-                        {/* Submit Buttons */}
-                        <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e7e9ef' }}>
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            disabled={submitting || !formLeaveTypeId || !formStartDate || !formEndDate || !canRequestLeave}
-                            sx={{
-                              bgcolor: '#928ddd',
-                              color: '#fff',
-                              fontWeight: 600,
-                              px: 3,
-                              py: 1,
-                              borderRadius: 1.5,
-                              textTransform: 'none',
-                              fontSize: '0.95rem',
-                              '&:hover': { bgcolor: '#7a76c4' },
-                              '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
-                            }}
-                          >
-                            {submitting ? <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} /> : null}
-                            Submit
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            onClick={() => {
-                              reset();
-                              setCcEmails([]);
-                              setCcInput('');
-                              setAttachments([]);
-                            }}
-                            sx={{
-                              color: 'text.secondary',
-                              borderColor: '#e7e9ef',
-                              fontWeight: 600,
-                              px: 3,
-                              py: 1,
-                              borderRadius: 1.5,
-                              textTransform: 'none',
-                              fontSize: '0.95rem',
-                              '&:hover': {
-                                bgcolor: '#fafbfd',
-                                borderColor: '#d0cee4',
-                              },
-                            }}
-                          >
-                            Cancel
-                          </Button>
+                          <Stack direction="row" spacing={1}>
+                            <TextField
+                              value={ccInput}
+                              onChange={(e) => setCcInput(e.target.value)}
+                              placeholder="Enter email"
+                              fullWidth
+                              size="small"
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& fieldset': { borderColor: '#e7e9ef' },
+                                  '&:hover fieldset': { borderColor: '#d0cee4' },
+                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                },
+                              }}
+                            />
+                            <IconButton
+                              onClick={() => {
+                                const sanitizedEmail = ccInput.trim().toLowerCase();
+                                if (
+                                  sanitizedEmail &&
+                                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail) &&
+                                  !ccEmails.includes(sanitizedEmail)
+                                ) {
+                                  setCcEmails([...ccEmails, sanitizedEmail]);
+                                  setCcInput('');
+                                }
+                              }}
+                              sx={{
+                                bgcolor: 'rgba(146, 141, 221, 0.1)',
+                                color: '#928ddd',
+                                '&:hover': { bgcolor: 'rgba(146, 141, 221, 0.2)' },
+                              }}
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </Stack>
                         </Stack>
-                      </Stack>
-                    </form>
-                  </CardContent>
-                </TabPanel>
+                      </Box>
 
-                {/* Tab Panel: Pending */}
-                <TabPanel value={tabValue} index={1}>
-                  <CardContent sx={{ p: 3.5 }}>
-                    <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
-                      <TextField
-                        value={pendingSearch}
-                        onChange={(e) => setPendingSearch(e.target.value)}
-                        placeholder="Search pending requests"
-                        size="small"
-                        fullWidth
-                      />
-                      <FormControl size="small" sx={{ minWidth: 220 }}>
-                        <InputLabel>Type</InputLabel>
-                        <Select
-                          value={pendingTypeFilter}
-                          label="Type"
-                          onChange={(e) => setPendingTypeFilter(e.target.value)}
-                          MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
+                      {/* Contact Details */}
+                      <Box>
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                          Contact details
+                        </Typography>
+                        <Controller
+                          name="contact_details"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              placeholder="Enter your contact details"
+                              fullWidth
+                              multiline
+                              rows={2}
+                              error={!!errors.contact_details}
+                              helperText={errors.contact_details?.message}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& fieldset': { borderColor: '#e7e9ef' },
+                                  '&:hover fieldset': { borderColor: '#d0cee4' },
+                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                      </Box>
+
+                      {/* Reason */}
+                      <Box>
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
+                          Reason
+                        </Typography>
+                        <Controller
+                          name="reason"
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              placeholder="Enter a reason"
+                              fullWidth
+                              multiline
+                              rows={3}
+                              error={!!errors.reason}
+                              helperText={errors.reason?.message}
+                              sx={{
+                                '& .MuiOutlinedInput-root': {
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1.5,
+                                  '& fieldset': { borderColor: '#e7e9ef' },
+                                  '&:hover fieldset': { borderColor: '#d0cee4' },
+                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                },
+                              }}
+                            />
+                          )}
+                        />
+                      </Box>
+
+                      {/* File Upload */}
+                      <Box>
+                        <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
+                          Attach File (PDF only, max 5MB)
+                        </Typography>
+                        <Button
+                          component="label"
+                          variant="outlined"
+                          startIcon={<CloudUploadIcon />}
+                          sx={{
+                            borderColor: '#e7e9ef',
+                            color: 'text.secondary',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            borderRadius: 1.5,
+                            py: 1,
+                            '&:hover': {
+                              borderColor: '#928ddd',
+                              bgcolor: 'rgba(146, 141, 221, 0.04)',
+                            },
+                          }}
                         >
-                          <MenuItem value="all">All types</MenuItem>
-                          {leaveTypes.map((type) => (
-                            <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      {canApproveLeave && (
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            disabled={bulkActionLoading || selectedCount === 0}
-                            onClick={() => void bulkApprove(true)}
-                            sx={{ textTransform: 'none' }}
-                          >
-                            Bulk Approve ({selectedCount})
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            disabled={bulkActionLoading || selectedCount === 0}
-                            onClick={() => void bulkApprove(false)}
-                            sx={{ textTransform: 'none' }}
-                          >
-                            Bulk Reject ({selectedCount})
-                          </Button>
-                        </Stack>
-                      )}
-                    </Stack>
+                          Upload
+                          <input
+                            hidden
+                            type="file"
+                            accept=".pdf"
+                            multiple
+                            onChange={(e) => {
+                              if (e.target.files) {
+                                const validFiles = Array.from(e.target.files).filter(file => {
+                                  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                                    showToast(`File ${file.name} is not a PDF.`, 'error');
+                                    return false;
+                                  }
+                                  if (file.size > 5 * 1024 * 1024) {
+                                    showToast(`File ${file.name} exceeds the 5MB limit.`, 'error');
+                                    return false;
+                                  }
+                                  return true;
+                                });
+                                setAttachments([...attachments, ...validFiles]);
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                        </Button>
+                        {attachments.length > 0 && (
+                          <Stack spacing={1} sx={{ mt: 1.5 }}>
+                            {attachments.map((file, idx) => (
+                              <Typography
+                                key={idx}
+                                sx={{
+                                  fontSize: '0.85rem',
+                                  color: 'text.secondary',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  p: 1,
+                                  bgcolor: '#fafbfd',
+                                  borderRadius: 1,
+                                }}
+                              >
+                                {file.name}
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    setAttachments(attachments.filter((_, i) => i !== idx))
+                                  }
+                                >
+                                  <CloseIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Typography>
+                            ))}
+                          </Stack>
+                        )}
+                      </Box>
 
-                    {filteredPendingRequests.length > 0 ? (
-                      <Box sx={{ overflowX: 'auto' }}>
-                        <Table sx={{ minWidth: 700 }}>
-                          <TableHead>
+                      {/* Submit Buttons */}
+                      <Stack direction="row" spacing={2} sx={{ pt: 2, borderTop: '1px solid #e7e9ef' }}>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          disabled={submitting || !formLeaveTypeId || !formStartDate || !formEndDate || !canRequestLeave}
+                          sx={{
+                            bgcolor: '#928ddd',
+                            color: '#fff',
+                            fontWeight: 600,
+                            px: 3,
+                            py: 1,
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            fontSize: '0.95rem',
+                            '&:hover': { bgcolor: '#7a76c4' },
+                            '&:disabled': { bgcolor: '#d1d5db', color: '#9ca3af' },
+                          }}
+                        >
+                          {submitting ? <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} /> : null}
+                          Submit
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          onClick={() => {
+                            reset();
+                            setCcEmails([]);
+                            setCcInput('');
+                            setAttachments([]);
+                          }}
+                          sx={{
+                            color: 'text.secondary',
+                            borderColor: '#e7e9ef',
+                            fontWeight: 600,
+                            px: 3,
+                            py: 1,
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            fontSize: '0.95rem',
+                            '&:hover': {
+                              bgcolor: '#fafbfd',
+                              borderColor: '#d0cee4',
+                            },
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </Stack>
+                    </Stack>
+                  </form>
+                </CardContent>
+              </TabPanel>
+
+              {/* Tab Panel: Pending */}
+              <TabPanel value={tabValue} index={1}>
+                <CardContent sx={{ p: 3.5 }}>
+                  <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+                    <FormControl size="small" sx={{ minWidth: 220 }}>
+                      <InputLabel>Type</InputLabel>
+                      <Select
+                        value={pendingTypeFilter}
+                        label="Type"
+                        onChange={(e) => setPendingTypeFilter(e.target.value)}
+                        MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
+                      >
+                        <MenuItem value="all">All types</MenuItem>
+                        {leaveTypes.map((type) => (
+                          <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    {canApproveLeave && (
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          disabled={bulkActionLoading || selectedCount === 0}
+                          onClick={() => void bulkApprove(true)}
+                          sx={{ textTransform: 'none' }}
+                        >
+                          Bulk Approve ({selectedCount})
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          disabled={bulkActionLoading || selectedCount === 0}
+                          onClick={() => void bulkApprove(false)}
+                          sx={{ textTransform: 'none' }}
+                        >
+                          Bulk Reject ({selectedCount})
+                        </Button>
+                      </Stack>
+                    )}
+                  </Stack>
+
+                  {filteredPendingRequests.length > 0 ? (
+                    <Box sx={{ overflowX: 'auto' }}>
+                      <Table sx={{ minWidth: 700 }}>
+                        <TableHead>
                           <TableRow sx={{ borderBottom: '2px solid #e7e9ef' }}>
                             {canApproveLeave && (
                               <TableCell padding="checkbox">
@@ -1210,68 +1203,68 @@ export default function LeavesPage() {
                             </TableRow>
                           ))}
                         </TableBody>
-                        </Table>
-                      </Box>
-                    ) : (
-                      <Box sx={{ py: 4, textAlign: 'center' }}>
-                        <HourglassTopIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No pending requests</Typography>
-                      </Box>
-                    )}
-                  </CardContent>
-                </TabPanel>
+                      </Table>
+                    </Box>
+                  ) : (
+                    <Box sx={{ py: 4, textAlign: 'center' }}>
+                      <HourglassTopIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
+                      <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No pending requests</Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </TabPanel>
 
-                {/* Tab Panel: History */}
-                <TabPanel value={tabValue} index={2}>
-                  <CardContent sx={{ p: 3.5 }}>
-                    {historyRequests.length > 0 ? (
-                      <Stack spacing={1.5}>
-                        {historyRequests.map((r) => (
-                          <Box
-                            key={r.id}
-                            sx={{
-                              border: '1px solid #e7e9ef',
-                              borderLeft: `4px solid ${getStatusColor(r.status)}`,
-                              borderRadius: 1.5,
-                              p: 2,
-                              bgcolor: 'background.paper',
-                            }}
-                          >
-                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
-                              <Box>
-                                <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
-                                  {resolveLeaveTypeLabel(r.leave_type_id)}
-                                </Typography>
-                                <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
-                                  {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
-                                </Typography>
-                              </Box>
-                              <Chip
-                                icon={getStatusIcon(r.status)}
-                                label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                                sx={{
-                                  alignSelf: 'flex-start',
-                                  bgcolor: `${getStatusColor(r.status)}15`,
-                                  color: getStatusColor(r.status),
-                                  fontWeight: 700,
-                                  textTransform: 'capitalize',
-                                }}
-                              />
-                            </Stack>
-                          </Box>
-                        ))}
-                      </Stack>
-                    ) : (
-                      <Box sx={{ py: 4, textAlign: 'center' }}>
-                        <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
-                        <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No history available</Typography>
-                      </Box>
-                    )}
-                  </CardContent>
-                </TabPanel>
-              </Card>
-            )}
-          </Box>
+              {/* Tab Panel: History */}
+              <TabPanel value={tabValue} index={2}>
+                <CardContent sx={{ p: 3.5 }}>
+                  {historyRequests.length > 0 ? (
+                    <Stack spacing={1.5}>
+                      {historyRequests.map((r) => (
+                        <Box
+                          key={r.id}
+                          sx={{
+                            border: '1px solid #e7e9ef',
+                            borderLeft: `4px solid ${getStatusColor(r.status)}`,
+                            borderRadius: 1.5,
+                            p: 2,
+                            bgcolor: 'background.paper',
+                          }}
+                        >
+                          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" spacing={1.5}>
+                            <Box>
+                              <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
+                                {resolveLeaveTypeLabel(r.leave_type_id)}
+                              </Typography>
+                              <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
+                                {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
+                              </Typography>
+                            </Box>
+                            <Chip
+                              icon={getStatusIcon(r.status)}
+                              label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                              sx={{
+                                alignSelf: 'flex-start',
+                                bgcolor: `${getStatusColor(r.status)}15`,
+                                color: getStatusColor(r.status),
+                                fontWeight: 700,
+                                textTransform: 'capitalize',
+                              }}
+                            />
+                          </Stack>
+                        </Box>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Box sx={{ py: 4, textAlign: 'center' }}>
+                      <EventAvailableIcon sx={{ fontSize: 48, color: '#d1d5db', mb: 2 }} />
+                      <Typography sx={{ color: '#9ca3af', fontWeight: 500 }}>No history available</Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </TabPanel>
+            </Card>
+          )}
+        </Box>
       </Box>
     </Box>
   );
