@@ -198,7 +198,7 @@ export default function TodoPage() {
   async function updateTodo(overrideStatus?: string) {
     const targetItem = overrideStatus ? (items.find(i => i.id === editingItem?.id) || editingItem) : editingItem;
     if (!token || !targetItem) return;
-    
+
     setSaving(true);
     setError(null);
     try {
@@ -269,13 +269,13 @@ export default function TodoPage() {
   const renderTaskRow = (item: TodoItem) => {
     const config = getStatusConfig(item.status);
     const StatusIcon = config.icon;
-    const isOverdue = item.due_date && new Date(item.due_date) < new Date(new Date().setHours(0,0,0,0)) && item.status !== 'done';
+    const isOverdue = item.due_date && new Date(item.due_date) < new Date(new Date().setHours(0, 0, 0, 0)) && item.status !== 'done';
     const isDone = item.status === 'done';
 
     return (
-      <Box 
-        key={item.id} 
-        sx={{ 
+      <Box
+        key={item.id}
+        sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -296,19 +296,19 @@ export default function TodoPage() {
         }}
       >
         <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ flex: 1, minWidth: 0 }}>
-          <IconButton 
-            onClick={() => cycleStatus(item)} 
-            size="small" 
+          <IconButton
+            onClick={() => cycleStatus(item)}
+            size="small"
             sx={{ color: config.color, mt: -0.2, '&:hover': { bgcolor: `${config.color}15` } }}
           >
             <StatusIcon fontSize="small" />
           </IconButton>
-          
+
           <Box sx={{ flex: 1, minWidth: 0, pt: 0.3 }}>
-            <Typography 
-              sx={{ 
-                fontWeight: 600, 
-                color: isDone ? '#94a3b8' : '#1e293b', 
+            <Typography
+              sx={{
+                fontWeight: 600,
+                color: isDone ? '#94a3b8' : '#1e293b',
                 fontSize: '0.95rem',
                 textDecoration: isDone ? 'line-through' : 'none',
                 overflow: 'hidden',
@@ -318,7 +318,7 @@ export default function TodoPage() {
             >
               {item.title}
             </Typography>
-            
+
             {(item.description || item.due_date) && (
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 0.5 }}>
                 {item.due_date && (
@@ -339,13 +339,13 @@ export default function TodoPage() {
           </Box>
         </Stack>
 
-        <Stack 
-          direction="row" 
-          spacing={0.5} 
+        <Stack
+          direction="row"
+          spacing={0.5}
           className="actions"
-          sx={{ 
-            opacity: { xs: 1, md: 0 }, 
-            visibility: { xs: 'visible', md: 'hidden' }, 
+          sx={{
+            opacity: { xs: 1, md: 0 },
+            visibility: { xs: 'visible', md: 'hidden' },
             transition: 'opacity 0.2s',
             pl: 2
           }}
@@ -366,7 +366,7 @@ export default function TodoPage() {
   };
 
   return (
-    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', px: { xs: 2, md: 4 }, py: 3 }}>
+    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', px: { xs: 2, md: 4 }, py: 3, overflowX: 'hidden' }}>
       <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
         <Breadcrumbs />
 
@@ -382,32 +382,44 @@ export default function TodoPage() {
 
         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>{error}</Alert>}
 
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 4 }}>
           <Grid item xs={12} md={4}>
-            <Card sx={{ ...commonCardStyles, p: 3 }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', mb: 2 }}>
-                <RadioButtonUncheckedIcon />
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'open').length}</Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>To Do</Typography>
+            <Card sx={{ ...commonCardStyles, p: 2.5, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
+              <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" spacing={2}>
+                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                  <RadioButtonUncheckedIcon />
+                </Box>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>To Do</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'open').length}</Typography>
+                </Box>
+              </Stack>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card sx={{ ...commonCardStyles, p: 3 }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', mb: 2 }}>
-                <AutorenewIcon />
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'in_progress').length}</Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>In Progress</Typography>
+            <Card sx={{ ...commonCardStyles, p: 2.5, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
+              <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" spacing={2}>
+                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
+                  <AutorenewIcon />
+                </Box>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>In Progress</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'in_progress').length}</Typography>
+                </Box>
+              </Stack>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card sx={{ ...commonCardStyles, p: 3 }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', mb: 2 }}>
-                <CheckCircleIcon />
-              </Box>
-              <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'done').length}</Typography>
-              <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>Completed</Typography>
+            <Card sx={{ ...commonCardStyles, p: 2.5, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
+              <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" spacing={2}>
+                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
+                  <CheckCircleIcon />
+                </Box>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Completed</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em' }}>{items.filter(i => i.status === 'done').length}</Typography>
+                </Box>
+              </Stack>
             </Card>
           </Grid>
         </Grid>
@@ -469,18 +481,18 @@ export default function TodoPage() {
                 sx: { fontSize: '1.05rem', fontWeight: 600, color: '#1e293b' }
               }}
             />
-            <Button 
-              variant="contained" 
-              onClick={openCreateDialog} 
+            <Button
+              variant="contained"
+              onClick={openCreateDialog}
               disabled={saving || !quickTitle.trim()}
-              sx={{ 
-                bgcolor: '#6366f1', 
-                color: '#fff', 
-                textTransform: 'none', 
-                fontWeight: 700, 
-                borderRadius: 2, 
-                px: 3, 
-                py: 1, 
+              sx={{
+                bgcolor: '#6366f1',
+                color: '#fff',
+                textTransform: 'none',
+                fontWeight: 700,
+                borderRadius: 2,
+                px: 3,
+                py: 1,
                 whiteSpace: 'nowrap',
                 boxShadow: 'none',
                 '&:hover': { bgcolor: '#4f46e5', boxShadow: 'none' }

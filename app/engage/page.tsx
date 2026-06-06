@@ -119,7 +119,7 @@ export default function EngagePage() {
   );
 
   return (
-    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', px: { xs: 2, md: 4 }, py: 3 }}>
+    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', px: { xs: 2, md: 4 }, py: 3, overflowX: 'hidden' }}>
       <Breadcrumbs />
 
       <Stack spacing={4} sx={{ mt: 2 }}>
@@ -135,29 +135,33 @@ export default function EngagePage() {
 
         {error && <Alert severity="warning" sx={{ borderRadius: 3 }}>{error}</Alert>}
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           {stats.map((item) => (
             <Grid item xs={12} md={4} key={item.label}>
-              <Card sx={{ ...commonCardStyles, p: 3 }}>
-                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, mb: 2 }}>
-                  {item.icon}
-                </Box>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, letterSpacing: '-0.02em' }}>{item.value}</Typography>
-                <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>{item.label}</Typography>
+              <Card sx={{ ...commonCardStyles, p: 2.5, width: '100%', display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
+                <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" spacing={1} sx={{ mb: { xs: 0, md: 2 } }}>
+                  <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, mb: { xs: 1, md: 0 } }}>
+                    {item.icon}
+                  </Box>
+                  <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                    <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 900, color: '#1e293b', letterSpacing: '-0.02em' }}>{item.value}</Typography>
+                  </Box>
+                </Stack>
               </Card>
             </Grid>
           ))}
         </Grid>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
           <Grid item xs={12} lg={7}>
-            <Card sx={{ ...commonCardStyles, p: 3 }}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+            <Card sx={{ ...commonCardStyles, p: 3 , height: '95%'}}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 2, sm: 0 }} sx={{ mb: 3 }}>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Announcements</Typography>
                   <Typography sx={{ color: '#94a3b8', fontSize: '0.85rem' }}>Latest messages from leadership and HR.</Typography>
                 </Box>
-                <Button component={Link} href="/announcements" variant="outlined" sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700 }}>
+                <Button component={Link} href="/announcements" variant="outlined" sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700, width: { xs: '100%', sm: 'auto' } }}>
                   Open full feed
                 </Button>
               </Stack>
@@ -165,7 +169,7 @@ export default function EngagePage() {
               {loading ? (
                 <Box sx={{ display: 'grid', placeItems: 'center', minHeight: 220 }}><CircularProgress /></Box>
               ) : announcements.length === 0 ? (
-                <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 4 }}>No announcements available yet.</Typography>
+                <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 15 }}>No announcements available yet.</Typography>
               ) : (
                 <Stack spacing={2}>
                   {announcements.map((announcement) => {
@@ -174,7 +178,7 @@ export default function EngagePage() {
 
                     return (
                       <Box key={announcement.id} sx={{ p: 2.5, borderRadius: 3, bgcolor: '#f8fafc', transition: 'all 0.2s', '&:hover': { bgcolor: '#f1f5f9' } }}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1.5 }}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 1.5, sm: 0 }} sx={{ mb: 1.5 }}>
                           <Stack direction="row" spacing={1.5} alignItems="center">
                             <Avatar sx={{ width: 36, height: 36, bgcolor: '#e2e8f0', color: '#475569', fontSize: '0.9rem', fontWeight: 800 }}>A</Avatar>
                             <Box>
@@ -186,7 +190,7 @@ export default function EngagePage() {
                           </Stack>
                           <Chip label={announcement.priority} size="small" sx={{ bgcolor: priorityBg, color: priorityColor, fontWeight: 800, borderRadius: 1.5, fontSize: '0.7rem' }} />
                         </Stack>
-                        <Typography sx={{ color: '#475569', fontSize: '0.85rem', lineHeight: 1.6, pl: 6 }}>{announcement.content}</Typography>
+                        <Typography sx={{ color: '#475569', fontSize: '0.85rem', lineHeight: 1.6, pl: { xs: 0, sm: 6 }, mt: { xs: 1, sm: 0 } }}>{announcement.content}</Typography>
                       </Box>
                     );
                   })}
@@ -211,12 +215,12 @@ export default function EngagePage() {
                        const statusBg = ticket.status === 'Resolved' ? '#dcfce7' : ticket.status === 'Open' ? '#dbeafe' : '#f1f5f9';
                        return (
                         <Box key={ticket.id} sx={{ pb: 2, borderBottom: '1px solid #f1f5f9', '&:last-child': { borderBottom: 'none', pb: 0 } }}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
+                          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 1, sm: 0 }}>
                             <Box>
                               <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '0.9rem', mb: 0.5 }}>{ticket.subject}</Typography>
                               <Typography sx={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600 }}>{ticket.category} • {new Date(ticket.created_at).toLocaleDateString()}</Typography>
                             </Box>
-                            <Chip label={ticket.status} size="small" sx={{ bgcolor: statusBg, color: statusColor, fontWeight: 700, borderRadius: 1.5, fontSize: '0.7rem' }} />
+                            <Chip label={ticket.status} size="small" sx={{ bgcolor: statusBg, color: statusColor, fontWeight: 700, borderRadius: 1.5, fontSize: '0.7rem', mt: { xs: 0.5, sm: 0 } }} />
                           </Stack>
                         </Box>
                       );
