@@ -55,6 +55,7 @@ export type SidebarItem = {
     | 'notificationSettings';
   requiredAnyPermissions?: string[];
   requiredAnyEntitlements?: string[];
+  excludeRoles?: string[];
   adminOnly?: boolean;
   children?: SidebarItem[];
 };
@@ -186,6 +187,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
         href: '/performance',
         icon: 'goals',
         requiredAnyPermissions: ['view_performance_own', 'manage_performance'],
+        excludeRoles: ['Employee', 'CEO'],
       },
       {
         label: 'Training & Certifications',

@@ -59,6 +59,10 @@ function resolveAvatarUrl(avatarUrl?: string | null) {
 
 // Helper to check if user has permission for an item
 function canAccessItem(item: any, hasPermission: (perm: string) => boolean, hasEntitlement: (featureKey: string) => boolean, role?: string): boolean {
+  if (item.excludeRoles && role && item.excludeRoles.includes(role)) {
+    return false;
+  }
+
   if (item.adminOnly) {
     return hasPermission('manage_settings');
   }
