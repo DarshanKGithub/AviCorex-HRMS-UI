@@ -92,13 +92,13 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     requiredAnyEntitlements: ['payroll'],
     children: [
       { label: 'Payslips', href: '/payroll/payslips', icon: 'receipt', requiredAnyPermissions: ['view_payroll', 'view_payslip_own'] },
-      { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'expense' },
-      { label: 'YTD Reports', href: '/payroll/ytd', icon: 'ytd' },
+      { label: 'Compensation & Claims', href: '/payroll/financials', icon: 'expense', requiredAnyPermissions: ['view_payroll', 'approve_expenses'] },
+      { label: 'YTD Reports', href: '/payroll/ytd', icon: 'ytd', requiredAnyPermissions: ['view_payroll', 'approve_expenses'] },
       { label: 'IT Statement', href: '/payroll/it-statement', icon: 'docs' },
       { label: 'IT Declaration', href: '/payroll/it-declaration', icon: 'itDeclaration' },
       { label: 'Loans and Advances', href: '/payroll/loans', icon: 'savings' },
       { label: 'Reimbursement', href: '/payroll/reimbursement', icon: 'reimbursement' },
-      { label: 'Proof Of Investment', href: '/payroll/poi', icon: 'investment' },
+      { label: 'Proof Of Investment', href: '/payroll/poi', icon: 'investment', requiredAnyPermissions: ['view_payroll', 'approve_expenses'] },
       { label: 'Salary Revision', href: '/payroll/revision', icon: 'revision' },
     ]
   },

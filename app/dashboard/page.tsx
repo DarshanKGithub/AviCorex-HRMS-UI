@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { 
   Box, Typography, Grid, Card, Stack, Avatar, 
   Chip, Table, TableBody, TableCell, TableHead, TableRow, 
-  IconButton, Button, Alert 
+  IconButton, Button, Alert, Container 
 } from '@mui/material';
 import { AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -47,6 +47,7 @@ const commonCardStyles = {
   boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
   bgcolor: '#ffffff',
   height: '100%',
+  minHeight: 0,
   transition: 'all 0.3s ease',
   '&:hover': {
     boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
@@ -441,10 +442,10 @@ export default function DashboardPage() {
   ] : [];
 
   return (
-    <Box sx={{ bgcolor: '#f4f6fc', minHeight: '100vh', p: { xs: 2, md: 4 } }}>
-      
-      {/* HEADER */}
-      <Box sx={{ mb: 4 }}>
+    <Box sx={{ bgcolor: '#f4f6fc', width: '100%', minHeight: '100vh', overflowX: 'hidden', p: { xs: 2, md: 4 } }}>
+      <Container maxWidth="xl" sx={{ width: '100%', px: { xs: 0, md: 2 } }}>
+        {/* HEADER */}
+        <Box sx={{ mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.03em' }}>
           {greetingText}, {user?.full_name?.split(' ')[0]}
         </Typography>
@@ -493,7 +494,7 @@ export default function DashboardPage() {
             <Grid item xs={12} md={4}>
               <Card sx={{ ...commonCardStyles, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>Payroll</Typography>
-                <Box sx={{ height: 220, width: '100%', ml: -2 }}>
+                <Box sx={{ height: 220, width: '100%', pl: { xs: 0, md: 2 } }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={PAYROLL_DATA}>
                       <defs>
@@ -705,6 +706,7 @@ export default function DashboardPage() {
         </Grid>
       </Grid>
       )}
+      </Container>
     </Box>
   );
 }
