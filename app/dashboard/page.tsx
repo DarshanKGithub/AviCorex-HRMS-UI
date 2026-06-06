@@ -186,7 +186,7 @@ function AttendanceWidget() {
         disabled={loading || checking || !!todayAttendance?.check_in_time}
         sx={{ borderRadius: 999, py: 1.1, fontWeight: 800, textTransform: 'none', bgcolor: '#0f172a', '&:hover': { bgcolor: '#1e293b' } }}
       >
-        {checking ? 'Checking in...' : todayAttendance?.check_in_time ? 'Already checked in' : 'Click to Check In'}
+        {checking ? 'Checking in...' : todayAttendance?.check_in_time ? 'Already checked in' : 'Check In'}
       </Button>
       <Button
         fullWidth variant="outlined"
@@ -194,7 +194,7 @@ function AttendanceWidget() {
         disabled={loading || checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time}
         sx={{ mt: 1, borderRadius: 999, py: 1.1, fontWeight: 800, textTransform: 'none', borderColor: alpha('#f97316', 0.35), color: '#f97316' }}
       >
-        {checking ? 'Checking out...' : todayAttendance?.check_out_time ? 'Already checked out' : 'Click to Check Out'}
+        {checking ? 'Checking out...' : todayAttendance?.check_out_time ? 'Already checked out' : 'Check Out'}
       </Button>
     </Card>
   );
@@ -537,9 +537,9 @@ export default function DashboardPage() {
             {/* ATTENDANCE & DEPARTMENT (LIVE) */}
             <Grid item xs={12} md={2}>
               <Stack spacing={3} sx={{ height: '100%' }}>
-                <Card sx={{ ...commonCardStyles, p: 3, flex: 1 }}>
+                <Card sx={{ ...commonCardStyles, p: 2, flex: 2 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>Attendance</Typography>
-                  <Box sx={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', mb: 2 }}>
+                  <Box sx={{ display: 'flex', height:8, borderRadius: 4, overflow: 'hidden', mb: -2 }}>
                     <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#c4b5fd' }} />
                     <Box sx={{ width: `${(attPresent / attTotal) * 100}%`, bgcolor: '#3b82f6' }} />
                     <Box sx={{ width: `${(onLeave / attTotal) * 100}%`, bgcolor: '#94a3b8' }} />
