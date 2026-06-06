@@ -30,6 +30,7 @@ const COLOR_PALETTE = ['#3b82f6', '#a78bfa', '#10b981', '#c4b5fd', '#f59e0b', '#
 
 const commonCardStyles = {
   borderRadius: 0,
+
   boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
   bgcolor: '#ffffff',
   height: '100%',
@@ -706,9 +707,9 @@ export default function DashboardPage() {
             {/* ATTENDANCE & DEPARTMENT (LIVE) */}
             <Grid item xs={12} md={2}>
               <Stack spacing={3} sx={{ height: '100%' }}>
-                <Card sx={{ ...commonCardStyles, p: 2, flex: 2 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>Attendance</Typography>
-                  <Box sx={{ display: 'flex', height:8, borderRadius: 4, overflow: 'hidden', mb: -2 }}>
+                <Card sx={{ ...commonCardStyles, height: 'auto', p: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Attendance</Typography>
+                  <Box sx={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', mb: 0}}>
                     <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#c4b5fd' }} />
                     <Box sx={{ width: `${(attPresent / attTotal) * 100}%`, bgcolor: '#3b82f6' }} />
                     <Box sx={{ width: `${(onLeave / attTotal) * 100}%`, bgcolor: '#94a3b8' }} />
