@@ -594,51 +594,7 @@ export default function LeavesPage() {
         {success && <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 2 }}>{success}</Alert>}
         {error && <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>{error}</Alert>}
 
-        <Grid container spacing={3}>
-          {/* Sidebar */}
-          <Grid item xs={12} md={3}>
-            <Card sx={{ ...commonCardStyles, border: '1px solid #e7e9ef' }}>
-              <CardContent sx={{ p: 2 }}>
-                <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 2.5, fontSize: '0.95rem' }}>
-                  Leave
-                </Typography>
-                <Stack spacing={1}>
-                  {leaveOptions.length === 0 && (
-                    <Typography sx={{ color: '#9ca3af', fontSize: '0.85rem' }}>
-                      No leave categories available
-                    </Typography>
-                  )}
-                  {leaveOptions.map((option) => (
-                    <Button
-                      key={option}
-                      onClick={() => handleCategoryClick(option)}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        color: selectedCategory === option ? '#928ddd' : '#5b5f7a',
-                        textTransform: 'none',
-                        fontSize: '0.9rem',
-                        fontWeight: selectedCategory === option ? 600 : 500,
-                        py: 1.2,
-                        px: 1.5,
-                        borderRadius: 1.5,
-                        bgcolor: selectedCategory === option ? 'rgba(146, 141, 221, 0.1)' : 'transparent',
-                        border: selectedCategory === option ? '1px solid rgba(146, 141, 221, 0.2)' : 'none',
-                        '&:hover': {
-                          bgcolor: 'rgba(146, 141, 221, 0.08)',
-                          color: '#928ddd',
-                        },
-                      }}
-                    >
-                      {option}
-                    </Button>
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Main Content */}
-          <Grid item xs={12} md={9}>
+        <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
 
             {loading ? (
               <Box sx={{ py: 2 }}>
@@ -756,6 +712,7 @@ export default function LeavesPage() {
                         </Box>
 
                         {/* Date Range Row */}
+                        {/* Dates Row */}
                         <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
@@ -772,57 +729,20 @@ export default function LeavesPage() {
                                   size="small"
                                   error={!!errors.start_date}
                                   helperText={errors.start_date?.message}
-                              InputLabelProps={{ shrink: true }}
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  bgcolor: '#fafbfd',
-                                  borderRadius: 1.5,
-                                  '& fieldset': { borderColor: '#e7e9ef' },
-                                  '&:hover fieldset': { borderColor: '#d0cee4' },
-                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                                },
-                              }}
-                            />
-                            )}
-                          />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                              Session
-                            </Typography>
-                            <FormControl fullWidth size="small">
-                              <Controller
-                                name="session_from"
-                                control={control}
-                                render={({ field }) => (
-                                  <Select
-                                    {...field}
-                                    MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
-                                    sx={{
+                                  InputLabelProps={{ shrink: true }}
+                                  sx={{
+                                    '& .MuiOutlinedInput-root': {
                                       bgcolor: '#fafbfd',
                                       borderRadius: 1.5,
-                                      '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#e7e9ef',
-                                      },
-                                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#d0cee4',
-                                      },
-                                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#928ddd',
-                                      },
-                                    }}
-                                  >
-                                <MenuItem value="Session 1">Session 1</MenuItem>
-                                <MenuItem value="Session 2">Session 2</MenuItem>
-                              </Select>
+                                      '& fieldset': { borderColor: '#e7e9ef' },
+                                      '&:hover fieldset': { borderColor: '#d0cee4' },
+                                      '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                    },
+                                  }}
+                                />
                               )}
                             />
-                            </FormControl>
                           </Grid>
-                        </Grid>
-
-                        {/* To Date Row */}
-                        <Grid container spacing={2}>
                           <Grid item xs={12} sm={6}>
                             <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
                               To date *
@@ -838,75 +758,23 @@ export default function LeavesPage() {
                                   size="small"
                                   error={!!errors.end_date}
                                   helperText={errors.end_date?.message}
-                              InputLabelProps={{ shrink: true }}
-                              sx={{
-                                '& .MuiOutlinedInput-root': {
-                                  bgcolor: '#fafbfd',
-                                  borderRadius: 1.5,
-                                  '& fieldset': { borderColor: '#e7e9ef' },
-                                  '&:hover fieldset': { borderColor: '#d0cee4' },
-                                  '&.Mui-focused fieldset': { borderColor: '#928ddd' },
-                                },
-                              }}
-                            />
-                            )}
-                          />
-                          </Grid>
-                          <Grid item xs={12} sm={6}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1 }}>
-                              Session
-                            </Typography>
-                            <FormControl fullWidth size="small">
-                              <Controller
-                                name="session_to"
-                                control={control}
-                                render={({ field }) => (
-                                  <Select
-                                    {...field}
-                                    MenuProps={{ PaperProps: { sx: { bgcolor: '#ffffff' } } }}
-                                    sx={{
+                                  InputLabelProps={{ shrink: true }}
+                                  sx={{
+                                    '& .MuiOutlinedInput-root': {
                                       bgcolor: '#fafbfd',
                                       borderRadius: 1.5,
-                                      '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#e7e9ef',
-                                      },
-                                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#d0cee4',
-                                      },
-                                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#928ddd',
-                                      },
-                                    }}
-                                  >
-                                    <MenuItem value="Session 1">Session 1</MenuItem>
-                                    <MenuItem value="Session 2">Session 2</MenuItem>
-                                  </Select>
-                                )}
-                              />
-                            </FormControl>
+                                      '& fieldset': { borderColor: '#e7e9ef' },
+                                      '&:hover fieldset': { borderColor: '#d0cee4' },
+                                      '&.Mui-focused fieldset': { borderColor: '#928ddd' },
+                                    },
+                                  }}
+                                />
+                              )}
+                            />
                           </Grid>
                         </Grid>
 
-                        {/* Leave Balance Info */}
-                        {balances.length > 0 && (
-                          <Box sx={{ p: 2.5, bgcolor: 'rgba(146, 141, 221, 0.06)', borderRadius: 1.5, border: '1px solid rgba(146, 141, 221, 0.12)' }}>
-                            <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.secondary', mb: 1.5 }}>
-                              Leave Balance:
-                            </Typography>
-                            <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
-                              {balances.map((b) => (
-                                <Box key={b.id} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                  <Typography sx={{ fontSize: '0.8rem', color: 'text.secondary' }}>
-                                    {resolveLeaveTypeLabel(b.leave_type_id)}:
-                                  </Typography>
-                                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, color: '#928ddd' }}>
-                                    {b.balance_days}
-                                  </Typography>
-                                </Box>
-                              ))}
-                            </Stack>
-                          </Box>
-                        )}
+                       
 
                         {/* Applying To */}
                         <Box sx={{ p: 2.5, bgcolor: '#fafbfd', borderRadius: 1.5, border: '1px solid #e7e9ef', display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -1403,8 +1271,7 @@ export default function LeavesPage() {
                 </TabPanel>
               </Card>
             )}
-          </Grid>
-        </Grid>
+          </Box>
       </Box>
     </Box>
   );

@@ -144,42 +144,39 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   }, [hasPermission, user?.role]);
 
   const activeNav = useMemo(() => {
-    const findActive = (items: any[]): any => {
+    let bestMatch: any = null;
+    let maxLen = -1;
+
+    const walk = (items: any[]) => {
       for (const item of items) {
         const itemPath = item.href.split('?')[0];
-        if ((pathname === itemPath) || pathname?.startsWith(`${itemPath}/`)) {
-          return item;
+        if (pathname === itemPath || pathname?.startsWith(`${itemPath}/`)) {
+          if (itemPath.length > maxLen) {
+            maxLen = itemPath.length;
+            bestMatch = item;
+          }
         }
         if (item.children) {
-          const found = findActive(item.children);
-          if (found) return found;
+          walk(item.children);
         }
       }
-      return null;
     };
-    return findActive(visibleItems);
+    
+    walk(visibleItems);
+    return bestMatch;
   }, [pathname, visibleItems]);
 
   const pathExpandedItems = useMemo(() => {
     const result: Record<string, boolean> = {};
-    const walk = (items: any[]) => {
-      for (const item of items) {
-        if (!item.children?.length) continue;
-        const itemPath = item.href.split('?')[0];
-        const childActive = item.children.some((child: any) => {
-          const childPath = child.href.split('?')[0];
-          return pathname === childPath || pathname?.startsWith(`${childPath}/`);
-        });
-        const selfActive = pathname === itemPath || pathname?.startsWith(`${itemPath}/`);
-        if (childActive || selfActive) {
+    if (activeNav) {
+      for (const item of visibleItems) {
+        if (item.children?.some((c: any) => c.href === activeNav.href)) {
           result[item.href] = true;
         }
-        walk(item.children);
       }
-    };
-    walk(visibleItems);
+    }
     return result;
-  }, [pathname, visibleItems]);
+  }, [activeNav, visibleItems]);
 
   const persistExpandedItems = (next: Record<string, boolean>) => {
     try {
@@ -205,8 +202,11 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
   const renderNavItem = (item: any, depth = 0): React.ReactNode => {
     const Icon = getIconComponent(item.icon);
     const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-    const itemPath = item.href.split('?')[0];
-    const active = (pathname === itemPath) || pathname?.startsWith(`${itemPath}/`);
+    
+    const selfActive = activeNav?.href === item.href;
+    const childActive = hasChildren && item.children.some((c: any) => c.href === activeNav?.href);
+    const active = selfActive || childActive;
+    
     const isExpanded =
       item.href in expandedItems ? expandedItems[item.href] : (pathExpandedItems[item.href] ?? false);
 
@@ -288,8 +288,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           <List component="div" disablePadding>
             {item.children.map((child: any) => {
               const ChildIcon = getIconComponent(child.icon);
-              const childPath = child.href.split('?')[0];
-              const childActive = (pathname === childPath) || pathname?.startsWith(`${childPath}/`);
+              const childActive = activeNav?.href === child.href;
 
               return (
                 <ListItemButton

@@ -234,25 +234,85 @@ export default function AttendanceInfoPage() {
               </Card>
             </Stack>
 
-            <Card sx={commonCardStyles}>
-              <CardContent sx={{ p: 4 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-                  <Typography sx={{ color: '#94a3b8', cursor: 'pointer', fontWeight: 700, '&:hover': { color: '#6366f1' } }}>{'<'} Prev</Typography>
-                  <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '1.1rem' }}>MAY 2026</Typography>
-                  <Typography sx={{ color: '#94a3b8', cursor: 'pointer', fontWeight: 700, '&:hover': { color: '#6366f1' } }}>Next {'>'}</Typography>
-                </Stack>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, textAlign: 'center', color: '#64748b', fontWeight: 700, fontSize: '0.85rem', mb: 2, textTransform: 'uppercase' }}>
-                  <Box>Sun</Box><Box>Mon</Box><Box>Tue</Box><Box>Wed</Box><Box>Thu</Box><Box>Fri</Box><Box>Sat</Box>
-                </Box>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
-                  {Array.from({ length: 35 }).map((_, i) => (
-                    <Box key={i} sx={{ border: '1px solid #f1f5f9', bgcolor: '#f8fafc', height: 80, borderRadius: 2, p: 1, position: 'relative', '&:hover': { borderColor: '#cbd5e1', bgcolor: '#ffffff' } }}>
-                      <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b' }}>{((i + 26) % 31) + 1}</Typography>
-                      {i === 7 && <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 28, height: 28, borderRadius: '50%', bgcolor: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>0</Box>}
+            <Card sx={{ ...commonCardStyles, p: 0, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 10px 40px -10px rgba(0,0,0,0.04)' }}>
+              <Box sx={{ px: 3, py: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+                <Button sx={{ minWidth: 'auto', p: 1, color: '#64748b', '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' } }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.85rem' }}>{'<'} Prev</Typography>
+                </Button>
+                <Typography sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem', letterSpacing: '0.02em' }}>MAY 2026</Typography>
+                <Button sx={{ minWidth: 'auto', p: 1, color: '#64748b', '&:hover': { bgcolor: '#f1f5f9', color: '#0f172a' } }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.85rem' }}>Next {'>'}</Typography>
+                </Button>
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <Box key={day} sx={{ py: 1.5, textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{day}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', bgcolor: '#ffffff' }}>
+                {Array.from({ length: 35 }).map((_, i) => {
+                  const dayNum = ((i + 26) % 31) + 1;
+                  const isCurrentMonth = i >= 4 && i < 35; // Rough approximation for visual testing
+                  const hasData = i === 7;
+                  
+                  return (
+                    <Box 
+                      key={i} 
+                      sx={{ 
+                        borderRight: (i + 1) % 7 !== 0 ? '1px solid #f1f5f9' : 'none',
+                        borderBottom: i < 28 ? '1px solid #f1f5f9' : 'none',
+                        minHeight: 110, 
+                        p: 1.5, 
+                        position: 'relative', 
+                        bgcolor: isCurrentMonth ? '#ffffff' : '#fafbfd',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        '&:hover': { 
+                          bgcolor: isCurrentMonth ? '#fdfdff' : '#fafbfd',
+                          boxShadow: isCurrentMonth ? 'inset 0 0 0 1px #e2e8f0' : 'none'
+                        } 
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <Typography sx={{ 
+                          fontSize: '0.9rem', 
+                          fontWeight: 700, 
+                          color: isCurrentMonth ? '#334155' : '#cbd5e1' 
+                        }}>
+                          {dayNum}
+                        </Typography>
+                      </Box>
+                      
+                      {hasData && (
+                        <Box sx={{ 
+                          mt: 1.5,
+                          width: '100%',
+                          py: 0.8, 
+                          px: 1,
+                          borderRadius: 1.5, 
+                          bgcolor: 'rgba(99, 102, 241, 0.08)', 
+                          color: '#4f46e5', 
+                          border: '1px solid rgba(99, 102, 241, 0.15)',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          transition: 'all 0.2s',
+                          '&:hover': {
+                            bgcolor: 'rgba(99, 102, 241, 0.12)',
+                            borderColor: 'rgba(99, 102, 241, 0.3)',
+                          }
+                        }}>
+                          <Typography sx={{ fontSize: '0.75rem', fontWeight: 800 }}>Absent (0)</Typography>
+                        </Box>
+                      )}
                     </Box>
-                  ))}
-                </Box>
-              </CardContent>
+                  );
+                })}
+              </Box>
             </Card>
           </Grid>
 
