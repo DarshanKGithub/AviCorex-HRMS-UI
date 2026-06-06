@@ -16,6 +16,8 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -51,12 +53,12 @@ type AttendanceRecord = {
   attendance_date: string;
   check_in_time: string | null;
   check_out_time: string | null;
-  status: string;
+  status?: string;
   is_late: boolean;
   late_minutes: number;
   is_half_day: boolean;
   is_work_from_home: boolean;
-  notes: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -68,18 +70,49 @@ type PaginatedResponse = {
   size: number;
 };
 
+type AttendanceSummary = {
+  employee_id: string;
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  present_days: number;
+  absent_days: number;
+  half_days: number;
+  work_from_home_days: number;
+  late_days: number;
+  records: Array<{
+    date: string;
+    status: string;
+    check_in_time: string | null;
+    check_out_time: string | null;
+    is_late: boolean;
+    is_half_day: boolean;
+    is_work_from_home: boolean;
+  }>;
+};
+
 export default function AttendancePage() {
   const auth = useAuth();
   const employeeId = useEmployeeId();
   const { hasPermission } = usePermissions();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [summaryLoading, setSummaryLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [todayAttendance, setTodayAttendance] = useState<AttendanceRecord | null>(null);
   const [recentRecords, setRecentRecords] = useState<AttendanceRecord[]>([]);
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary | null>(null);
   const [checking, setChecking] = useState(false);
+  const [adjusting, setAdjusting] = useState(false);
+  const [adjustmentInputs, setAdjustmentInputs] = useState({
+    check_in_time: '',
+    check_out_time: '',
+    status: '',
+    notes: '',
+  });
   const canMarkAttendance = hasPermission('view_attendance_own') || hasPermission('manage_attendance_records');
+  const canAdjustAttendance = hasPermission('manage_attendance_records');
 
   useEffect(() => {
     if (auth.status === 'ready' && !auth.user) {
@@ -87,6 +120,7 @@ export default function AttendancePage() {
     } else if (auth.status === 'ready' && auth.token) {
       fetchTodayAttendance();
       fetchRecentRecords();
+      fetchAttendanceSummary();
     }
   }, [auth.status, auth.token, router]);
 
@@ -109,6 +143,12 @@ export default function AttendancePage() {
         const data = (await response.json()) as PaginatedResponse;
         if (data.items.length > 0) {
           setTodayAttendance(data.items[0]);
+          setAdjustmentInputs({
+            check_in_time: toInputLocal(data.items[0].check_in_time),
+            check_out_time: toInputLocal(data.items[0].check_out_time),
+            status: data.items[0].status ?? 'present',
+            notes: data.items[0].notes ?? '',
+          });
         }
       }
       setLoading(false);
@@ -141,6 +181,35 @@ export default function AttendancePage() {
     }
   }
 
+  async function fetchAttendanceSummary() {
+    if (!auth.token || !auth.user) return;
+
+    setSummaryLoading(true);
+    try {
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+      const empId = employeeId;
+      const response = await fetch(
+        `${API_BASE_URL}/attendance/summary/${empId}?start_date=${startDate}&end_date=${endDate}`,
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = (await response.json()) as AttendanceSummary;
+        setAttendanceSummary(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch attendance summary:', err);
+    } finally {
+      setSummaryLoading(false);
+    }
+  }
+
   async function handleCheckIn() {
     if (!auth.token || !auth.user) return;
 
@@ -169,6 +238,12 @@ export default function AttendancePage() {
       if (response.ok) {
         const data = await response.json();
         setTodayAttendance(data);
+        setAdjustmentInputs({
+          check_in_time: toInputLocal(data.check_in_time),
+          check_out_time: toInputLocal(data.check_out_time),
+          status: data.status,
+          notes: data.notes ?? '',
+        });
         setSuccess(data.is_late ? `Checked in at ${new Date(data.check_in_time).toLocaleTimeString()} (Late by ${data.late_minutes} minutes)` : 'Checked in successfully!');
         setTimeout(() => setSuccess(null), 3000);
       } else {
@@ -252,6 +327,12 @@ export default function AttendancePage() {
       if (response.ok) {
         const data = await response.json();
         setTodayAttendance(data);
+        setAdjustmentInputs({
+          check_in_time: toInputLocal(data.check_in_time),
+          check_out_time: toInputLocal(data.check_out_time),
+          status: data.status,
+          notes: data.notes ?? '',
+        });
         setSuccess(data.is_half_day ? 'Checked out - Half day marked' : 'Checked out successfully!');
         setTimeout(() => setSuccess(null), 3000);
       } else {
@@ -274,25 +355,170 @@ export default function AttendancePage() {
     return new Date(dateString + 'T00:00:00').toLocaleDateString();
   };
 
-  const getStatusColor = (status: string) => {
+  const toInputLocal = (dateString: string | null) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+  };
+
+  const deriveAttendanceStatus = (record: AttendanceRecord) => {
+    const status = record.status?.toLowerCase();
+    if (status && status !== 'present') return status;
+    if (record.is_half_day) return 'half-day';
+    if (record.is_work_from_home) return 'work-from-home';
+    if (record.is_late) return 'late';
+    if (status) return status;
+    if (record.check_in_time || record.check_out_time) return 'present';
+    return 'absent';
+  };
+
+  const formatAttendanceStatusLabel = (status: string) => {
     switch (status.toLowerCase()) {
       case 'present':
+        return 'Present';
+      case 'late':
+        return 'Late';
+      case 'half-day':
+        return 'Half Day';
+      case 'work-from-home':
+        return 'Work From Home';
+      case 'holiday':
+        return 'Holiday';
+      case 'absent':
+        return 'Absent';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  const formatAttendanceRemark = (record: AttendanceRecord) => {
+    const parts: string[] = [];
+    const status = record.status?.toLowerCase();
+
+    if (status === 'holiday') {
+      parts.push('Holiday');
+    }
+    if (status === 'absent') {
+      parts.push('Absent');
+    }
+    if (record.is_half_day) {
+      parts.push('Half Day');
+    }
+    if (record.is_work_from_home) {
+      parts.push('Work From Home');
+    }
+    if (record.is_late) {
+      parts.push(`Late joined${record.late_minutes ? ` by ${record.late_minutes} min` : ''}`);
+    }
+    if (record.notes) {
+      parts.push(`Note: ${record.notes}`);
+    }
+
+    if (parts.length === 0) {
+      return formatAttendanceStatusLabel(record.status ? record.status : deriveAttendanceStatus(record));
+    }
+
+    return parts.join(' • ');
+  };
+
+  const calculateDuration = (checkIn: string | null, checkOut: string | null) => {
+    if (!checkIn || !checkOut) return null;
+    const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
+    if (diff <= 0) return null;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  };
+
+  const statusSummary = {
+    present: attendanceSummary?.present_days ?? 0,
+    absent: attendanceSummary?.absent_days ?? 0,
+    halfDay: attendanceSummary?.half_days ?? 0,
+    workFromHome: attendanceSummary?.work_from_home_days ?? 0,
+    late: attendanceSummary?.late_days ?? 0,
+    holiday: (attendanceSummary?.records ?? []).filter((r) => r.status.toLowerCase() === 'holiday').length,
+  };
+
+  async function handleUpdateAttendance() {
+    if (!auth.token || !auth.user || !todayAttendance) return;
+
+    setAdjusting(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const payload: { check_in_time?: string; check_out_time?: string; status?: string; notes?: string } = {};
+      if (adjustmentInputs.check_in_time) {
+        payload.check_in_time = new Date(adjustmentInputs.check_in_time).toISOString();
+      }
+      if (adjustmentInputs.check_out_time) {
+        payload.check_out_time = new Date(adjustmentInputs.check_out_time).toISOString();
+      }
+      if (adjustmentInputs.status) {
+        payload.status = adjustmentInputs.status;
+      }
+      if (adjustmentInputs.notes) {
+        payload.notes = adjustmentInputs.notes;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/attendance/${todayAttendance.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to update attendance');
+      }
+
+      const data = await response.json();
+      setTodayAttendance(data);
+      setAdjustmentInputs({
+        check_in_time: toInputLocal(data.check_in_time),
+        check_out_time: toInputLocal(data.check_out_time),
+        status: data.status,
+        notes: data.notes ?? '',
+      });
+      setSuccess('Attendance updated successfully');
+      await fetchAttendanceSummary();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update attendance');
+    } finally {
+      setAdjusting(false);
+    }
+  }
+
+  const getStatusColor = (status?: string) => {
+    const normalized = status?.toLowerCase() || 'absent';
+    switch (normalized) {
+      case 'present':
         return { bg: 'rgba(16, 185, 129, 0.1)', text: '#10b981' };
+      case 'late':
+        return { bg: 'rgba(251, 191, 36, 0.12)', text: '#ca8a04' };
       case 'absent':
         return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444' };
       case 'half-day':
         return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' };
       case 'work-from-home':
         return { bg: 'rgba(59, 130, 246, 0.1)', text: '#3b82f6' };
+      case 'holiday':
+        return { bg: 'rgba(14, 165, 233, 0.1)', text: '#0369a1' };
       default:
         return { bg: 'rgba(100, 116, 139, 0.1)', text: '#64748b' };
     }
   };
 
   const attendanceStats = [
-    { label: 'Today status', value: todayAttendance?.status ? todayAttendance.status.charAt(0).toUpperCase() + todayAttendance.status.slice(1) : 'Pending', accent: '#6366f1' },
+    { label: 'Today status', value: formatAttendanceStatusLabel(todayAttendance?.status ?? 'pending'), accent: '#6366f1' },
     { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
     { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f59e0b' },
+    { label: 'Worked hours', value: todayAttendance ? formatAttendanceStatusLabel(calculateDuration(todayAttendance.check_in_time, todayAttendance.check_out_time) ?? 'Pending') : '—', accent: '#8b5cf6' },
   ];
 
   if (auth.status === 'loading' || loading) {
@@ -354,6 +580,26 @@ export default function AttendancePage() {
         {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
         {!canMarkAttendance && <Alert severity="warning" sx={{ borderRadius: 2 }}>You do not have permission to mark attendance.</Alert>}
         {success && <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>}
+
+        <Grid container spacing={3} sx={{ mb: 0 }}>
+          {[
+            { label: 'Present', value: statusSummary.present, color: '#10b981' },
+            { label: 'Half Day', value: statusSummary.halfDay, color: '#f59e0b' },
+            { label: 'Late', value: statusSummary.late, color: '#ef4444' },
+            { label: 'Absent', value: statusSummary.absent, color: '#64748b' },
+            { label: 'WFH', value: statusSummary.workFromHome, color: '#3b82f6' },
+            { label: 'Holiday', value: statusSummary.holiday, color: '#0f766e' },
+          ].map((stat) => (
+            <Grid item xs={12} sm={6} md={4} key={stat.label}>
+              <Card sx={{ ...commonCardStyles, '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' } }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography sx={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</Typography>
+                  <Typography variant="h4" sx={{ mt: 1, fontWeight: 900, color: stat.color }}>{stat.value}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
         {/* Action Cards (Check-In / Check-Out) */}
         <Grid container spacing={3}>
@@ -476,6 +722,75 @@ export default function AttendancePage() {
           </Grid>
         </Grid>
 
+        {canAdjustAttendance && todayAttendance && (
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Card sx={commonCardStyles}>
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>Adjust Attendance Time</Typography>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        label="Check-in time"
+                        type="datetime-local"
+                        value={adjustmentInputs.check_in_time}
+                        onChange={(e) => setAdjustmentInputs((prev) => ({ ...prev, check_in_time: e.target.value }))}
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        label="Check-out time"
+                        type="datetime-local"
+                        value={adjustmentInputs.check_out_time}
+                        onChange={(e) => setAdjustmentInputs((prev) => ({ ...prev, check_out_time: e.target.value }))}
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        label="Status"
+                        select
+                        fullWidth
+                        value={adjustmentInputs.status}
+                        onChange={(e) => setAdjustmentInputs((prev) => ({ ...prev, status: e.target.value }))}
+                        InputLabelProps={{ shrink: true }}
+                      >
+                        {['present', 'half-day', 'work-from-home', 'holiday', 'absent'].map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {formatAttendanceStatusLabel(status)}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} md={8}>
+                      <TextField
+                        label="Notes"
+                        value={adjustmentInputs.notes}
+                        onChange={(e) => setAdjustmentInputs((prev) => ({ ...prev, notes: e.target.value }))}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleUpdateAttendance}
+                        disabled={adjusting || !todayAttendance}
+                        sx={{ borderRadius: 2, py: 1.5, fontWeight: 700, fontSize: '1rem' }}
+                      >
+                        {adjusting ? 'Saving changes...' : 'Update attendance record'}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
+
         {/* Recent Attendance Table */}
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -494,12 +809,14 @@ export default function AttendancePage() {
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check In</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check Out</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Remark</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', align: 'right' }}>Late</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {recentRecords.map((record) => {
-                          const colors = getStatusColor(record.status);
+                          const recordStatus = deriveAttendanceStatus(record);
+                          const colors = getStatusColor(recordStatus);
                           return (
                             <TableRow key={record.id} sx={{ '& td': { borderBottom: '1px solid #f8fafc', py: 2.5 } }}>
                               <TableCell sx={{ color: '#1e293b', fontWeight: 600 }}>{formatDate(record.attendance_date)}</TableCell>
@@ -507,7 +824,7 @@ export default function AttendancePage() {
                               <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_out_time)}</TableCell>
                               <TableCell>
                                 <Chip
-                                  label={record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                                  label={formatAttendanceStatusLabel(record.status ? record.status : deriveAttendanceStatus(record))}
                                   size="small"
                                   sx={{
                                     bgcolor: colors.bg,
@@ -516,6 +833,9 @@ export default function AttendancePage() {
                                     px: 1
                                   }}
                                 />
+                              </TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500, maxWidth: 280, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                {formatAttendanceRemark(record)}
                               </TableCell>
                               <TableCell align="right" sx={{ color: '#64748b', fontWeight: 500 }}>
                                 {record.is_late ? `${record.late_minutes} min` : '-'}
