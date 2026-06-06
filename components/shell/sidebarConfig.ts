@@ -262,6 +262,12 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     ]
   },
   {
+    label: 'Settings',
+    href: '/settings',
+    icon: 'settings',
+    requiredAnyPermissions: ['view_profile', 'edit_profile', 'change_password', 'manage_settings'],
+  },
+  {
     label: 'Notifications',
     href: '/notifications',
     icon: 'notifications',

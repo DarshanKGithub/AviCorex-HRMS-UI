@@ -40,7 +40,6 @@ export default function MyWorklifePage() {
   const { user } = useAuth();
 
   const quickLinks = [
-    { label: 'My profile', href: '/profile', description: 'Update personal and job details.', icon: <PersonOutlineIcon />, color: '#3b82f6', bg: '#dbeafe' },
     { label: 'Attendance', href: '/attendance', description: 'Clock in, clock out, and review time.', icon: <AccessTimeIcon />, color: '#10b981', bg: '#dcfce7' },
     { label: 'Leaves', href: '/leaves', description: 'Apply for leave and track balances.', icon: <FlightTakeoffIcon />, color: '#f59e0b', bg: '#fef3c7' },
     { label: 'Engage', href: '/engage', description: 'Catch up on announcements and tickets.', icon: <CampaignOutlinedIcon />, color: '#8b5cf6', bg: '#ede9fe' },
@@ -83,36 +82,9 @@ export default function MyWorklifePage() {
         </Grid>
 
         <Grid container spacing={{ xs: 2, md: 3 }}>
-          <Grid item xs={12} md={5}>
-            <Card sx={{ ...commonCardStyles, p: 4, background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)', color: '#fff', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }, textAlign: { xs: 'center', md: 'left' } }}>
-              <Box sx={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
-              
-              <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontWeight: 700, fontSize: '0.85rem', mb: 2, position: 'relative', zIndex: 1 }}>Signed in as</Typography>
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center" sx={{ mb: 1, position: 'relative', zIndex: 1 }}>
-                <Avatar sx={{ width: 56, height: 56, bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '1.25rem', fontWeight: 800, mb: { xs: 1, md: 0 } }}>
-                  {user?.full_name ? user.full_name[0] : 'U'}
-                </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 900 }}>{user?.full_name}</Typography>
-                  <Typography sx={{ color: 'rgba(255,255,255,0.8)' }}>{user?.email}</Typography>
-                </Box>
-              </Stack>
-              
-              <Chip label={user?.role || 'Employee'} sx={{ mt: { xs: 2, md: 1 }, mb: 4, bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 800, position: 'relative', zIndex: 1 }} />
 
-              <Stack spacing={2} sx={{ position: 'relative', zIndex: 1, width: '100%' }}>
-                <Button component={Link} href="/profile" endIcon={<ChevronRightIcon />} sx={{ justifyContent: 'space-between', bgcolor: 'rgba(255,255,255,0.15)', color: '#fff', textTransform: 'none', fontWeight: 700, p: 1.5, borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}>
-                  View profile
-                </Button>
-                <Button component={Link} href="/settings" endIcon={<ChevronRightIcon />} sx={{ justifyContent: 'space-between', bgcolor: 'rgba(255,255,255,0.15)', color: '#fff', textTransform: 'none', fontWeight: 700, p: 1.5, borderRadius: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}>
-                  Account settings
-                </Button>
-              </Stack>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12} md={7}>
-            <Card sx={{ ...commonCardStyles, p: 4 }}>
+          <Grid item xs={12} md={12}>
+            <Card sx={{ ...commonCardStyles, p: 4}}>
               <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ xs: 'center', md: 'flex-start' }} justifyContent="space-between" sx={{ mb: 3 }}>
                 <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Quick actions</Typography>
