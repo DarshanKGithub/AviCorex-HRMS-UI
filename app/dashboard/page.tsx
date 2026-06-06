@@ -133,63 +133,82 @@ function AttendanceWidget() {
   const checking = checkInMutation.isPending || checkOutMutation.isPending;
   const displayError = error || (fetchError instanceof Error ? fetchError.message : null);
 
+  const attendanceStatus = todayAttendance
+    ? todayAttendance.check_out_time
+      ? 'Checked out'
+      : todayAttendance.check_in_time
+        ? 'Checked in'
+        : 'Pending'
+    : 'Pending';
+
+  const attendanceDuration = todayAttendance?.check_in_time && todayAttendance?.check_out_time
+    ? `${Math.floor((new Date(todayAttendance.check_out_time).getTime() - new Date(todayAttendance.check_in_time).getTime()) / 3600000)}h ${Math.max(0, Math.floor(((new Date(todayAttendance.check_out_time).getTime() - new Date(todayAttendance.check_in_time).getTime()) % 3600000) / 60000))}m`
+    : '—';
+
+  const attendanceStatusColor = todayAttendance?.is_late ? '#f59e0b' : todayAttendance?.check_out_time ? '#10b981' : '#3b82f6';
+  const attendanceLabel = todayAttendance?.status ? todayAttendance.status.replace('-', ' ') : attendanceStatus;
+
   return (
-    <Card sx={{ borderRadius: 1, border: 'none', boxShadow: '0 4px 24px rgba(0,0,0,0.02)', bgcolor: '#ffffff', p: 2, textAlign: 'center' }}>
-      <Box sx={{ fontSize: 32, mb: 1 }}>📍</Box>
-      <Box sx={{ fontSize: 12, color: 'text.secondary', mb: 1 }}>Attendance Check-in</Box>
-      <Box sx={{ fontSize: 18, fontWeight: 900, mb: 2 }}>{loading ? <Skeleton width={100} sx={{ mx: 'auto' }} /> : 'Manual only'}</Box>
-      
-      {todayAttendance?.check_in_time && (
-        <Box sx={{ p: 1.25, borderRadius: 1.5, bgcolor: alpha('#10b981', 0.1), color: '#10b981', fontWeight: 700, fontSize: 12, mb: 1.5 }}>
-          Checked in at {new Date(todayAttendance.check_in_time).toLocaleTimeString()}
-        </Box>
-      )}
-      {todayAttendance?.check_out_time && (
-        <Box sx={{ p: 1.25, borderRadius: 1.5, bgcolor: alpha('#f97316', 0.1), color: '#f97316', fontWeight: 700, fontSize: 12, mb: 1.5 }}>
-          Checked out at {new Date(todayAttendance.check_out_time).toLocaleTimeString()}
-        </Box>
-      )}
-      
+    <Card sx={{ borderRadius: 0, border: 'none', boxShadow: '0 10px 40px rgba(15, 23, 42, 0.08)', bgcolor: '#ffffff', p: { xs: 2, md: 2.5 } }}>      
+      <Stack spacing={2} sx={{ mb: 2 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Box>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.2 }}>
+              Attendance<br/>Check-in
+            </Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 900, color: '#111827', mt: 1 }}>
+              {todayAttendance?.check_in_time ? new Date(todayAttendance.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '— : —'}
+            </Typography>
+          </Box>
+          <Chip label={attendanceLabel} size="small" sx={{ bgcolor: alpha(attendanceStatusColor, 0.10), color: attendanceStatusColor, fontWeight: 700, px: 0.5, py: 0.5, fontSize: '0.65rem' }} />
+        </Stack>
+
+        <Stack spacing={1.5}>
+          <Stack direction="row" spacing={1.5}>
+            <Box sx={{flex: 1, p: 1.5, bgcolor: '#f8fafc', borderRadius: 1 }}>
+              <Typography sx={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>In</Typography>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#111827', mt: 0.5 }}>{todayAttendance?.check_in_time ? new Date(todayAttendance.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</Typography>
+            </Box>
+            <Box sx={{ flex: 1, p: 1.5, bgcolor: '#f8fafc', borderRadius: 1 }}>
+              <Typography sx={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>Out</Typography>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#111827', mt: 0.5 }}>{todayAttendance?.check_out_time ? new Date(todayAttendance.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</Typography>
+            </Box>
+          </Stack>
+          <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Duration</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#111827' }}>{attendanceDuration}</Typography>
+          </Box>
+        </Stack>
+
+        {todayAttendance?.is_late && (
+          <Box sx={{ p: 1.5, bgcolor: alpha('#f59e0b', 0.12), color: '#b45309', borderRadius: 3, fontWeight: 700, fontSize: '0.8rem' }}>
+            Late join by {todayAttendance.late_minutes} minutes
+          </Box>
+        )}
+      </Stack>
+
       {displayError && <Alert severity="error" sx={{ mb: 1.5, textAlign: 'left', py: 0 }}>{displayError}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 1.5, textAlign: 'left', py: 0 }}>{success}</Alert>}
 
-      <Stack spacing={1} sx={{ textAlign: 'left', mb: 2 }}>
-        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
-          <Typography>Check In</Typography>
-          <Typography sx={{ fontWeight: 700, color: todayAttendance?.check_in_time ? '#0f172a' : '#94a3b8' }}>
-            {todayAttendance?.check_in_time ? new Date(todayAttendance.check_in_time).toLocaleTimeString() : '—'}
-          </Typography>
-        </Stack>
-        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
-          <Typography>Check Out</Typography>
-          <Typography sx={{ fontWeight: 700, color: todayAttendance?.check_out_time ? '#0f172a' : '#94a3b8' }}>
-            {todayAttendance?.check_out_time ? new Date(todayAttendance.check_out_time).toLocaleTimeString() : '—'}
-          </Typography>
-        </Stack>
-        <Stack direction="row" justifyContent="space-between" sx={{ color: '#64748b', fontSize: '0.85rem' }}>
-          <Typography>Status</Typography>
-          <Typography sx={{ fontWeight: 700, color: '#10b981' }}>
-            {todayAttendance?.check_out_time ? 'Checked out' : todayAttendance?.check_in_time ? 'Checked in' : 'Pending'}
-          </Typography>
-        </Stack>
+      <Stack spacing={1.25}>
+        <Button
+          fullWidth variant="contained"
+          onClick={() => checkInMutation.mutate()}
+          disabled={loading || checking || !!todayAttendance?.check_in_time}
+          sx={{ fontSize: 12, borderRadius: 1.5, py: 1.2, fontWeight: 800, textTransform: 'none', bgcolor: '#111827', '&:hover': { bgcolor: '#000000' } }}
+        >
+          {checking ? 'Processing...' : todayAttendance?.check_in_time ? 'Checked In' : 'Check In'}
+        </Button>
+        <Button
+          fullWidth variant="outlined"
+          size="small"
+          onClick={() => checkOutMutation.mutate()}
+          disabled={loading || checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time}
+          sx={{ fontSize: 12, borderRadius: 1.5, py: 1.2, fontWeight: 800, textTransform: 'none', borderColor: alpha('#f97316', 0.35), color: '#f97316' }}
+        >
+          {checking ? 'Processing...' : todayAttendance?.check_out_time ? 'Checked Out' : 'Check Out'}
+        </Button>
       </Stack>
-
-      <Button
-        fullWidth variant="contained"
-        onClick={() => checkInMutation.mutate()}
-        disabled={loading || checking || !!todayAttendance?.check_in_time}
-        sx={{ borderRadius: 999, py: 1.1, fontWeight: 800, textTransform: 'none', bgcolor: '#0f172a', '&:hover': { bgcolor: '#1e293b' } }}
-      >
-        {checking ? 'Checking in...' : todayAttendance?.check_in_time ? 'Already checked in' : 'Check In'}
-      </Button>
-      <Button
-        fullWidth variant="outlined"
-        onClick={() => checkOutMutation.mutate()}
-        disabled={loading || checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time}
-        sx={{ mt: 1, borderRadius: 999, py: 1.1, fontWeight: 800, textTransform: 'none', borderColor: alpha('#f97316', 0.35), color: '#f97316' }}
-      >
-        {checking ? 'Checking out...' : todayAttendance?.check_out_time ? 'Already checked out' : 'Check Out'}
-      </Button>
     </Card>
   );
 }
@@ -404,7 +423,8 @@ export default function DashboardPage() {
   const { data: userSalary, isLoading: salaryLoading } = useQuery({
     queryKey: ['payroll', 'salary', employeeId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/payroll/salary`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE_URL}/payroll/salary?employee_id=${employeeId}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.status === 404) return null;
       if (!res.ok) throw new Error('Failed to fetch payroll salary');
       return res.json();
     },
@@ -414,18 +434,83 @@ export default function DashboardPage() {
   const { data: payslipPage, isLoading: payslipLoading } = useQuery({
     queryKey: ['payroll', 'latest-payslip', employeeId],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE_URL}/payroll/payslips?page=1&size=1`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE_URL}/payroll/payslips?page=1&size=1&employee_id=${employeeId}`, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error('Failed to fetch payslip history');
       return res.json();
     },
     enabled: status === 'ready' && !!token && !!employeeId,
   });
 
+  const { data: salaryHistory, isLoading: salaryHistoryLoading } = useQuery({
+    queryKey: ['payroll', 'salary-history', employeeId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/payroll/salary-history?employee_id=${employeeId}&page=1&size=6`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch salary history');
+      return res.json();
+    },
+    enabled: status === 'ready' && !!token && !!employeeId,
+  });
+
   const latestPayslip = Array.isArray(payslipPage?.items) ? payslipPage.items[0] : null;
-  const payrollLoading = salaryLoading || payslipLoading;
+  const payrollLoading = salaryLoading || payslipLoading || salaryHistoryLoading;
   const isLoading = orgLoading || spaceLoading || summaryLoading;
-  
+  const payrollChartData = orgData?.payroll_history || [];
+
+  const now = new Date();
+  const formatPayrollMonth = (date: Date) => date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+
+  const salaryTrendData = Array.isArray(payrollChartData) && payrollChartData.length > 0
+    ? payrollChartData.map((item: any) => ({ name: item.month, value: item.value }))
+    : Array.isArray(salaryHistory?.items) && salaryHistory.items.length > 0
+      ? salaryHistory.items.map((item: any) => ({
+          name: new Date(item.effective_from).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          value: item.base_salary,
+        })).reverse()
+      : latestPayslip
+        ? [{
+            name: new Date(latestPayslip.year, latestPayslip.month - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+            value: latestPayslip.net_salary,
+          }]
+        : userSalary
+          ? [
+              { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 2, 1)), value: userSalary.base_salary },
+              { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1)), value: userSalary.base_salary },
+              { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth(), 1)), value: userSalary.base_salary },
+            ]
+          : [];
+
+  const hasRealPayrollData = payrollChartData.length > 0 || salaryTrendData.length > 0;
+  const fallbackChartData = [
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 5, 1)), value: 0 },
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 4, 1)), value: 0 },
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 3, 1)), value: 0 },
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 2, 1)), value: 0 },
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1)), value: 0 },
+    { name: formatPayrollMonth(new Date(now.getFullYear(), now.getMonth(), 1)), value: 0 },
+  ];
+
+  const payrollDisplayData = hasRealPayrollData ? (payrollChartData.length > 0 ? payrollChartData : salaryTrendData) : fallbackChartData;
+  const payrollTrendLabel = payrollChartData.length > 0
+    ? 'Live payroll trend'
+    : Array.isArray(salaryHistory?.items) && salaryHistory.items.length > 0
+      ? 'Salary history'
+      : latestPayslip
+        ? 'Payslip snapshot'
+        : userSalary
+          ? 'Current salary'
+          : 'Baseline trend';
+  const payrollTrendChip = payrollChartData.length > 0
+    ? 'Live'
+    : Array.isArray(salaryHistory?.items) && salaryHistory.items.length > 0
+      ? 'History'
+      : latestPayslip
+        ? 'Payslip'
+        : userSalary
+          ? 'Current'
+          : 'Setup Pending';
+
   // KPI Mapping
+
   const totalEmployees = orgData?.total_employees ?? 0;
   const activeToday = orgData?.active_today ?? 0;
   const pendingTasks = mySpaceData?.pending_tasks ?? 0;
@@ -442,8 +527,6 @@ export default function DashboardPage() {
     value: d.total_employees,
     color: COLOR_PALETTE[i % COLOR_PALETTE.length]
   })) || [];
-
-  const payrollChartData = orgData?.payroll_history || [];
   const teamMembers = orgData?.team_members?.slice(0, 5) || [];
   const leaveRequests = mySpaceData?.pending_leave_approvals?.slice(0, 4) || [];
 
@@ -556,24 +639,42 @@ export default function DashboardPage() {
                     )}
                   </Stack>
                 ) : (
-                  <Box sx={{ minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f8fafc', borderRadius: 3, p: 2 }}>
-                    <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem' }}>Your payroll details are not available yet.</Typography>
-                  </Box>
+                  <Stack spacing={2} sx={{ mb: 2 }}>
+                    <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b', mb: 0.5 }}>Current salary</Typography>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: '#94a3b8' }}>
+                          ₹0
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                          No active payroll structure
+                        </Typography>
+                      </Box>
+                      <Chip label="Setup pending" size="small" sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700 }} />
+                    </Box>
+                  </Stack>
                 ))}
 
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box>
+                    <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{payrollTrendLabel}</Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#111827', mt: 0.5 }}>{hasRealPayrollData ? 'Latest movements' : 'Awaiting data'}</Typography>
+                  </Box>
+                  <Chip label={payrollTrendChip} size="small" sx={{ bgcolor: hasRealPayrollData ? 'rgba(59, 130, 246, 0.12)' : 'rgba(148, 163, 184, 0.12)', color: hasRealPayrollData ? '#2563eb' : '#475569', fontWeight: 700 }} />
+                </Box>
                 <Box sx={{ height: 220, width: '100%', pl: { xs: 0, md: 2 } }}>
-                  {payrollChartData.length > 0 ? (
+                  {payrollDisplayData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={payrollChartData}>
+                      <AreaChart data={payrollDisplayData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                         <defs>
-                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                          <linearGradient id="salaryTrendGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#4338ca" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#4338ca" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
                         <RechartsTooltip cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                        <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                        <Area type="monotone" dataKey="value" stroke="#4338ca" strokeWidth={3} fill="url(#salaryTrendGradient)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
