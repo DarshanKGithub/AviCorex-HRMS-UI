@@ -82,7 +82,7 @@ export function LoginForm() {
   return (
     <Card
       sx={{
-        borderRadius: 5,
+        borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
         boxShadow: '0 22px 60px -30px rgba(15, 23, 42, 0.22)',
