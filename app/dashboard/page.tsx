@@ -26,20 +26,6 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
-// MOCK DATA FOR FALLBACKS
-const PAYROLL_DATA = [
-  { name: 'Jan', value: 4000 }, { name: 'Feb', value: 3000 }, { name: 'Mar', value: 2000 },
-  { name: 'Apr', value: 2780 }, { name: 'May', value: 1890 }, { name: 'Jun', value: 2390 },
-  { name: 'Jul', value: 3490 }, { name: 'Aug', value: 3000 }, { name: 'Sep', value: 2000 },
-  { name: 'Oct', value: 2780 }, { name: 'Nov', value: 1890 }, { name: 'Dec', value: 3490 },
-];
-const DEPARTMENT_DATA = [
-  { name: 'Sales', value: 12, color: '#3b82f6' },
-  { name: 'Human resource', value: 9, color: '#a78bfa' },
-  { name: 'Finance', value: 8, color: '#10b981' },
-  { name: 'IT', value: 80, color: '#c4b5fd' },
-];
 const COLOR_PALETTE = ['#3b82f6', '#a78bfa', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
 
 const commonCardStyles = {
@@ -55,6 +41,13 @@ const commonCardStyles = {
   },
 };
 
+function formatCurrency(value: number, currency = 'INR') {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 // Reusable Circular Progress for Task Overview
 function CustomCircularProgress({ value, color }: { value: number, color: string }) {
@@ -372,6 +365,7 @@ function CalendarWidget() {
 
 export default function DashboardPage() {
   const { token, user, status } = useAuth();
+  const employeeId = user?.id || useEmployeeId();
   const roleName = user?.role?.toLowerCase() ?? '';
   const canViewDashboardDetails = ['super admin', 'superadmin', 'admin', 'ceo', 'hr', 'manager'].includes(roleName);
 
@@ -407,7 +401,28 @@ export default function DashboardPage() {
     enabled: status === 'ready' && !!token,
   });
 
-  // Derived Values
+  const { data: userSalary, isLoading: salaryLoading } = useQuery({
+    queryKey: ['payroll', 'salary', employeeId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/payroll/salary`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch payroll salary');
+      return res.json();
+    },
+    enabled: status === 'ready' && !!token && !!employeeId,
+  });
+
+  const { data: payslipPage, isLoading: payslipLoading } = useQuery({
+    queryKey: ['payroll', 'latest-payslip', employeeId],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/payroll/payslips?page=1&size=1`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to fetch payslip history');
+      return res.json();
+    },
+    enabled: status === 'ready' && !!token && !!employeeId,
+  });
+
+  const latestPayslip = Array.isArray(payslipPage?.items) ? payslipPage.items[0] : null;
+  const payrollLoading = salaryLoading || payslipLoading;
   const isLoading = orgLoading || spaceLoading || summaryLoading;
   
   // KPI Mapping
@@ -426,19 +441,30 @@ export default function DashboardPage() {
     name: d.department_name,
     value: d.total_employees,
     color: COLOR_PALETTE[i % COLOR_PALETTE.length]
-  })) || DEPARTMENT_DATA;
+  })) || [];
 
+  const payrollChartData = orgData?.payroll_history || [];
   const teamMembers = orgData?.team_members?.slice(0, 5) || [];
   const leaveRequests = mySpaceData?.pending_leave_approvals?.slice(0, 4) || [];
+
+  const satisfactionRate = orgData?.average_attendance_rate ? Math.round(orgData.average_attendance_rate) : 0;
+  const satisfiedEmployees = totalEmployees ? Math.round(totalEmployees * (satisfactionRate / 100)) : 0;
+
+  const taskOverviewItems = [
+    { title: 'Pending tasks', sub: `${pendingTasks} tasks`, val: Math.min(pendingTasks * 10, 100), color: '#10b981' },
+    { title: 'Pending approvals', sub: `${summaryData?.pending_approvals_count ?? 0} approvals`, val: Math.min((summaryData?.pending_approvals_count ?? 0) * 10, 100), color: '#3b82f6' },
+    { title: 'Pending leaves', sub: `${summaryData?.pending_leaves ?? 0} leave requests`, val: Math.min((summaryData?.pending_leaves ?? 0) * 10, 100), color: '#f59e0b' },
+    { title: 'Active today', sub: `${activeToday} employees`, val: totalEmployees ? Math.round((activeToday / totalEmployees) * 100) : 0, color: '#6366f1' },
+  ];
 
   const hour = new Date().getHours();
   const greetingText = hour >= 17 ? 'Good evening' : hour >= 12 ? 'Good afternoon' : 'Good morning';
 
   const kpiItems = canViewDashboardDetails ? [
-    { title: 'Total employee', value: totalEmployees, icon: <PersonOutlineIcon />, color: '#6366f1', pill: '+ 2%', pillBg: '#dcfce7', pillColor: '#10b981' },
-    { title: 'Active today', value: activeToday, icon: <PersonAddOutlinedIcon />, color: '#6366f1', pill: '+ 1%', pillBg: '#dcfce7', pillColor: '#10b981' },
-    { title: 'Pending tasks', value: pendingTasks, icon: <AssignmentOutlinedIcon />, color: '#6366f1', pill: '- 5%', pillBg: '#fee2e2', pillColor: '#ef4444' },
-    { title: 'Employee on leave', value: onLeave, icon: <DirectionsWalkOutlinedIcon />, color: '#6366f1', pill: '0%', pillBg: '#f1f5f9', pillColor: '#64748b' },
+    { title: 'Total employee', value: totalEmployees, icon: <PersonOutlineIcon />, color: '#6366f1', pill: `${totalEmployees}` , pillBg: '#dcfce7', pillColor: '#10b981' },
+    { title: 'Active today', value: activeToday, icon: <PersonAddOutlinedIcon />, color: '#6366f1', pill: `${activeToday}`, pillBg: '#dcfce7', pillColor: '#10b981' },
+    { title: 'Pending tasks', value: pendingTasks, icon: <AssignmentOutlinedIcon />, color: '#6366f1', pill: `${summaryData?.pending_approvals_count ?? 0}`, pillBg: '#fee2e2', pillColor: '#ef4444' },
+    { title: 'Employee on leave', value: onLeave, icon: <DirectionsWalkOutlinedIcon />, color: '#6366f1', pill: `${summaryData?.pending_leaves ?? 0}`, pillBg: '#f1f5f9', pillColor: '#64748b' },
   ] : [];
 
   return (
@@ -490,39 +516,80 @@ export default function DashboardPage() {
         {/* MIDDLE ROW */}
         <Grid item xs={12}>
           <Grid container spacing={3}>
-            {/* PAYROLL CHART (MOCKED) */}
             <Grid item xs={12} md={4}>
               <Card sx={{ ...commonCardStyles, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>Payroll</Typography>
+
+                {payrollLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+                    <Skeleton variant="rounded" width="100%" height={110} sx={{ borderRadius: 3 }} />
+                  </Box>
+                ) : (userSalary || latestPayslip ? (
+                  <Stack spacing={2} sx={{ mb: 2 }}>
+                    {latestPayslip && (
+                      <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3 }}>
+                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b', mb: 0.5 }}>Latest payslip</Typography>
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                          <Box>
+                            <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>
+                              {formatCurrency(latestPayslip.net_salary, userSalary?.currency || 'INR')}
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                              {new Date(latestPayslip.year, latestPayslip.month - 1).toLocaleString('default', { month: 'short', year: 'numeric' })}
+                            </Typography>
+                          </Box>
+                          <Chip label={latestPayslip.status || 'Unknown'} size="small" sx={{ bgcolor: '#e0f2fe', color: '#0284c7', fontWeight: 700 }} />
+                        </Stack>
+                      </Box>
+                    )}
+
+                    {userSalary && (
+                      <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3 }}>
+                        <Typography sx={{ fontSize: '0.75rem', color: '#64748b', mb: 0.5 }}>Current salary</Typography>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: '#1e293b' }}>
+                          {formatCurrency(userSalary.base_salary, userSalary.currency || 'INR')}
+                        </Typography>
+                        <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                          {userSalary.grade ? `Grade ${userSalary.grade}` : 'Grade not set'} • {userSalary.is_active ? 'Active' : 'Inactive'}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                ) : (
+                  <Box sx={{ minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f8fafc', borderRadius: 3, p: 2 }}>
+                    <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem' }}>Your payroll details are not available yet.</Typography>
+                  </Box>
+                ))}
+
                 <Box sx={{ height: 220, width: '100%', pl: { xs: 0, md: 2 } }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={PAYROLL_DATA}>
-                      <defs>
-                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
-                      <RechartsTooltip cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
-                      <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {payrollChartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={payrollChartData}>
+                        <defs>
+                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} dy={10} />
+                        <RechartsTooltip cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                        <Area type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem' }}>Payroll trend data is not available yet.</Typography>
+                    </Box>
+                  )}
                 </Box>
               </Card>
             </Grid>
 
-            {/* TASK OVERVIEW (MOCKED WITH SOME LIVE DATA) */}
             <Grid item xs={12} md={3}>
               <Card sx={{ ...commonCardStyles, p: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>Task overview</Typography>
                 <Stack spacing={3}>
-                  {[
-                    { title: 'Pending projects', sub: `${pendingTasks} projects`, val: Math.min(pendingTasks * 10, 100), color: '#10b981' },
-                    { title: 'New Inflow', sub: '09 projects', val: 7, color: '#3b82f6' },
-                    { title: 'PM review', sub: '04 projects', val: 87, color: '#10b981' },
-                    { title: 'Client review', sub: '15 projects', val: 46, color: '#10b981' },
-                  ].map((task, i) => (
+                  {taskOverviewItems.map((task, i) => (
                     <Stack direction="row" alignItems="center" justifyContent="space-between" key={i}>
                       <Box>
                         <Typography sx={{ fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>{task.title}</Typography>
@@ -652,7 +719,7 @@ export default function DashboardPage() {
                     <ResponsiveContainer width="100%" height={160}>
                       <PieChart>
                         <Pie
-                          data={[{ value: 67 }, { value: 33 }]}
+                          data={[{ value: satisfactionRate }, { value: 100 - satisfactionRate }]}
                           cx="50%" cy="92%"
                           startAngle={180} endAngle={0}
                           innerRadius={60} outerRadius={80}
@@ -667,11 +734,11 @@ export default function DashboardPage() {
                       </PieChart>
                     </ResponsiveContainer>
                     <Box sx={{ position: 'absolute', bottom: 10, textAlign: 'center' }}>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#3b82f6' }}>67.09%</Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#3b82f6' }}>{satisfactionRate}%</Typography>
                     </Box>
                   </Box>
                   <Typography sx={{ color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center', mt: 2, px: 2 }}>
-                    Out of all employees, <strong style={{color:'#6366f1'}}>{Math.round(totalEmployees * 0.67)}</strong> are satisfied and have increased 12% from last month
+                    Out of all employees, <strong style={{color:'#6366f1'}}>{satisfiedEmployees}</strong> are on track with attendance and engagement.
                   </Typography>
                 </Card>
               </Grid>
