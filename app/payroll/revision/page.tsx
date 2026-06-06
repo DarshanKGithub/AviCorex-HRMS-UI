@@ -84,12 +84,6 @@ export default function SalaryRevisionPage() {
             </Table>
           )}
 
-          <Box sx={{ p: 3, m: 2, bgcolor: '#f8fafc', borderRadius: 3 }}>
-            <Typography sx={{ color: '#64748b', fontWeight: 600 }}>Note:</Typography>
-            <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem', mt: 1 }}>
-              Salary revision history is loaded directly from payroll records. If you have salary changes on file, they will appear here in chronological order.
-            </Typography>
-          </Box>
         </CardContent>
       </Card>
     </Box>

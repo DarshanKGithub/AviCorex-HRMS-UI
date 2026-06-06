@@ -42,7 +42,7 @@ export default function ITStatementPage() {
   const salaryGrade = salaryData?.grade || 'None';
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Breadcrumbs />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -67,22 +67,22 @@ export default function ITStatementPage() {
 
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} md={6}>
-              <Card sx={{ p: 3, borderRadius: 3, bgcolor: '#f8fafc' }}>
+              <Card sx={{ p: 3, borderRadius: 1, bgcolor: '#f8fafc' }}>
                 <Typography sx={{ color: '#475569', fontWeight: 600, mb: 1 }}>Current Base Salary</Typography>
-                <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '1.75rem' }}>{isLoading ? 'Loading…' : baseSalary}</Typography>
+                <Typography sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1.00rem' }}>{isLoading ? 'Loading…' : baseSalary}</Typography>
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ p: 3, borderRadius: 3, bgcolor: '#f8fafc' }}>
+              <Card sx={{ p: 3, borderRadius: 1, bgcolor: '#f8fafc' }}>
                 <Typography sx={{ color: '#475569', fontWeight: 600, mb: 1 }}>Salary Grade</Typography>
-                <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '1.75rem' }}>{isLoading ? 'Loading…' : salaryGrade}</Typography>
+                <Typography sx={{ fontWeight: 700, color: '#1e293b', fontSize: '1.00rem' }}>{isLoading ? 'Loading…' : salaryGrade}</Typography>
               </Card>
             </Grid>
           </Grid>
 
           <Divider sx={{ my: 2, borderColor: '#e2e8f0' }} />
 
-          <Box sx={{ p: 3, bgcolor: '#f8fafc', borderRadius: 3, minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Box sx={{ p: 3, bgcolor: '#f8fafc', borderRadius: 1, minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             {isLoading ? (
               <Typography sx={{ color: '#64748b', fontSize: '0.95rem' }}>Loading your IT statement details…</Typography>
             ) : error ? (
@@ -97,12 +97,6 @@ export default function ITStatementPage() {
             )}
           </Box>
 
-          <Box sx={{ mt: 5, p: 3, bgcolor: '#f8fafc', borderRadius: 3 }}>
-            <Typography sx={{ color: '#64748b', fontWeight: 600 }}>Disclaimer:</Typography>
-            <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem', mt: 1 }}>
-              IT statement values will be populated from payroll backend data once the tax and component reporting APIs are live.
-            </Typography>
-          </Box>
         </CardContent>
       </Card>
     </Box>

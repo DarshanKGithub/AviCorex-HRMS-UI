@@ -97,13 +97,6 @@ export default function ITDeclarationPage() {
             </Box>
 
           </Stack>
-
-          <Box sx={{ mt: 5, p: 3, bgcolor: '#f8fafc', borderRadius: 3 }}>
-            <Typography sx={{ color: '#64748b', fontWeight: 600 }}>Note:</Typography>
-            <Typography sx={{ color: '#94a3b8', fontSize: '0.9rem', mt: 1 }}>
-              This page currently displays a simulated IT Declaration form. Submitting this form will not update any real backend data until the API is integrated.
-            </Typography>
-          </Box>
         </CardContent>
       </Card>
     </Box>
