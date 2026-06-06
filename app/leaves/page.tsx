@@ -71,6 +71,19 @@ const leaveRequestSchema = z.object({
     }
   }
 });
+
+const commonCardStyles = {
+  borderRadius: 0,
+  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+  bgcolor: '#ffffff',
+  height: '100%',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
+    transform: 'translateY(-2px)',
+  },
+};
+
 type LeaveRequestFormValues = z.infer<typeof leaveRequestSchema>;
 
 
@@ -584,7 +597,7 @@ export default function LeavesPage() {
         <Grid container spacing={3}>
           {/* Sidebar */}
           <Grid item xs={12} md={3}>
-            <Card sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)' }}>
+            <Card sx={{ ...commonCardStyles, border: '1px solid #e7e9ef' }}>
               <CardContent sx={{ p: 2 }}>
                 <Typography sx={{ fontWeight: 700, color: 'text.primary', mb: 2.5, fontSize: '0.95rem' }}>
                   Leave
@@ -639,7 +652,7 @@ export default function LeavesPage() {
                 </Grid>
               </Box>
             ) : (
-              <Card ref={formRef} sx={{ borderRadius: 2, border: '1px solid #e7e9ef', boxShadow: '0 4px 12px rgba(146, 141, 221, 0.08)', overflow: 'hidden' }}>
+              <Card ref={formRef} sx={{ ...commonCardStyles, border: '1px solid #e7e9ef', overflow: 'hidden' }}>
                 <Box sx={{ p: 2, borderBottom: '1px solid #eef2f7', bgcolor: '#fcfdff' }}>
                   <Grid container spacing={1.5}>
                     {[
@@ -650,7 +663,7 @@ export default function LeavesPage() {
                       { label: 'Requested Days', value: leaveAnalytics.totalDaysRequested, color: '#4f46e5' },
                     ].map((metric) => (
                       <Grid key={metric.label} item xs={6} sm={4} md={3} lg={2}>
-                        <Card sx={{ borderRadius: 1.5, boxShadow: 'none', border: '1px solid #eef2f7' }}>
+                        <Card sx={{ ...commonCardStyles, border: '1px solid #eef2f7' }}>
                           <CardContent sx={{ py: 1.25, '&:last-child': { pb: 1.25 } }}>
                             <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontWeight: 600 }}>{metric.label}</Typography>
                             <Typography sx={{ fontSize: '1.1rem', color: metric.color, fontWeight: 800 }}>{metric.value}</Typography>

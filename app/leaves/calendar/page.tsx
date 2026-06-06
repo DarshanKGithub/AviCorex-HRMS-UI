@@ -7,12 +7,17 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 
 const commonCardStyles = {
-  borderRadius: 4,
-  border: 'none',
-  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  borderRadius: 0,
+  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
   bgcolor: '#ffffff',
-  height: '100%'
+  height: '100%',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
+    transform: 'translateY(-2px)',
+  },
 };
+
 
 export default function LeaveCalendarPage() {
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

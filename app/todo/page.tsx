@@ -20,14 +20,18 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-
 const commonCardStyles = {
-  borderRadius: 4,
-  border: 'none',
-  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  borderRadius: 0,
+  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
   bgcolor: '#ffffff',
-  height: '100%'
+  height: '100%',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
+    transform: 'translateY(-2px)',
+  },
 };
+
 
 // Icons
 import AddIcon from '@mui/icons-material/Add';

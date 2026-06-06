@@ -141,9 +141,9 @@ export default function PerformancePage() {
       ) : (
         <>
           {/* KPI Summary Cards */}
-          <Grid container spacing={2.5} sx={{ mb: 4 }}>
+          <Grid container spacing={2.0} sx={{ mb: 2 }}>
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+              <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
                     <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Performance Score</Typography>
@@ -169,7 +169,7 @@ export default function PerformancePage() {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+              <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
                     <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active Goals</Typography>
@@ -185,7 +185,7 @@ export default function PerformancePage() {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+              <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
                     <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active KPIs</Typography>
@@ -201,7 +201,7 @@ export default function PerformancePage() {
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
-              <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+              <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
                 <CardContent>
                   <Stack spacing={1}>
                     <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Appraisals</Typography>

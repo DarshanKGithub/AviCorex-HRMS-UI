@@ -180,7 +180,7 @@ export default function TrainingCertificationPage() {
         <>
           {/* Summary Cards */}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2.5, mb: 4 }}>
-            <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+            <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
                 <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Enrolled Trainings</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
@@ -188,7 +188,7 @@ export default function TrainingCertificationPage() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+            <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
                 <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Completed</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
@@ -196,7 +196,7 @@ export default function TrainingCertificationPage() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+            <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
                 <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Active Certs</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 1 }}>
@@ -204,7 +204,7 @@ export default function TrainingCertificationPage() {
                 </Typography>
               </CardContent>
             </Card>
-            <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
+            <Card sx={{ borderRadius: 1, border: '1px solid #e2e8f0', boxShadow: 'none' }}>
               <CardContent>
                 <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>Expired Certs</Typography>
                 <Typography variant="h4" sx={{ fontWeight: 800, color: expiredCerts.length > 0 ? '#dc2626' : '#15162c', mt: 1 }}>

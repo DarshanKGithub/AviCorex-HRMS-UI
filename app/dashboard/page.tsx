@@ -43,12 +43,17 @@ const DEPARTMENT_DATA = [
 const COLOR_PALETTE = ['#3b82f6', '#a78bfa', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
 
 const commonCardStyles = {
-  borderRadius: 4,
-  border: 'none',
-  boxShadow: '0 4px 24px rgba(0,0,0,0.02)',
+  borderRadius: 0,
+  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
   bgcolor: '#ffffff',
-  height: '100%'
+  height: '100%',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
+    transform: 'translateY(-2px)',
+  },
 };
+
 
 // Reusable Circular Progress for Task Overview
 function CustomCircularProgress({ value, color }: { value: number, color: string }) {
@@ -574,7 +579,6 @@ export default function DashboardPage() {
                     <TableHead>
                       <TableRow sx={{ bgcolor: '#f8fafc' }}>
                         <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }}>Date</TableCell>
-                        <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Employee ID</TableCell>
                         <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Name</TableCell>
                         <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600 }}>Role</TableCell>
                         <TableCell sx={{ color: '#64748b', borderBottom: 'none', fontWeight: 600, borderTopRightRadius: 8, borderBottomRightRadius: 8 }}>Status</TableCell>
@@ -586,7 +590,6 @@ export default function DashboardPage() {
                       ) : teamMembers.map((emp: any, i: number) => (
                         <TableRow key={i}>
                           <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{new Date().toLocaleDateString()}</TableCell>
-                          <TableCell sx={{ borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '0.85rem' }}>{emp.employee_id.substring(0, 8)}</TableCell>
                           <TableCell sx={{ borderBottom: '1px solid #f1f5f9' }}>
                             <Stack direction="row" spacing={1.5} alignItems="center">
                               <Avatar src={emp.avatar_url || ''} sx={{ width: 28, height: 28 }} />
