@@ -22,6 +22,13 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Avatar from '@mui/material/Avatar';
@@ -100,6 +107,26 @@ type LeaveBalance = {
   updated_at: string;
 };
 
+type CCOption = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+type CCOptionsPublic = {
+  manager: CCOption | null;
+  hr: CCOption[];
+  ceo: CCOption[];
+};
+
+type LeaveHistoryItem = {
+  id: string;
+  action: string;
+  actor_name?: string;
+  created_at: string;
+};
+
 type LeaveRequest = {
   id: string;
   employee_id: string;
@@ -160,6 +187,10 @@ export default function LeavesPage() {
   const [selectedPendingRequestIds, setSelectedPendingRequestIds] = useState<string[]>([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [apiUnreachable, setApiUnreachable] = useState<string | null>(null);
+  const [ccOptions, setCcOptions] = useState<CCOptionsPublic | null>(null);
+  const [historyDialogRequest, setHistoryDialogRequest] = useState<LeaveRequest | null>(null);
+  const [historyItems, setHistoryItems] = useState<LeaveHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   const { control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<LeaveRequestFormValues>({
@@ -201,6 +232,7 @@ export default function LeavesPage() {
       fetchBalances();
       fetchBalancesWithDetails();
       fetchRequests();
+      fetchCcOptions();
     }
   }, [auth.status, auth.token, router, canApproveLeave]);
 
@@ -244,6 +276,39 @@ export default function LeavesPage() {
       if (isNetworkFetchError(err)) {
         setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
       }
+    }
+  }
+
+  async function fetchCcOptions() {
+    if (!auth.token) return;
+    try {
+      const res = await apiFetch(buildApiUrl('/leave/cc-options'), {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCcOptions(data);
+      }
+    } catch (err) {
+      console.error('Error fetching cc options:', err);
+    }
+  }
+
+  async function openHistory(request: LeaveRequest) {
+    setHistoryDialogRequest(request);
+    setHistoryLoading(true);
+    try {
+      const res = await apiFetch(buildApiUrl(`/leave/requests/${request.id}/history`), {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHistoryItems(data);
+      }
+    } catch (err) {
+      console.error('Error fetching history:', err);
+    } finally {
+      setHistoryLoading(false);
     }
   }
 
@@ -499,6 +564,8 @@ export default function LeavesPage() {
       case 'rejected':
         return '#ef4444';
       case 'pending':
+      case 'pending_manager':
+      case 'pending_hr':
         return '#f59e0b';
       default:
         return '#6b7280';
@@ -512,10 +579,19 @@ export default function LeavesPage() {
       case 'rejected':
         return <CloseIcon sx={{ fontSize: 16 }} />;
       case 'pending':
+      case 'pending_manager':
+      case 'pending_hr':
         return <HourglassTopIcon sx={{ fontSize: 16 }} />;
       default:
         return undefined;
     }
+  };
+
+  const formatStatusLabel = (status: string) => {
+    const s = normalizeStatus(status);
+    if (s === 'pending_manager') return 'Pending (Manager)';
+    if (s === 'pending_hr') return 'Pending (HR)';
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   const resolveLeaveTypeLabel = (leaveTypeId: string) => leaveTypeNameById.get(leaveTypeId) ?? leaveTypeId;
@@ -553,8 +629,8 @@ export default function LeavesPage() {
   };
 
   const currentYearBalances = balancesWithDetails.filter((b) => b.year === selectedYear);
-  const pendingRequests = requests.filter((r) => normalizeStatus(r.status) === 'pending');
-  const historyRequests = requests.filter((r) => normalizeStatus(r.status) !== 'pending');
+  const pendingRequests = requests.filter((r) => normalizeStatus(r.status).startsWith('pending'));
+  const historyRequests = requests.filter((r) => !normalizeStatus(r.status).startsWith('pending'));
   const filteredPendingRequests = pendingRequests.filter((request) => {
     const leaveTypeName = resolveLeaveTypeLabel(request.leave_type_id).toLowerCase();
     const statusText = request.status.toLowerCase();
@@ -809,6 +885,7 @@ export default function LeavesPage() {
                                     color: '#928ddd',
                                     fontWeight: 500,
                                     fontSize: '0.85rem',
+                                    mb: 1,
                                   }}
                                 />
                               ))}
@@ -851,6 +928,32 @@ export default function LeavesPage() {
                             >
                               <AddIcon />
                             </IconButton>
+                          </Stack>
+                          
+                          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', mt: 1 }}>
+                            {ccOptions?.manager && !ccEmails.includes(ccOptions.manager.email.toLowerCase()) && (
+                              <Chip
+                                label={`+ Manager: ${ccOptions.manager.name}`}
+                                onClick={() => setCcEmails([...ccEmails, ccOptions.manager!.email.toLowerCase()])}
+                                sx={{ bgcolor: '#f0f9ff', color: '#0369a1', fontSize: '0.75rem', cursor: 'pointer', mb: 1, fontWeight: 500 }}
+                              />
+                            )}
+                            {auth.user?.role === 'Employee' && ccOptions?.hr?.map((hr) => !ccEmails.includes(hr.email.toLowerCase()) && (
+                              <Chip
+                                key={hr.id}
+                                label={`+ HR: ${hr.name}`}
+                                onClick={() => setCcEmails([...ccEmails, hr.email.toLowerCase()])}
+                                sx={{ bgcolor: '#fdf4ff', color: '#86198f', fontSize: '0.75rem', cursor: 'pointer', mb: 1, fontWeight: 500 }}
+                              />
+                            ))}
+                            {auth.user?.role === 'Employee' && ccOptions?.ceo?.map((ceo) => !ccEmails.includes(ceo.email.toLowerCase()) && (
+                              <Chip
+                                key={ceo.id}
+                                label={`+ CEO: ${ceo.name}`}
+                                onClick={() => setCcEmails([...ccEmails, ceo.email.toLowerCase()])}
+                                sx={{ bgcolor: '#fefce8', color: '#a16207', fontSize: '0.75rem', cursor: 'pointer', mb: 1, fontWeight: 500 }}
+                              />
+                            ))}
                           </Stack>
                         </Stack>
                       </Box>
@@ -1144,19 +1247,18 @@ export default function LeavesPage() {
                               <TableCell sx={{ py: 2 }}>
                                 <Chip
                                   icon={getStatusIcon(r.status)}
-                                  label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                                  label={formatStatusLabel(r.status)}
                                   sx={{
                                     bgcolor: `${getStatusColor(r.status)}15`,
                                     color: getStatusColor(r.status),
                                     fontWeight: 600,
                                     fontSize: '0.8rem',
-                                    textTransform: 'capitalize',
                                   }}
                                 />
                               </TableCell>
                               {canApproveLeave && (
                                 <TableCell sx={{ py: 2 }}>
-                                  {normalizeStatus(r.status) === 'pending' ? (
+                                  {normalizeStatus(r.status).startsWith('pending') ? (
                                     <Stack direction="row" spacing={1}>
                                       <Button
                                         size="small"
@@ -1239,17 +1341,21 @@ export default function LeavesPage() {
                                 {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
                               </Typography>
                             </Box>
-                            <Chip
-                              icon={getStatusIcon(r.status)}
-                              label={r.status.charAt(0).toUpperCase() + r.status.slice(1)}
-                              sx={{
-                                alignSelf: 'flex-start',
-                                bgcolor: `${getStatusColor(r.status)}15`,
-                                color: getStatusColor(r.status),
-                                fontWeight: 700,
-                                textTransform: 'capitalize',
-                              }}
-                            />
+                            <Stack direction="row" spacing={1.5} alignItems="center">
+                              <Button size="small" variant="outlined" onClick={() => openHistory(r)} sx={{ textTransform: 'none', borderRadius: 1.5 }}>
+                                View History
+                              </Button>
+                              <Chip
+                                icon={getStatusIcon(r.status)}
+                                label={formatStatusLabel(r.status)}
+                                sx={{
+                                  alignSelf: 'center',
+                                  bgcolor: `${getStatusColor(r.status)}15`,
+                                  color: getStatusColor(r.status),
+                                  fontWeight: 700,
+                                }}
+                              />
+                            </Stack>
                           </Stack>
                         </Box>
                       ))}
@@ -1266,6 +1372,42 @@ export default function LeavesPage() {
           )}
         </Box>
       </Box>
+
+      {/* History Dialog */}
+      <Dialog open={!!historyDialogRequest} onClose={() => setHistoryDialogRequest(null)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>Leave Approval History</DialogTitle>
+        <DialogContent dividers sx={{ bgcolor: '#fafbfd' }}>
+          {historyLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : historyItems.length > 0 ? (
+            <List sx={{ pt: 0 }}>
+              {historyItems.map((item, idx) => (
+                <ListItem key={item.id} sx={{ bgcolor: '#fff', mb: 1, borderRadius: 1.5, border: '1px solid #e7e9ef' }}>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
+                        {item.action === 'create' ? 'Requested' : item.action === 'approve' ? 'Approved' : 'Rejected'}
+                        {item.actor_name ? ` by ${item.actor_name}` : ''}
+                      </Typography>
+                    }
+                    secondary={new Date(item.created_at).toLocaleString()}
+                    secondaryTypographyProps={{ fontSize: '0.8rem' }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography sx={{ textAlign: 'center', color: 'text.secondary', py: 3 }}>No history found.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#fcfdff' }}>
+          <Button onClick={() => setHistoryDialogRequest(null)} variant="outlined" sx={{ borderRadius: 1.5, textTransform: 'none' }}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
