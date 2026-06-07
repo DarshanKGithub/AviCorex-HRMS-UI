@@ -1336,6 +1336,7 @@ export default function LeavesPage() {
                             <Box>
                               <Typography sx={{ fontWeight: 700, color: 'text.primary' }}>
                                 {resolveLeaveTypeLabel(r.leave_type_id)}
+                                {r.employee_name && ` • ${r.employee_name}`}
                               </Typography>
                               <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem' }}>
                                 {new Date(r.start_date).toLocaleDateString()} → {new Date(r.end_date).toLocaleDateString()} ({r.days_requested} day(s))
