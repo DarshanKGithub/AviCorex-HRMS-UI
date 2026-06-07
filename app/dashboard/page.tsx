@@ -847,30 +847,32 @@ export default function DashboardPage() {
             )}
 
             {/* LEAVE REQUESTS (LIVE) */}
-            <Grid item xs={12} md={canViewDashboardDetails ? 3 : 12}>
-              <Card sx={{ ...commonCardStyles, p: 3 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Leave requests</Typography>
-                  <Button size="small" variant="outlined" sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700, py: 0 }}>View all</Button>
-                </Stack>
-                <Stack spacing={2.5}>
-                  {leaveRequests.length === 0 ? (
-                    <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>No pending requests</Typography>
-                  ) : leaveRequests.map((req: any) => (
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" key={req.id}>
-                      <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Avatar sx={{ width: 36, height: 36 }}>{req.employee_name[0]}</Avatar>
-                        <Box>
-                          <Typography sx={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{req.employee_name}</Typography>
-                          <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>{req.start_date}</Typography>
-                        </Box>
+            {canViewDashboardDetails && (
+              <Grid item xs={12} md={3}>
+                <Card sx={{ ...commonCardStyles, p: 3 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b' }}>Leave requests</Typography>
+                    <Button size="small" variant="outlined" sx={{ borderRadius: 2, textTransform: 'none', color: '#6366f1', borderColor: '#e0e7ff', fontWeight: 700, py: 0 }}>View all</Button>
+                  </Stack>
+                  <Stack spacing={2.5}>
+                    {leaveRequests.length === 0 ? (
+                      <Typography sx={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center' }}>No pending requests</Typography>
+                    ) : leaveRequests.map((req: any) => (
+                      <Stack direction="row" justifyContent="space-between" alignItems="center" key={req.id}>
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Avatar sx={{ width: 36, height: 36 }}>{req.employee_name[0]}</Avatar>
+                          <Box>
+                            <Typography sx={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>{req.employee_name}</Typography>
+                            <Typography sx={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>{req.start_date}</Typography>
+                          </Box>
+                        </Stack>
+                        <IconButton size="small" sx={{ border: '1px solid #f1f5f9' }}><ChevronRightIcon fontSize="small" sx={{ color: '#94a3b8' }}/></IconButton>
                       </Stack>
-                      <IconButton size="small" sx={{ border: '1px solid #f1f5f9' }}><ChevronRightIcon fontSize="small" sx={{ color: '#94a3b8' }}/></IconButton>
-                    </Stack>
-                  ))}
-                </Stack>
-              </Card>
-            </Grid>
+                    ))}
+                  </Stack>
+                </Card>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
