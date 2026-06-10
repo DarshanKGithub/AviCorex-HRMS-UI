@@ -77,7 +77,7 @@ export default function MyWorklifePage() {
   const quickLinks = [
     { label: 'Attendance', href: '/attendance', description: 'Clock in, clock out, and review time.', icon: <AccessTimeIcon />, color: '#10b981', bg: '#dcfce7' },
     { label: 'Leaves', href: '/leaves', description: 'Apply for leave and track balances.', icon: <FlightTakeoffIcon />, color: '#f59e0b', bg: '#fef3c7' },
-    { label: 'Engage', href: '/engage', description: 'Catch up on announcements and tickets.', icon: <CampaignOutlinedIcon />, color: '#8b5cf6', bg: '#ede9fe' },
+    { label: 'Engage', href: '/engage', description: 'Catch up on announcements and tickets.', icon: <CampaignOutlinedIcon />, color: '#3B82F6', bg: '#ede9fe' },
     { label: 'To Do', href: '/todo', description: 'Track personal priorities.', icon: <AssignmentOutlinedIcon />, color: '#ef4444', bg: '#fee2e2' },
     { label: 'Helpdesk', href: '/helpdesk', description: 'Open support requests when needed.', icon: <SupportAgentIcon />, color: '#06b6d4', bg: '#cffafe' },
   ];

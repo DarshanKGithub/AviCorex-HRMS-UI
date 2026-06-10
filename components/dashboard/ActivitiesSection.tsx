@@ -41,7 +41,7 @@ const getColorForPriority = (priority: string) => {
 const getColorForType = (type: string) => {
   switch (type) {
     case 'leave_status':
-      return '#7c3aed';
+      return '#2563EB';
     case 'attendance':
       return '#06b6d4';
     case 'approval':
@@ -77,7 +77,7 @@ export function ActivitiesSection() {
   const [page, setPage] = useState(1);
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
-  const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
 
   useEffect(() => {
     if (!token) return;
@@ -179,7 +179,7 @@ export function ActivitiesSection() {
             </Box>
 
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip label={`${activityCounts.total} events`} sx={{ bgcolor: alpha('#8b5cf6', 0.15), color: '#c4b5fd', fontWeight: 700 }} />
+              <Chip label={`${activityCounts.total} events`} sx={{ bgcolor: alpha('#3B82F6', 0.15), color: '#93C5FD', fontWeight: 700 }} />
               <Chip label={`${activityCounts.high} high priority`} sx={{ bgcolor: alpha('#ef4444', 0.15), color: '#fecaca', fontWeight: 700 }} />
             </Stack>
           </Stack>
@@ -189,7 +189,7 @@ export function ActivitiesSection() {
       <Stack spacing={2.5}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
           {[
-            { label: 'Events', value: activityCounts.total, color: '#8b5cf6' },
+            { label: 'Events', value: activityCounts.total, color: '#3B82F6' },
             { label: 'High Priority', value: activityCounts.high, color: '#ef4444' },
             { label: 'Medium Priority', value: activityCounts.medium, color: '#f59e0b' },
             { label: 'Attendance', value: activityCounts.attendance || 0, color: '#06b6d4' },
@@ -212,7 +212,7 @@ export function ActivitiesSection() {
                 </Stack>
                 <Box sx={{ height: 260 }}>
                   <BarChart
-                    series={[{ data: chartValues, label: 'Events', color: '#8b5cf6' }]}
+                    series={[{ data: chartValues, label: 'Events', color: '#3B82F6' }]}
                     xAxis={[{ scaleType: 'band', data: chartLabels }]}
                     margin={{ left: 30, right: 20, top: 20, bottom: 30 }}
                     borderRadius={8}
@@ -233,8 +233,8 @@ export function ActivitiesSection() {
                     animation: `${fadeUp} ${220 + index * 60}ms ease-out`,
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      boxShadow: `0 10px 30px ${alpha('#8b5cf6', 0.12)}`,
-                      borderColor: alpha('#8b5cf6', 0.4),
+                      boxShadow: `0 10px 30px ${alpha('#3B82F6', 0.12)}`,
+                      borderColor: alpha('#3B82F6', 0.4),
                       transform: 'translateY(-2px)',
                     },
                   }}

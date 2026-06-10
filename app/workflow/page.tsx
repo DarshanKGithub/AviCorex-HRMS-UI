@@ -64,7 +64,7 @@ export default function WorkflowFormsPage() {
           Dynamic Workflows & Forms
         </Typography>
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" startIcon={<AddIcon />} sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}>
+          <Button variant="contained" startIcon={<AddIcon />} sx={{ bgcolor: '#2563EB', textTransform: 'none' }}>
             New Template
           </Button>
         </Stack>

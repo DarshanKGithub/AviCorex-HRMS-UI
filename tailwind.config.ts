@@ -5,20 +5,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        surface: '#fcfcfe',
-        line: '#e7e9ef',
-        lavender: '#cac8f9',
-        muted: '#c3c1c1',
-        indigoSoft: '#b2aef2',
-        indigo: '#928ddd'
+        primary: '#2563EB',
+        secondary: '#0F172A',
+        success: '#22C55E',
+        warning: '#F59E0B',
+        error: '#EF4444',
+        surface: '#FFFFFF',
+        line: '#e2e8f0',
+        muted: '#64748b'
       },
       boxShadow: {
-        soft: '0 18px 60px rgba(146, 141, 221, 0.14)',
-        panel: '0 14px 40px rgba(17, 24, 39, 0.08)'
+        soft: '0 18px 60px rgba(37, 99, 235, 0.08)',
+        panel: '0 14px 40px rgba(15, 23, 42, 0.08)'
       },
       backgroundImage: {
-        'hero-grid': 'radial-gradient(circle at 1px 1px, rgba(146, 141, 221, 0.14) 1px, transparent 0)',
-        'hero-glow': 'radial-gradient(circle at top right, rgba(178, 174, 242, 0.45), transparent 38%), radial-gradient(circle at left bottom, rgba(202, 200, 249, 0.55), transparent 42%)'
+        'hero-grid': 'radial-gradient(circle at 1px 1px, rgba(37, 99, 235, 0.1) 1px, transparent 0)',
+        'hero-glow': 'radial-gradient(circle at top right, rgba(37, 99, 235, 0.15), transparent 38%), radial-gradient(circle at left bottom, rgba(15, 23, 42, 0.05), transparent 42%)'
       }
     }
   },

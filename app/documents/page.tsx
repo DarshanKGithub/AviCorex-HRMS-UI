@@ -127,7 +127,7 @@ export default function DocumentCenterPage() {
           variant="contained" 
           startIcon={<UploadFileIcon />} 
           onClick={() => setOpenUploadModal(true)}
-          sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
+          sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 600 }}
         >
           Upload Document
         </Button>
@@ -183,7 +183,7 @@ export default function DocumentCenterPage() {
                   <TableCell sx={{ color: 'text.secondary' }}>{doc.file_name}</TableCell>
                   <TableCell sx={{ color: 'text.secondary' }}>{new Date(doc.uploaded_at).toLocaleDateString()}</TableCell>
                   <TableCell align="right">
-                    <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#7c3aed' }}>
+                    <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#2563EB' }}>
                       <DownloadIcon />
                     </IconButton>
                   </TableCell>
@@ -227,7 +227,7 @@ export default function DocumentCenterPage() {
             variant="contained" 
             onClick={handleUpload} 
             disabled={!uploadForm.employee_id || !selectedFile || uploading}
-            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
+            sx={{ bgcolor: '#2563EB', textTransform: 'none' }}
           >
             {uploading ? <CircularProgress size={24} color="inherit" /> : 'Upload'}
           </Button>

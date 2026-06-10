@@ -10,19 +10,28 @@ function buildTheme() {
     palette: {
       mode: 'light',
       primary: {
-        main: '#7c3aed' // Purple
+        main: '#2563EB' // Blue
       },
       secondary: {
-        main: '#000000' // Black
+        main: '#0F172A' // Dark Navy
+      },
+      success: {
+        main: '#22C55E' // Green
+      },
+      warning: {
+        main: '#F59E0B' // Amber
+      },
+      error: {
+        main: '#EF4444' // Red
       },
       background: {
-        default: '#f4f6fc',
-        paper: '#ffffff'
+        default: '#F8FAFC',
+        paper: '#FFFFFF'
       },
-      divider: '#e7e9ef',
+      divider: '#e2e8f0',
       text: {
-        primary: '#1e293b',
-        secondary: '#64748b'
+        primary: '#1E293B',
+        secondary: '#475569'
       }
     },
     shape: {

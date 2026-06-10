@@ -518,7 +518,7 @@ export default function AttendancePage() {
     { label: 'Today status', value: formatAttendanceStatusLabel(todayAttendance?.status ?? 'pending'), accent: '#6366f1' },
     { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
     { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f59e0b' },
-    { label: 'Worked hours', value: todayAttendance ? formatAttendanceStatusLabel(calculateDuration(todayAttendance.check_in_time, todayAttendance.check_out_time) ?? 'Pending') : '—', accent: '#8b5cf6' },
+    { label: 'Worked hours', value: todayAttendance ? formatAttendanceStatusLabel(calculateDuration(todayAttendance.check_in_time, todayAttendance.check_out_time) ?? 'Pending') : '—', accent: '#3B82F6' },
   ];
 
   if (auth.status === 'loading' || loading) {

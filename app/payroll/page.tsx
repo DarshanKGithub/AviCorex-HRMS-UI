@@ -80,9 +80,9 @@ export default function PayrollPage() {
   const [error, setError] = useState<string | null>(null);
   const canProcessPayroll = hasPermission('process_payroll');
   const payrollHighlights = [
-    { label: 'Payroll cycle', value: 'Monthly', accent: '#7c3aed' },
+    { label: 'Payroll cycle', value: 'Monthly', accent: '#2563EB' },
     { label: 'Payslips', value: `${payslips.length}`, accent: '#10b981' },
-    { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#8b5cf6' },
+    { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#3B82F6' },
   ];
 
   useEffect(() => {
@@ -193,7 +193,7 @@ export default function PayrollPage() {
       case 'paid':
         return '#10b981';
       case 'approved':
-        return '#7c3aed';
+        return '#2563EB';
       case 'draft':
         return '#f59e0b';
       default:

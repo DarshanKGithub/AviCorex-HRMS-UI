@@ -10,7 +10,7 @@ export function DashboardNavigation() {
   const isDark = theme.palette.mode === 'dark';
   const { currentSpace, setCurrentSpace, currentSection, setCurrentSection } = useDashboard();
 
-  const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
 
   const spaceTabs = [
     { value: 'my-space', label: 'My Space', icon: '👤' },
@@ -49,8 +49,8 @@ export function DashboardNavigation() {
                 borderBottom:
                   currentSpace === tab.value
                     ? isDark
-                      ? '2px solid #a78bfa'
-                      : '2px solid #7c3aed'
+                      ? '2px solid #60A5FA'
+                      : '2px solid #2563EB'
                     : '2px solid transparent',
                 pb: 0.5,
                 transition: 'all 0.3s ease',
@@ -89,19 +89,19 @@ export function DashboardNavigation() {
               sx={{
                 bgcolor:
                   currentSection === tab.value
-                    ? alpha('#8b5cf6', 0.2)
+                    ? alpha('#3B82F6', 0.2)
                     : alpha('#ffffff', isDark ? 0.06 : 0.4),
                 color:
                   currentSection === tab.value
                     ? isDark
-                      ? '#c4b5fd'
-                      : '#7c3aed'
+                      ? '#93C5FD'
+                      : '#2563EB'
                     : isDark
                       ? alpha('#ffffff', 0.86)
                       : alpha('#000000', 0.7),
                 border: `1px solid ${
                   currentSection === tab.value
-                    ? alpha('#a78bfa', 0.5)
+                    ? alpha('#60A5FA', 0.5)
                     : isDark
                       ? alpha('#ffffff', 0.14)
                       : alpha('#000000', 0.1)

@@ -40,15 +40,15 @@ export default function ForgotPasswordPage() {
               sx={{ 
                 mt: 2,
                 py: 1.5,
-                bgcolor: '#7c3aed', 
+                bgcolor: '#2563EB', 
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '1rem',
                 fontWeight: 600,
-                boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
+                boxShadow: '0 4px 14px 0 rgba(37, 99, 235, 0.39)',
                 '&:hover': {
-                  bgcolor: '#6d28d9',
-                  boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)'
+                  bgcolor: '#1D4ED8',
+                  boxShadow: '0 6px 20px rgba(37, 99, 235, 0.23)'
                 }
               }}
             >
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
 
             <Typography sx={{ textAlign: 'center', color: 'text.secondary', fontSize: '0.9rem', mt: 2 }}>
               Remembered it?{' '}
-              <Link href="/login" style={{ color: '#7c3aed', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/login" style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>
                 Back to sign in
               </Link>
             </Typography>

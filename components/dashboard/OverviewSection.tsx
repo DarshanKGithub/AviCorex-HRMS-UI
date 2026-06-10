@@ -49,7 +49,7 @@ export function OverviewSection() {
   const API_BASE = resolveApiBaseUrl();
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
-  const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
 
   const { data: mySpaceData, isLoading: mySpaceLoading, error: mySpaceError } = useQuery({
     queryKey: ['dashboard', 'my-space', refreshKey],
@@ -113,7 +113,7 @@ export function OverviewSection() {
             label: 'Full Name',
             value: mySpaceData.full_name,
             icon: <PersonIcon />,
-            color: '#7c3aed',
+            color: '#2563EB',
             subtext: mySpaceData.role,
           },
           {
@@ -143,7 +143,7 @@ export function OverviewSection() {
               label: 'Total Employees',
               value: orgData.total_employees,
               icon: <PersonIcon />,
-              color: '#7c3aed',
+              color: '#2563EB',
             },
             {
               label: 'Active Today',
@@ -215,7 +215,7 @@ export function OverviewSection() {
               transition: 'all 0.3s ease',
               animation: `${floatIn} ${220 + idx * 80}ms ease-out`,
               '&:hover': {
-                border: `1px solid ${alpha('#8b5cf6', 0.5)}`,
+                border: `1px solid ${alpha('#3B82F6', 0.5)}`,
                 boxShadow: `0 0 20px ${alpha(stat.color, 0.2)}`,
                 transform: 'translateY(-2px)',
               },
@@ -251,13 +251,13 @@ export function OverviewSection() {
           <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}`, height: '100%' }}>
             <CardContent sx={{ p: 2.5 }}>
               <Stack direction="row" spacing={1.2} alignItems="center" sx={{ mb: 2 }}>
-                <TrendingUpIcon sx={{ color: '#8b5cf6' }} />
+                <TrendingUpIcon sx={{ color: '#3B82F6' }} />
                 <Typography sx={{ fontWeight: 800 }}>Work Hours Trend</Typography>
               </Stack>
               <Box sx={{ height: 280 }}>
                 {currentSpace === 'my-space' ? (
                   <LineChart
-                    series={[{ data: myHoursSeries.length ? myHoursSeries : [6, 7, 8, 8.5, 7.5, 0, 0], label: 'Hours worked', area: true, color: '#8b5cf6' }]}
+                    series={[{ data: myHoursSeries.length ? myHoursSeries : [6, 7, 8, 8.5, 7.5, 0, 0], label: 'Hours worked', area: true, color: '#3B82F6' }]}
                     xAxis={[{ scaleType: 'point', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] }]}
                     grid={{ horizontal: true, vertical: false }}
                     margin={{ left: 50, right: 20, top: 20, bottom: 30 }}
@@ -294,7 +294,7 @@ export function OverviewSection() {
                   />
                 ) : (
                   <BarChart
-                    series={[{ data: orgDepartmentTotals.length ? orgDepartmentTotals : [12, 8, 5], label: 'Employees', color: '#7c3aed' }]}
+                    series={[{ data: orgDepartmentTotals.length ? orgDepartmentTotals : [12, 8, 5], label: 'Employees', color: '#2563EB' }]}
                     xAxis={[{ scaleType: 'band', data: orgDepartmentLabels.length ? orgDepartmentLabels : ['Engineering', 'People Ops', 'Finance'] }]}
                     margin={{ left: 30, right: 20, top: 20, bottom: 60 }}
                     borderRadius={8}

@@ -54,7 +54,7 @@ export function CalendarSection() {
   const [error, setError] = useState<string | null>(null);
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
-  const panelBorder = isDark ? alpha('#a78bfa', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
 
   useEffect(() => {
     if (!token) return;
@@ -157,7 +157,7 @@ export function CalendarSection() {
             </Box>
 
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip label={`${eventCounts.total} events`} sx={{ bgcolor: alpha('#8b5cf6', 0.15), color: '#c4b5fd', fontWeight: 700 }} />
+              <Chip label={`${eventCounts.total} events`} sx={{ bgcolor: alpha('#3B82F6', 0.15), color: '#93C5FD', fontWeight: 700 }} />
               <Chip label={`${eventCounts.holiday} holidays`} sx={{ bgcolor: alpha('#f59e0b', 0.15), color: '#fde68a', fontWeight: 700 }} />
               <Chip label={`${eventCounts.leave} leaves`} sx={{ bgcolor: alpha('#06b6d4', 0.15), color: '#a5f3fc', fontWeight: 700 }} />
             </Stack>
@@ -209,7 +209,7 @@ export function CalendarSection() {
           <Card sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
             <CardContent sx={{ p: 2.25 }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <ChevronRightIcon sx={{ color: '#8b5cf6' }} />
+                <ChevronRightIcon sx={{ color: '#3B82F6' }} />
                 <Box>
                   <Typography sx={{ color: 'text.secondary', fontSize: 12, fontWeight: 700 }}>Month</Typography>
                   <Typography sx={{ fontSize: 26, fontWeight: 900 }}>{currentMonth.getMonth() + 1}</Typography>
@@ -229,13 +229,13 @@ export function CalendarSection() {
                 <Stack direction="row" spacing={1}>
                   <Box
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#8b5cf6', 0.1) } }}
+                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#3B82F6', 0.1) } }}
                   >
                     <ChevronLeftIcon />
                   </Box>
                   <Box
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#8b5cf6', 0.1) } }}
+                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#3B82F6', 0.1) } }}
                   >
                     <ChevronRightIcon />
                   </Box>
@@ -243,7 +243,7 @@ export function CalendarSection() {
               </Stack>
               <Box sx={{ height: 260 }}>
                 <BarChart
-                  series={[{ data: [eventCounts.holiday, eventCounts.leave, Math.max(eventCounts.total - eventCounts.holiday - eventCounts.leave, 0)], label: 'Events', color: '#8b5cf6' }]}
+                  series={[{ data: [eventCounts.holiday, eventCounts.leave, Math.max(eventCounts.total - eventCounts.holiday - eventCounts.leave, 0)], label: 'Events', color: '#3B82F6' }]}
                   xAxis={[{ scaleType: 'band', data: ['Holiday', 'Leave', 'Other'] }]}
                   margin={{ left: 30, right: 20, top: 20, bottom: 30 }}
                   borderRadius={8}
@@ -267,13 +267,13 @@ export function CalendarSection() {
                 <Stack direction="row" spacing={1}>
                   <Box
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
-                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#8b5cf6', 0.1) } }}
+                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#3B82F6', 0.1) } }}
                   >
                     <ChevronLeftIcon />
                   </Box>
                   <Box
                     onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
-                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#8b5cf6', 0.1) } }}
+                    sx={{ cursor: 'pointer', p: 0.75, borderRadius: 1, '&:hover': { bgcolor: alpha('#3B82F6', 0.1) } }}
                   >
                     <ChevronRightIcon />
                   </Box>
@@ -304,14 +304,14 @@ export function CalendarSection() {
                           minHeight: 92,
                           p: 1,
                           borderRadius: 1.5,
-                          bgcolor: isToday ? alpha('#8b5cf6', 0.08) : alpha(isDark ? '#ffffff' : '#000000', 0.02),
-                          border: isToday ? `1px solid #8b5cf6` : `1px solid ${panelBorder}`,
+                          bgcolor: isToday ? alpha('#3B82F6', 0.08) : alpha(isDark ? '#ffffff' : '#000000', 0.02),
+                          border: isToday ? `1px solid #3B82F6` : `1px solid ${panelBorder}`,
                           display: 'flex',
                           flexDirection: 'column',
                           transition: 'all 0.25s ease',
                           '&:hover': {
                             transform: 'translateY(-1px)',
-                            boxShadow: `0 10px 24px ${alpha('#8b5cf6', 0.08)}`,
+                            boxShadow: `0 10px 24px ${alpha('#3B82F6', 0.08)}`,
                           },
                         }}
                       >

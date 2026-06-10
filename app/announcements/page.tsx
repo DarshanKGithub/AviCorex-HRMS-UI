@@ -150,7 +150,7 @@ export default function AnnouncementsPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 600 }}
           >
             Post Announcement
           </Button>
@@ -279,7 +279,7 @@ export default function AnnouncementsPage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}
+            sx={{ bgcolor: '#2563EB', textTransform: 'none' }}
           >
             Post Announcement
           </Button>

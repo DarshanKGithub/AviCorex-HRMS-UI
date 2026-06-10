@@ -218,7 +218,7 @@ export default function HelpdeskPage() {
             setCategory('General');
             setPriority('Medium');
           }}
-          sx={{ bgcolor: '#7c3aed', borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 3 }}
+          sx={{ bgcolor: '#2563EB', borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 3 }}
         >
           Create New Ticket
         </Button>
@@ -290,7 +290,7 @@ export default function HelpdeskPage() {
                         <IconButton
                           size="small"
                           onClick={() => openDetails(t)}
-                          sx={{ color: '#7c3aed' }}
+                          sx={{ color: '#2563EB' }}
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
@@ -360,7 +360,7 @@ export default function HelpdeskPage() {
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>
           <Button onClick={() => setOpenModal(false)} sx={{ textTransform: 'none' }}>Cancel</Button>
-          <Button onClick={submitTicket} variant="contained" sx={{ bgcolor: '#7c3aed', textTransform: 'none' }}>Submit Ticket</Button>
+          <Button onClick={submitTicket} variant="contained" sx={{ bgcolor: '#2563EB', textTransform: 'none' }}>Submit Ticket</Button>
         </DialogActions>
       </Dialog>
 
@@ -435,7 +435,7 @@ export default function HelpdeskPage() {
                 setDetailModal(false);
               }}
               variant="contained"
-              sx={{ bgcolor: '#7c3aed' }}
+              sx={{ bgcolor: '#2563EB' }}
             >
               Update Status
             </Button>

@@ -35,7 +35,7 @@ export function SaaSShell({ children, title = 'GreaterHR', subtitle = 'Where Wor
               <Typography sx={{ color: 'text.secondary', mt: 0.75, fontSize: '1rem' }}>{subtitle}</Typography>
             </Box>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ pt: 0.5 }}>
-              <InsightsRoundedIcon sx={{ color: '#8b5cf6' }} />
+              <InsightsRoundedIcon sx={{ color: '#3B82F6' }} />
             </Stack>
           </Box>
 

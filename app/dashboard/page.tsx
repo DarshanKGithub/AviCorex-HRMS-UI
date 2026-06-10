@@ -26,7 +26,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-const COLOR_PALETTE = ['#3b82f6', '#a78bfa', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
+const COLOR_PALETTE = ['#3b82f6', '#60A5FA', '#10b981', '#93C5FD', '#f59e0b', '#ec4899'];
 
 const commonCardStyles = {
   borderRadius: 0,
@@ -710,7 +710,7 @@ export default function DashboardPage() {
                 <Card sx={{ ...commonCardStyles, height: 'auto', p: 2 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Attendance</Typography>
                   <Box sx={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', mb: 0}}>
-                    <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#c4b5fd' }} />
+                    <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#93C5FD' }} />
                     <Box sx={{ width: `${(attPresent / attTotal) * 100}%`, bgcolor: '#3b82f6' }} />
                     <Box sx={{ width: `${(onLeave / attTotal) * 100}%`, bgcolor: '#94a3b8' }} />
                   </Box>

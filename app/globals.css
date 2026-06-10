@@ -5,20 +5,20 @@
 
 :root {
   color-scheme: light;
-  --background: #fcfcfe;
-  --foreground: #15162c;
+  --background: #F8FAFC;
+  --foreground: #1E293B;
   --panel: rgba(255, 255, 255, 0.82);
-  --line: #e7e9ef;
-  --accent: #928ddd;
+  --line: #e2e8f0;
+  --accent: #2563EB;
 }
 
 html[data-theme='dark'] {
   color-scheme: dark;
-  --background: #080b13;
-  --foreground: #e2e8f0;
+  --background: #0F172A;
+  --foreground: #F8FAFC;
   --panel: rgba(15, 23, 42, 0.85);
-  --line: #243044;
-  --accent: #a78bfa;
+  --line: #1E293B;
+  --accent: #3B82F6;
 }
 
 * {

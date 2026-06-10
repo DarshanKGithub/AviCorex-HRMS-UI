@@ -229,7 +229,7 @@ export default function EngagePage() {
                 )}
               </Card>
 
-              <Card sx={{ ...commonCardStyles, p: 3, background: 'linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+              <Card sx={{ ...commonCardStyles, p: 3, background: 'linear-gradient(135deg, #4f46e5 0%, #3B82F6 100%)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
                 <Box sx={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, position: 'relative', zIndex: 1 }}>Quick actions</Typography>
                 <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', mb: 3, position: 'relative', zIndex: 1 }}>Jump into the spaces employees use most.</Typography>

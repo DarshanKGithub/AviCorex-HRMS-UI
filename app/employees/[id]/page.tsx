@@ -158,7 +158,7 @@ export default function EmployeeDetailPage() {
                       <ListItem 
                         key={doc.id}
                         secondaryAction={
-                          <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#7c3aed' }}>
+                          <IconButton edge="end" onClick={() => handleDownload(doc.id, doc.file_name)} sx={{ color: '#2563EB' }}>
                             <DownloadIcon />
                           </IconButton>
                         }

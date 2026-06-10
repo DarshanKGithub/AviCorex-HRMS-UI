@@ -118,9 +118,9 @@ export default function RecruitmentPage() {
 
   const isAdminOrHR = hasPermission('manage_recruitment');
   const recruitmentStats = [
-    { label: 'Open roles', value: jobs.length, accent: '#6d28d9' },
+    { label: 'Open roles', value: jobs.length, accent: '#1D4ED8' },
     { label: 'Candidates', value: candidates.length, accent: '#16a34a' },
-    { label: 'Applications', value: applications.length, accent: '#7c3aed' },
+    { label: 'Applications', value: applications.length, accent: '#2563EB' },
     { label: 'Interviews', value: interviews.length, accent: '#dc2626' },
   ];
 
@@ -327,16 +327,16 @@ export default function RecruitmentPage() {
                 <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={parseResume} sx={{ textTransform: 'none', fontWeight: 700, color: '#fff', borderColor: 'rgba(255,255,255,0.18)' }}>
                   Parse resume text
                 </Button>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenJobModal(true)} sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenJobModal(true)} sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 700 }}>
                   New job
                 </Button>
                 <Button variant="contained" startIcon={<PeopleIcon />} onClick={() => setOpenCandidateModal(true)} sx={{ bgcolor: '#0f172a', textTransform: 'none', fontWeight: 700 }}>
                   New candidate
                 </Button>
-                <Button variant="contained" startIcon={<AssignmentIndIcon />} onClick={() => setOpenApplicationModal(true)} sx={{ bgcolor: '#6d28d9', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<AssignmentIndIcon />} onClick={() => setOpenApplicationModal(true)} sx={{ bgcolor: '#1D4ED8', textTransform: 'none', fontWeight: 700 }}>
                   New application
                 </Button>
-                <Button variant="contained" startIcon={<EventNoteIcon />} onClick={() => setOpenInterviewModal(true)} sx={{ bgcolor: '#7c3aed', textTransform: 'none', fontWeight: 700 }}>
+                <Button variant="contained" startIcon={<EventNoteIcon />} onClick={() => setOpenInterviewModal(true)} sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 700 }}>
                   New interview
                 </Button>
               </Stack>
@@ -575,7 +575,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenJobModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createJob} sx={{ bgcolor: '#7c3aed', textTransform: 'none' }} disabled={!jobForm.title || !jobForm.description}>
+          <Button variant="contained" onClick={createJob} sx={{ bgcolor: '#2563EB', textTransform: 'none' }} disabled={!jobForm.title || !jobForm.description}>
             Create Job
           </Button>
         </DialogActions>
@@ -648,7 +648,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenApplicationModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createApplication} sx={{ bgcolor: '#6d28d9', textTransform: 'none' }} disabled={!applicationForm.job_id || !applicationForm.candidate_id}>
+          <Button variant="contained" onClick={createApplication} sx={{ bgcolor: '#1D4ED8', textTransform: 'none' }} disabled={!applicationForm.job_id || !applicationForm.candidate_id}>
             Save Application
           </Button>
         </DialogActions>
@@ -676,7 +676,7 @@ export default function RecruitmentPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenInterviewModal(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createInterview} sx={{ bgcolor: '#7c3aed', textTransform: 'none' }} disabled={!interviewForm.application_id || !interviewForm.scheduled_at}>
+          <Button variant="contained" onClick={createInterview} sx={{ bgcolor: '#2563EB', textTransform: 'none' }} disabled={!interviewForm.application_id || !interviewForm.scheduled_at}>
             Schedule
           </Button>
         </DialogActions>

@@ -74,7 +74,7 @@ export function AuthShell({ children }: AuthShellProps) {
                   </Typography>
                 </Box>
                 <Box sx={{ width: 52, height: 52, borderRadius: 3, display: 'grid', placeItems: 'center', bgcolor: 'rgba(139,92,246,0.18)' }}>
-                  <TrendingUpRoundedIcon sx={{ color: '#c4b5fd' }} />
+                  <TrendingUpRoundedIcon sx={{ color: '#93C5FD' }} />
                 </Box>
               </Stack>
               <Box sx={{ display: 'grid', gap: 1.4 }}>
@@ -84,7 +84,7 @@ export function AuthShell({ children }: AuthShellProps) {
                   { label: 'Request Approvals', icon: <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> },
                 ].map((item) => (
                   <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                    <Box sx={{ color: '#a78bfa' }}>{item.icon}</Box>
+                    <Box sx={{ color: '#60A5FA' }}>{item.icon}</Box>
                     <Typography sx={{ color: 'rgba(255,255,255,0.82)', fontSize: 13, fontWeight: 600 }}>{item.label}</Typography>
                   </Box>
                 ))}
@@ -117,7 +117,7 @@ export function AuthShell({ children }: AuthShellProps) {
                 <Image src="/logo.png" alt="GreaterHR logo" width={42} height={42} className="h-10 w-10 rounded-xl object-cover" priority />
               </Box>
               <Box>
-                <Typography sx={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7c3aed', fontWeight: 700 }}>
+                <Typography sx={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#2563EB', fontWeight: 700 }}>
                   GreaterHR
                 </Typography>
                 <Typography sx={{ fontSize: 18, color: 'text.primary', fontWeight: 800, letterSpacing: '-0.03em' }}>Where Workforce Meets Insight</Typography>
