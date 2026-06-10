@@ -35,11 +35,8 @@ const commonCardStyles = {
   bgcolor: '#ffffff',
   height: '100%',
   minHeight: 0,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)',
-    transform: 'translateY(-2px)',
-  },
+  
+  
 };
 
 function formatCurrency(value: number, currency = 'INR') {
