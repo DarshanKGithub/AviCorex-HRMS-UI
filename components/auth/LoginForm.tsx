@@ -165,14 +165,14 @@ export function LoginForm() {
                     checked={rememberMe}
                     onChange={(event) => setRememberMe(event.target.checked)}
                     sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': { color: '#2563EB' },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#2563EB' },
+                      '& .MuiSwitch-switchBase.Mui-checked': { color: '#7C3AED' },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#7C3AED' },
                     }}
                   />
                 }
                 label={<Typography sx={{ fontSize: '0.9rem', color: 'text.secondary', fontWeight: 500 }}>Remember me</Typography>}
               />
-              <Link href="/forgot-password" style={{ color: '#2563EB', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
+              <Link href="/forgot-password" style={{ color: '#7C3AED', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none' }}>
                 Forgot password?
               </Link>
             </Stack>
@@ -186,15 +186,15 @@ export function LoginForm() {
               sx={{
                 mt: 0.5,
                 py: 1.25,
-                background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7C3AED 100%)',
                 borderRadius: 2,
                 textTransform: 'none',
                 fontSize: '1rem',
                 fontWeight: 700,
-                boxShadow: '0 4px 14px 0 rgba(37, 99, 235, 0.39)',
+                boxShadow: '0 4px 14px 0 rgba(124, 58, 237, 0.39)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                  boxShadow: '0 6px 20px rgba(37, 99, 235, 0.23)',
+                  background: 'linear-gradient(135deg, #7C3AED 0%, #6d28d9 100%)',
+                  boxShadow: '0 6px 20px rgba(124, 58, 237, 0.23)',
                 },
               }}
             >

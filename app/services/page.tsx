@@ -117,7 +117,7 @@ export default function ServicesPage() {
               >
                 <Stack alignItems="center" spacing={1}>
                   <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '1px solid #eef2f7' }}>
-                    <Icon sx={{ fontSize: 30, color: '#2563EB' }} />
+                    <Icon sx={{ fontSize: 30, color: '#7C3AED' }} />
                   </Box>
                   <Typography sx={{ fontSize: 13, color: 'text.primary', fontWeight: 600 }}>{service.label}</Typography>
                 </Stack>
@@ -135,20 +135,20 @@ export default function ServicesPage() {
               p: 2,
               borderRadius: 3,
               textAlign: 'center',
-              border: '1px dashed #93c5fd',
+              border: '1px dashed #c4b5fd',
               minHeight: 140,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               bgcolor: '#f8fbff',
-              '&:hover': { boxShadow: '0 12px 28px -18px rgba(37, 99, 235, 0.35)' }
+              '&:hover': { boxShadow: '0 12px 28px -18px rgba(124, 58, 237, 0.35)' }
             }}
           >
             <Stack alignItems="center" spacing={1}>
-              <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '2px solid #2563EB', color: '#2563EB', fontSize: 30, fontWeight: 700 }}>
+              <Box sx={{ width: 72, height: 72, borderRadius: 2.5, display: 'grid', placeItems: 'center', bgcolor: 'background.paper', border: '2px solid #7C3AED', color: '#7C3AED', fontSize: 30, fontWeight: 700 }}>
                 +
               </Box>
-              <Typography sx={{ fontSize: 13, color: '#1D4ED8', fontWeight: 700 }}>Add Service</Typography>
+              <Typography sx={{ fontSize: 13, color: '#6d28d9', fontWeight: 700 }}>Add Service</Typography>
             </Stack>
           </Paper>
         </Grid>

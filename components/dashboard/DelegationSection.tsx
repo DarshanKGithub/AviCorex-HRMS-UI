@@ -32,7 +32,7 @@ export function DelegationSection() {
   const [error, setError] = useState<string | null>(null);
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
-  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#a855f7', 0.2) : '#e2e8f0';
 
   useEffect(() => {
     if (!token) return;
@@ -86,7 +86,7 @@ export function DelegationSection() {
           { label: 'Pending Tasks', value: delegationData?.total_pending_tasks || 0, color: '#f59e0b' },
           { label: 'Overdue', value: delegationData?.overdue_tasks || 0, color: '#ef4444' },
           { label: 'Completed This Week', value: delegationData?.completed_this_week || 0, color: '#10b981' },
-          { label: 'Completion Rate', value: `${(delegationData?.completion_rate || 0).toFixed(1)}%`, color: '#2563EB' },
+          { label: 'Completion Rate', value: `${(delegationData?.completion_rate || 0).toFixed(1)}%`, color: '#7C3AED' },
         ].map((item, idx) => (
           <Card key={idx} sx={{ bgcolor: panelBg, border: `1px solid ${panelBorder}` }}>
             <CardContent sx={{ p: 2 }}>
@@ -112,7 +112,7 @@ export function DelegationSection() {
             ) : (
               <Stack spacing={1}>
                 {delegationData?.delegated_by_me?.slice(0, 5).map((task: any) => (
-                  <Box key={task.id} sx={{ p: 1, borderRadius: 1, bgcolor: alpha('#3B82F6', 0.08) }}>
+                  <Box key={task.id} sx={{ p: 1, borderRadius: 1, bgcolor: alpha('#8b5cf6', 0.08) }}>
                     <Typography sx={{ fontWeight: 600, fontSize: 13 }}>{task.title}</Typography>
                     <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
                       To: {task.delegated_to}
@@ -156,7 +156,7 @@ export function DashboardDetailSection() {
   const { user } = useAuth();
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
-  const panelBorder = isDark ? alpha('#60A5FA', 0.2) : '#e2e8f0';
+  const panelBorder = isDark ? alpha('#a855f7', 0.2) : '#e2e8f0';
 
   const services = [
     { label: 'Onboarding', icon: ChecklistIcon, color: '#f59e0b', description: 'New hire setup and welcome flows.' },
@@ -203,7 +203,7 @@ export function DashboardDetailSection() {
             </Box>
 
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-              <Chip label={currentSpace === 'organization' ? 'Organization Mode' : 'My Space Mode'} sx={{ bgcolor: alpha('#3B82F6', 0.14), color: '#3B82F6', fontWeight: 700 }} />
+              <Chip label={currentSpace === 'organization' ? 'Organization Mode' : 'My Space Mode'} sx={{ bgcolor: alpha('#8b5cf6', 0.14), color: '#8b5cf6', fontWeight: 700 }} />
               <Chip label="Live Data" sx={{ bgcolor: alpha('#10b981', 0.12), color: '#10b981', fontWeight: 700 }} />
             </Stack>
           </Stack>
@@ -240,7 +240,7 @@ export function DashboardDetailSection() {
               <CardContent sx={{ p: 2.5 }}>
                 <Typography sx={{ fontWeight: 800, mb: 1.5 }}>Today&apos;s Flow</Typography>
                 <Stack spacing={1.5}>
-                  <Box sx={{ p: 1.5, borderRadius: 1.5, bgcolor: alpha('#3B82F6', 0.08) }}>
+                  <Box sx={{ p: 1.5, borderRadius: 1.5, bgcolor: alpha('#8b5cf6', 0.08) }}>
                     <Typography sx={{ fontWeight: 700 }}>Morning check-in</Typography>
                     <Typography sx={{ color: 'text.secondary', fontSize: 13 }}>Your workday status and attendance timer are shown on the left rail.</Typography>
                   </Box>

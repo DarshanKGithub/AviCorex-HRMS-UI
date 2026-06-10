@@ -26,7 +26,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-const COLOR_PALETTE = ['#3b82f6', '#60A5FA', '#10b981', '#93C5FD', '#f59e0b', '#ec4899'];
+const COLOR_PALETTE = ['#8b5cf6', '#a855f7', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
 
 const commonCardStyles = {
   borderRadius: 0,
@@ -146,7 +146,7 @@ function AttendanceWidget() {
     ? `${Math.floor((new Date(todayAttendance.check_out_time).getTime() - new Date(todayAttendance.check_in_time).getTime()) / 3600000)}h ${Math.max(0, Math.floor(((new Date(todayAttendance.check_out_time).getTime() - new Date(todayAttendance.check_in_time).getTime()) % 3600000) / 60000))}m`
     : '—';
 
-  const attendanceStatusColor = todayAttendance?.is_late ? '#f59e0b' : todayAttendance?.check_out_time ? '#10b981' : '#3b82f6';
+  const attendanceStatusColor = todayAttendance?.is_late ? '#f59e0b' : todayAttendance?.check_out_time ? '#10b981' : '#8b5cf6';
   const attendanceLabel = todayAttendance?.status ? todayAttendance.status.replace('-', ' ') : attendanceStatus;
 
   return (
@@ -337,19 +337,19 @@ function CalendarWidget() {
       <Stack direction="row" spacing={3} sx={{ borderBottom: '1px solid #f1f5f9', mb: 2, pb: 1 }}>
         <Typography 
           onClick={() => setActiveTab('all')}
-          sx={{ fontSize: '0.8rem', color: activeTab === 'all' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'all' ? 800 : 600, borderBottom: activeTab === 'all' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'all' ? '#8b5cf6' : '#94a3b8', fontWeight: activeTab === 'all' ? 800 : 600, borderBottom: activeTab === 'all' ? '2px solid #8b5cf6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
         >
           All
         </Typography>
         <Typography 
           onClick={() => setActiveTab('meeting')}
-          sx={{ fontSize: '0.8rem', color: activeTab === 'meeting' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'meeting' ? 800 : 600, borderBottom: activeTab === 'meeting' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'meeting' ? '#8b5cf6' : '#94a3b8', fontWeight: activeTab === 'meeting' ? 800 : 600, borderBottom: activeTab === 'meeting' ? '2px solid #8b5cf6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
         >
           Meetings
         </Typography>
         <Typography 
           onClick={() => setActiveTab('task')}
-          sx={{ fontSize: '0.8rem', color: activeTab === 'task' ? '#3b82f6' : '#94a3b8', fontWeight: activeTab === 'task' ? 800 : 600, borderBottom: activeTab === 'task' ? '2px solid #3b82f6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
+          sx={{ fontSize: '0.8rem', color: activeTab === 'task' ? '#8b5cf6' : '#94a3b8', fontWeight: activeTab === 'task' ? 800 : 600, borderBottom: activeTab === 'task' ? '2px solid #8b5cf6' : 'none', pb: 1, mb: -1, cursor: 'pointer' }}
         >
           To-do
         </Typography>
@@ -536,7 +536,7 @@ export default function DashboardPage() {
 
   const taskOverviewItems = [
     { title: 'Pending tasks', sub: `${pendingTasks} tasks`, val: Math.min(pendingTasks * 10, 100), color: '#10b981' },
-    { title: 'Pending approvals', sub: `${summaryData?.pending_approvals_count ?? 0} approvals`, val: Math.min((summaryData?.pending_approvals_count ?? 0) * 10, 100), color: '#3b82f6' },
+    { title: 'Pending approvals', sub: `${summaryData?.pending_approvals_count ?? 0} approvals`, val: Math.min((summaryData?.pending_approvals_count ?? 0) * 10, 100), color: '#8b5cf6' },
     { title: 'Pending leaves', sub: `${summaryData?.pending_leaves ?? 0} leave requests`, val: Math.min((summaryData?.pending_leaves ?? 0) * 10, 100), color: '#f59e0b' },
     { title: 'Active today', sub: `${activeToday} employees`, val: totalEmployees ? Math.round((activeToday / totalEmployees) * 100) : 0, color: '#6366f1' },
   ];
@@ -661,7 +661,7 @@ export default function DashboardPage() {
                     <Typography sx={{ fontSize: '0.75rem', color: '#64748b' }}>{payrollTrendLabel}</Typography>
                     <Typography sx={{ fontWeight: 800, color: '#111827', mt: 0.5 }}>{hasRealPayrollData ? 'Latest movements' : 'Awaiting data'}</Typography>
                   </Box>
-                  <Chip label={payrollTrendChip} size="small" sx={{ bgcolor: hasRealPayrollData ? 'rgba(59, 130, 246, 0.12)' : 'rgba(148, 163, 184, 0.12)', color: hasRealPayrollData ? '#2563eb' : '#475569', fontWeight: 700 }} />
+                  <Chip label={payrollTrendChip} size="small" sx={{ bgcolor: hasRealPayrollData ? 'rgba(59, 130, 246, 0.12)' : 'rgba(148, 163, 184, 0.12)', color: hasRealPayrollData ? '#7c3aed' : '#475569', fontWeight: 700 }} />
                 </Box>
                 <Box sx={{ height: 220, width: '100%', pl: { xs: 0, md: 2 } }}>
                   {payrollDisplayData.length > 0 ? (
@@ -710,8 +710,8 @@ export default function DashboardPage() {
                 <Card sx={{ ...commonCardStyles, height: 'auto', p: 2 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>Attendance</Typography>
                   <Box sx={{ display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', mb: 0}}>
-                    <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#93C5FD' }} />
-                    <Box sx={{ width: `${(attPresent / attTotal) * 100}%`, bgcolor: '#3b82f6' }} />
+                    <Box sx={{ width: `${(attAbsent / attTotal) * 100}%`, bgcolor: '#c4b5fd' }} />
+                    <Box sx={{ width: `${(attPresent / attTotal) * 100}%`, bgcolor: '#8b5cf6' }} />
                     <Box sx={{ width: `${(onLeave / attTotal) * 100}%`, bgcolor: '#94a3b8' }} />
                   </Box>
                   <Grid container spacing={1}>
@@ -830,13 +830,13 @@ export default function DashboardPage() {
                           stroke="none"
                           cornerRadius={40}
                         >
-                          <Cell fill="#3b82f6" />
+                          <Cell fill="#8b5cf6" />
                           <Cell fill="#f1f5f9" />
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
                     <Box sx={{ position: 'absolute', bottom: 10, textAlign: 'center' }}>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#3b82f6' }}>{satisfactionRate}%</Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#8b5cf6' }}>{satisfactionRate}%</Typography>
                     </Box>
                   </Box>
                   <Typography sx={{ color: '#94a3b8', fontSize: '0.85rem', textAlign: 'center', mt: 2, px: 2 }}>

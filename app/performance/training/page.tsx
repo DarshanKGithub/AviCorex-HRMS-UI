@@ -164,7 +164,7 @@ export default function TrainingCertificationPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenCertDialog(true)}
-            sx={{ bgcolor: '#1D4ED8', textTransform: 'none' }}
+            sx={{ bgcolor: '#6d28d9', textTransform: 'none' }}
           >
             Add Certification
           </Button>
@@ -278,7 +278,7 @@ export default function TrainingCertificationPage() {
                   onChange={(e) => setVerifyId(e.target.value.toUpperCase())}
                   fullWidth
                 />
-                <Button variant="contained" onClick={verifyCertification} sx={{ bgcolor: '#1D4ED8', textTransform: 'none', whiteSpace: 'nowrap' }}>
+                <Button variant="contained" onClick={verifyCertification} sx={{ bgcolor: '#6d28d9', textTransform: 'none', whiteSpace: 'nowrap' }}>
                   Verify Certificate
                 </Button>
               </Stack>
@@ -313,7 +313,7 @@ export default function TrainingCertificationPage() {
                       const isExpired = c.expiry_date && new Date(c.expiry_date) < new Date();
                       return (
                         <TableRow key={c.id}>
-                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#1D4ED8' }}>{c.verification_id || '—'}</TableCell>
+                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#6d28d9' }}>{c.verification_id || '—'}</TableCell>
                           <TableCell sx={{ fontWeight: 500 }}>{c.name}</TableCell>
                           <TableCell>{c.issuing_authority}</TableCell>
                           <TableCell>{new Date(c.issue_date).toLocaleDateString()}</TableCell>
@@ -390,7 +390,7 @@ export default function TrainingCertificationPage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenCertDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={addCertification} sx={{ bgcolor: '#1D4ED8' }}>
+          <Button variant="contained" onClick={addCertification} sx={{ bgcolor: '#6d28d9' }}>
             Add Certificate
           </Button>
         </DialogActions>

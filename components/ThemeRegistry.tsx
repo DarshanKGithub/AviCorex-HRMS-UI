@@ -10,13 +10,13 @@ function buildTheme() {
     palette: {
       mode: 'light',
       primary: {
-        main: '#2563EB' // Blue
+        main: '#7C3AED' // Purple
       },
       secondary: {
         main: '#0F172A' // Dark Navy
       },
       success: {
-        main: '#22C55E' // Green
+        main: '#10B981' // Green
       },
       warning: {
         main: '#F59E0B' // Amber

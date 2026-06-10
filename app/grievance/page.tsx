@@ -239,7 +239,7 @@ export default function GrievancePage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#7C3AED', textTransform: 'none', fontWeight: 600 }}
           >
             File Grievance
           </Button>
@@ -306,7 +306,7 @@ export default function GrievancePage() {
                         <IconButton
                           size="small"
                           onClick={() => openDetails(g)}
-                          sx={{ color: '#2563EB' }}
+                          sx={{ color: '#7C3AED' }}
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
@@ -356,7 +356,7 @@ export default function GrievancePage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#2563EB', textTransform: 'none' }}
+            sx={{ bgcolor: '#7C3AED', textTransform: 'none' }}
           >
             File Grievance
           </Button>
@@ -476,7 +476,7 @@ export default function GrievancePage() {
           <Button
             onClick={handleInvestigationSubmit}
             variant="contained"
-            sx={{ bgcolor: '#2563EB', textTransform: 'none' }}
+            sx={{ bgcolor: '#7C3AED', textTransform: 'none' }}
           >
             Save Updates
           </Button>

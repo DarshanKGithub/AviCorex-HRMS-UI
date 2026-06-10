@@ -228,15 +228,15 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
             minHeight: collapsed ? 56 : 44,
             py: collapsed ? 0.6 : 0.8,
             '&.Mui-selected': {
-              bgcolor: 'rgba(37, 99, 235, 0.12)',
+              bgcolor: 'rgba(124, 58, 237, 0.12)',
               color: 'text.primary'
             },
             '&.Mui-selected:hover': {
-              bgcolor: 'rgba(37, 99, 235, 0.16)'
+              bgcolor: 'rgba(124, 58, 237, 0.16)'
             }
           }}
         >
-          <ListItemIcon sx={{ minWidth: collapsed ? 24 : 40, color: active ? '#2563EB' : 'text.secondary', justifyContent: 'center', mb: collapsed ? 0.3 : 0 }}>
+          <ListItemIcon sx={{ minWidth: collapsed ? 24 : 40, color: active ? '#7C3AED' : 'text.secondary', justifyContent: 'center', mb: collapsed ? 0.3 : 0 }}>
             <Icon fontSize="small" />
           </ListItemIcon>
           {!collapsed ? (
@@ -272,12 +272,12 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
             minHeight: collapsed ? 56 : 44,
             py: collapsed ? 0.6 : 0.8,
             '&.Mui-selected': {
-              bgcolor: 'rgba(37, 99, 235, 0.12)',
+              bgcolor: 'rgba(124, 58, 237, 0.12)',
               color: 'text.primary'
             }
           }}
         >
-          <ListItemIcon sx={{ minWidth: collapsed ? 24 : 40, color: active ? '#2563EB' : 'text.secondary', justifyContent: 'center', mb: collapsed ? 0.3 : 0 }}>
+          <ListItemIcon sx={{ minWidth: collapsed ? 24 : 40, color: active ? '#7C3AED' : 'text.secondary', justifyContent: 'center', mb: collapsed ? 0.3 : 0 }}>
             <Icon fontSize="small" />
           </ListItemIcon>
           {!collapsed && (
@@ -301,7 +301,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
                   selected={childActive}
                   onClick={() => void router.push(child.href as never)}
                 >
-                  <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#2563EB' : 'text.secondary', justifyContent: 'center' }}>
+                  <ListItemIcon sx={{ minWidth: 36, color: childActive ? '#7C3AED' : 'text.secondary', justifyContent: 'center' }}>
                     <ChildIcon fontSize="small" />
                   </ListItemIcon>
                   {!collapsed && (
@@ -406,7 +406,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
               </IconButton>
             ) : null}
             <Box>
-              <Typography sx={{ fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase', color: '#2563EB', fontWeight: 800 }}>
+              <Typography sx={{ fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase', color: '#7C3AED', fontWeight: 800 }}>
                 Secure GreaterHR Platform
               </Typography>
               <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
@@ -416,10 +416,10 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
           </Stack>
 
           <Stack direction="row" spacing={1.5} alignItems="center">
-            <Chip label={user.role} sx={{ bgcolor: 'rgba(37, 99, 235, 0.18)', color: '#1D4ED8', fontWeight: 800 }} />
+            <Chip label={user.role} sx={{ bgcolor: 'rgba(124, 58, 237, 0.18)', color: '#6d28d9', fontWeight: 800 }} />
             <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 0.5 }}>
               <Avatar
-                sx={{ bgcolor: '#2563EB', width: 42, height: 42 }}
+                sx={{ bgcolor: '#7C3AED', width: 42, height: 42 }}
                 src={resolveAvatarUrl(user.avatar_url)}
               >
                 {getInitials(user.full_name)}

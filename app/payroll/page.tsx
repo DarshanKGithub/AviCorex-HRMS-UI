@@ -80,9 +80,9 @@ export default function PayrollPage() {
   const [error, setError] = useState<string | null>(null);
   const canProcessPayroll = hasPermission('process_payroll');
   const payrollHighlights = [
-    { label: 'Payroll cycle', value: 'Monthly', accent: '#2563EB' },
+    { label: 'Payroll cycle', value: 'Monthly', accent: '#7C3AED' },
     { label: 'Payslips', value: `${payslips.length}`, accent: '#10b981' },
-    { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#3B82F6' },
+    { label: 'Status', value: loading ? 'Syncing' : 'Ready', accent: '#8b5cf6' },
   ];
 
   useEffect(() => {
@@ -193,7 +193,7 @@ export default function PayrollPage() {
       case 'paid':
         return '#10b981';
       case 'approved':
-        return '#2563EB';
+        return '#7C3AED';
       case 'draft':
         return '#f59e0b';
       default:
@@ -221,7 +221,7 @@ export default function PayrollPage() {
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#93c5fd !important' }} />} label="Live summaries" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
+                <Chip icon={<AutoAwesomeRoundedIcon sx={{ color: '#c4b5fd !important' }} />} label="Live summaries" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
                 <Chip icon={<InsightsRoundedIcon sx={{ color: '#86efac !important' }} />} label="AI-ready insights" sx={{ bgcolor: 'rgba(255,255,255,0.08)', color: '#fff' }} />
               </Stack>
             </Stack>

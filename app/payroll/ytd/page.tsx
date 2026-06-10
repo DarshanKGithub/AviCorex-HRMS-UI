@@ -128,7 +128,7 @@ export default function YTDReportsPage() {
               <Card variant="outlined" sx={{ borderRadius: 3, borderColor: '#e2e8f0' }}>
                 <CardContent>
                   <Typography sx={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 700 }}>Total PF Contribution</Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#3b82f6', mt: 1 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#8b5cf6', mt: 1 }}>
                     {isLoading ? 'Loading…' : 'Pending'}
                   </Typography>
                 </CardContent>

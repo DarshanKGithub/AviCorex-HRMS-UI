@@ -126,7 +126,7 @@ export default function PerformancePage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenGoalDialog(true)}
-            sx={{ bgcolor: '#1D4ED8', textTransform: 'none' }}
+            sx={{ bgcolor: '#6d28d9', textTransform: 'none' }}
           >
             Set Goal
           </Button>
@@ -157,7 +157,7 @@ export default function PerformancePage() {
                         height: 6,
                         borderRadius: 3,
                         backgroundColor: '#e5e7eb',
-                        '& .MuiLinearProgress-bar': { backgroundColor: '#1D4ED8' },
+                        '& .MuiLinearProgress-bar': { backgroundColor: '#6d28d9' },
                       }}
                     />
                     <Typography sx={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -267,7 +267,7 @@ export default function PerformancePage() {
                                 height: 8,
                                 borderRadius: 2,
                                 backgroundColor: '#e5e7eb',
-                                '& .MuiLinearProgress-bar': { backgroundColor: '#1D4ED8' },
+                                '& .MuiLinearProgress-bar': { backgroundColor: '#6d28d9' },
                               }}
                             />
                           </Stack>
@@ -320,7 +320,7 @@ export default function PerformancePage() {
                                   borderRadius: 2,
                                   backgroundColor: '#e5e7eb',
                                   '& .MuiLinearProgress-bar': {
-                                    backgroundColor: achievement >= 100 ? '#16a34a' : '#1D4ED8',
+                                    backgroundColor: achievement >= 100 ? '#16a34a' : '#6d28d9',
                                   },
                                 }}
                               />
@@ -424,7 +424,7 @@ export default function PerformancePage() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenGoalDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={createGoal} sx={{ bgcolor: '#1D4ED8' }}>
+          <Button variant="contained" onClick={createGoal} sx={{ bgcolor: '#6d28d9' }}>
             Create Goal
           </Button>
         </DialogActions>

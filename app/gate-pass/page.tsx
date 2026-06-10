@@ -216,7 +216,7 @@ export default function GatePassPage() {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenModal(true)}
-            sx={{ bgcolor: '#2563EB', textTransform: 'none', fontWeight: 600 }}
+            sx={{ bgcolor: '#7C3AED', textTransform: 'none', fontWeight: 600 }}
           >
             Request Gate Pass
           </Button>
@@ -367,7 +367,7 @@ export default function GatePassPage() {
           <Button
             onClick={handleSubmit}
             variant="contained"
-            sx={{ bgcolor: '#2563EB', textTransform: 'none' }}
+            sx={{ bgcolor: '#7C3AED', textTransform: 'none' }}
           >
             Request Gate Pass
           </Button>

@@ -506,7 +506,7 @@ export default function AttendancePage() {
       case 'half-day':
         return { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' };
       case 'work-from-home':
-        return { bg: 'rgba(59, 130, 246, 0.1)', text: '#3b82f6' };
+        return { bg: 'rgba(59, 130, 246, 0.1)', text: '#8b5cf6' };
       case 'holiday':
         return { bg: 'rgba(14, 165, 233, 0.1)', text: '#0369a1' };
       default:
@@ -518,7 +518,7 @@ export default function AttendancePage() {
     { label: 'Today status', value: formatAttendanceStatusLabel(todayAttendance?.status ?? 'pending'), accent: '#6366f1' },
     { label: 'Check-in', value: todayAttendance ? formatTime(todayAttendance.check_in_time) : '—', accent: '#10b981' },
     { label: 'Check-out', value: todayAttendance ? formatTime(todayAttendance.check_out_time) : '—', accent: '#f59e0b' },
-    { label: 'Worked hours', value: todayAttendance ? formatAttendanceStatusLabel(calculateDuration(todayAttendance.check_in_time, todayAttendance.check_out_time) ?? 'Pending') : '—', accent: '#3B82F6' },
+    { label: 'Worked hours', value: todayAttendance ? formatAttendanceStatusLabel(calculateDuration(todayAttendance.check_in_time, todayAttendance.check_out_time) ?? 'Pending') : '—', accent: '#8b5cf6' },
   ];
 
   if (auth.status === 'loading' || loading) {
@@ -587,7 +587,7 @@ export default function AttendancePage() {
             { label: 'Half Day', value: statusSummary.halfDay, color: '#f59e0b' },
             { label: 'Late', value: statusSummary.late, color: '#ef4444' },
             { label: 'Absent', value: statusSummary.absent, color: '#64748b' },
-            { label: 'WFH', value: statusSummary.workFromHome, color: '#3b82f6' },
+            { label: 'WFH', value: statusSummary.workFromHome, color: '#8b5cf6' },
             { label: 'Holiday', value: statusSummary.holiday, color: '#0f766e' },
           ].map((stat) => (
             <Grid item xs={12} sm={6} md={4} key={stat.label}>

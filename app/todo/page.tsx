@@ -60,7 +60,7 @@ type TodoItem = {
 
 const STATUS_CONFIG: Record<string, { label: string, color: string, icon: any, next: string }> = {
   open: { label: 'To Do', color: '#94a3b8', icon: RadioButtonUncheckedIcon, next: 'in_progress' },
-  in_progress: { label: 'In Progress', color: '#3b82f6', icon: AutorenewIcon, next: 'done' },
+  in_progress: { label: 'In Progress', color: '#8b5cf6', icon: AutorenewIcon, next: 'done' },
   done: { label: 'Done', color: '#10b981', icon: CheckCircleIcon, next: 'open' },
 };
 
@@ -399,7 +399,7 @@ export default function TodoPage() {
           <Grid item xs={12} md={4}>
             <Card sx={{ ...commonCardStyles, p: 2.5, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' } }}>
               <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" spacing={2}>
-                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
+                <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8b5cf6' }}>
                   <AutorenewIcon />
                 </Box>
                 <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>

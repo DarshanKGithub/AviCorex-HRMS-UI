@@ -233,7 +233,7 @@ export default function Breadcrumbs({ items, sx }: BreadcrumbsProps) {
               key={index}
               href={(item.href || '#') as any}
               style={{
-                color: '#3b82f6',
+                color: '#8b5cf6',
                 textDecoration: 'none',
                 fontSize: '0.9rem',
                 fontWeight: 400,

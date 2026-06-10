@@ -211,7 +211,7 @@ export default function EngagePage() {
                 ) : (
                   <Stack spacing={2}>
                     {tickets.map((ticket) => {
-                       const statusColor = ticket.status === 'Resolved' ? '#10b981' : ticket.status === 'Open' ? '#3b82f6' : '#64748b';
+                       const statusColor = ticket.status === 'Resolved' ? '#10b981' : ticket.status === 'Open' ? '#8b5cf6' : '#64748b';
                        const statusBg = ticket.status === 'Resolved' ? '#dcfce7' : ticket.status === 'Open' ? '#dbeafe' : '#f1f5f9';
                        return (
                         <Box key={ticket.id} sx={{ pb: 2, borderBottom: '1px solid #f1f5f9', '&:last-child': { borderBottom: 'none', pb: 0 } }}>
@@ -229,7 +229,7 @@ export default function EngagePage() {
                 )}
               </Card>
 
-              <Card sx={{ ...commonCardStyles, p: 3, background: 'linear-gradient(135deg, #4f46e5 0%, #3B82F6 100%)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+              <Card sx={{ ...commonCardStyles, p: 3, background: 'linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
                 <Box sx={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, position: 'relative', zIndex: 1 }}>Quick actions</Typography>
                 <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', mb: 3, position: 'relative', zIndex: 1 }}>Jump into the spaces employees use most.</Typography>
