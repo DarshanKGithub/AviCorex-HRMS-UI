@@ -101,6 +101,7 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
       { label: 'Reimbursement', href: '/payroll/reimbursement', icon: 'reimbursement' },
       { label: 'Proof Of Investment', href: '/payroll/poi', icon: 'investment', requiredAnyPermissions: ['view_payroll', 'approve_expenses'] },
       { label: 'Salary Revision', href: '/payroll/revision', icon: 'revision' },
+      { label: 'Payroll Settings', href: '/payroll/settings', icon: 'settings', requiredAnyPermissions: ['manage_settings', 'process_payroll'] },
     ]
   },
   {
