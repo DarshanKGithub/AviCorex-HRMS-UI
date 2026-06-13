@@ -41,7 +41,7 @@ interface SalaryComponent {
 }
 
 export default function PayrollSettingsPage() {
-  const { token, hasPermission } = useAuth();
+  const { token, user } = useAuth();
   const [components, setComponents] = useState<SalaryComponent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function PayrollSettingsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const canManageSettings = hasPermission('manage_settings') || hasPermission('process_payroll');
+  const canManageSettings = user?.role === 'Admin' || user?.role === 'HR' || user?.role === 'Super Admin';
 
   const loadComponents = async () => {
     if (!token) return;
