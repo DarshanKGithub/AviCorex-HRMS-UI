@@ -3,6 +3,7 @@ import './globals.css';
 import { ThemeRegistry } from '@/components/ThemeRegistry';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'GreaterHR - Where Workforce Meets Insight',
@@ -17,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <ReactQueryProvider>
           <ThemeRegistry>
             <ToastProvider>

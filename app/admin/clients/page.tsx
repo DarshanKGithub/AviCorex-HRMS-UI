@@ -380,8 +380,36 @@ export default function AdminClientsPage() {
       
       const data = await res.json();
       
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url;
+      if (data.razorpay_order_id) {
+        const options = {
+          key: data.razorpay_key,
+          amount: plans.find(p => p.id === planId)?.price_cents || 0,
+          currency: "INR",
+          name: "HRMS Subscriptions",
+          description: "Plan Subscription",
+          order_id: data.razorpay_order_id,
+          handler: async function (response: any) {
+            try {
+              const verifyRes = await fetch(`${API_BASE_URL}/admin/subscriptions/verify-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature
+                }),
+              });
+              if (!verifyRes.ok) throw new Error('Payment verification failed');
+              await loadData();
+              showSuccess('Subscription activated successfully.');
+            } catch (err) {
+              setError(String(err));
+            }
+          },
+          theme: { color: "#6366f1" }
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
         return;
       }
       
