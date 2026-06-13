@@ -17,6 +17,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Divider,
   FormControl,
@@ -38,6 +39,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import BusinessIcon from '@mui/icons-material/Business';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const BILLING_PERIOD_OPTIONS = [
   { value: 'trial', label: 'Trial (14 days)' },
@@ -125,6 +127,10 @@ export default function AdminClientsPage() {
   const [clientDialogOpen, setClientDialogOpen] = useState(false);
   const [planDialogOpen, setPlanDialogOpen] = useState(false);
   const [packageDialogOpen, setPackageDialogOpen] = useState(false);
+  const [deleteTenantConfirmOpen, setDeleteTenantConfirmOpen] = useState(false);
+  const [tenantToDelete, setTenantToDelete] = useState<string | null>(null);
+  const [cancelSubConfirmOpen, setCancelSubConfirmOpen] = useState(false);
+  const [subToCancel, setSubToCancel] = useState<string | null>(null);
 
   // Client Form
   const [newTenantName, setNewTenantName] = useState('');
@@ -415,6 +421,52 @@ export default function AdminClientsPage() {
     }
   }
 
+  const handleCancelSubscriptionClick = (subscriptionId: string) => {
+    setSubToCancel(subscriptionId);
+    setCancelSubConfirmOpen(true);
+  };
+
+  const executeCancelSubscription = async () => {
+    if (!token || !subToCancel) return;
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/subscriptions/${subToCancel}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to cancel subscription');
+      await loadData();
+      setCancelSubConfirmOpen(false);
+      setSubToCancel(null);
+      showSuccess('Subscription cancelled successfully.');
+    } catch (err) {
+      setError(String(err));
+    }
+  };
+
+  const handleDeleteTenantClick = (tenantId: string) => {
+    setTenantToDelete(tenantId);
+    setDeleteTenantConfirmOpen(true);
+  };
+
+  const executeDeleteTenant = async () => {
+    if (!token || !tenantToDelete) return;
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/tenants/${tenantToDelete}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to delete client');
+      await loadData();
+      setDeleteTenantConfirmOpen(false);
+      setTenantToDelete(null);
+      showSuccess('Client deleted successfully.');
+    } catch (err) {
+      setError(String(err));
+    }
+  };
+
   const tenantSubscriptionMap = subscriptions.reduce<Record<string, any>>((acc, subscription) => {
     if (subscription && subscription.tenant_id) {
       acc[subscription.tenant_id] = subscription;
@@ -479,7 +531,14 @@ export default function AdminClientsPage() {
                       <CardHeader 
                         title={tenant.name}
                         subheader={tenant.domain || 'No domain'}
-                        action={<Chip label={tenant.is_active ? 'Active' : 'Inactive'} color={tenant.is_active ? 'success' : 'default'} size="small" />}
+                        action={
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Chip label={tenant.is_active ? 'Active' : 'Inactive'} color={tenant.is_active ? 'success' : 'default'} size="small" />
+                            <IconButton size="small" color="error" onClick={() => handleDeleteTenantClick(tenant.id)} title="Delete Client">
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        }
                       />
                       <Divider />
                       <CardContent>
@@ -491,6 +550,17 @@ export default function AdminClientsPage() {
                               <Grid item xs={6}><Typography variant="body2" color="text.secondary">Billing</Typography><Typography variant="body2" fontWeight="500" sx={{ textTransform: 'capitalize' }}>{subscription.billing_period}</Typography></Grid>
                               <Grid item xs={6}><Typography variant="body2" color="text.secondary">Status</Typography><Typography variant="body2" fontWeight="500" sx={{ textTransform: 'capitalize' }}>{subscription.status}</Typography></Grid>
                               <Grid item xs={6}><Typography variant="body2" color="text.secondary">Price Paid</Typography><Typography variant="body2" fontWeight="500">{formatMoney(subscription.price_paid_cents)}</Typography></Grid>
+                              <Grid item xs={12} sx={{ mt: 1 }}>
+                                <Button 
+                                  size="small" 
+                                  color="error" 
+                                  variant="outlined" 
+                                  onClick={() => handleCancelSubscriptionClick(subscription.id)}
+                                  disabled={subscription.status === 'cancelled'}
+                                >
+                                  {subscription.status === 'cancelled' ? 'Cancelled' : 'Cancel Subscription'}
+                                </Button>
+                              </Grid>
                             </Grid>
                           </Box>
                         ) : (
@@ -786,6 +856,34 @@ export default function AdminClientsPage() {
             <Button type="submit" variant="contained">Create Package</Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      {/* Delete Client Confirm Dialog */}
+      <Dialog open={deleteTenantConfirmOpen} onClose={() => setDeleteTenantConfirmOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Delete Client</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this client? All associated data will be permanently removed. This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTenantConfirmOpen(false)}>Cancel</Button>
+          <Button color="error" variant="contained" onClick={executeDeleteTenant}>Delete Client</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Cancel Subscription Confirm Dialog */}
+      <Dialog open={cancelSubConfirmOpen} onClose={() => setCancelSubConfirmOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Cancel Subscription</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to cancel this subscription? The client will lose access to all subscription features.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelSubConfirmOpen(false)}>Back</Button>
+          <Button color="error" variant="contained" onClick={executeCancelSubscription}>Confirm Cancel</Button>
+        </DialogActions>
       </Dialog>
 
     </Container>
