@@ -14,6 +14,7 @@ import { useDashboard } from './DashboardContext';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { useQuery } from '@tanstack/react-query';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 interface OverviewStats {
   label: string;
@@ -34,19 +35,12 @@ const floatIn = keyframes`
   }
 `;
 
-const resolveApiBaseUrl = () => {
-  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
-  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
-  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
-  return raw.replace(/\/$/, '');
-};
-
 export function OverviewSection() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { token } = useAuth();
   const { currentSpace, refreshKey } = useDashboard();
-  const API_BASE = resolveApiBaseUrl();
+  const API_BASE = getApiBaseUrl();
 
   const panelBg = isDark ? alpha('#0f172a', 0.85) : '#ffffff';
   const panelBorder = isDark ? alpha('#a855f7', 0.2) : '#e2e8f0';

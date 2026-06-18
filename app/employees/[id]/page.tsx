@@ -8,8 +8,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '@/components/auth/AuthContext';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE_URL = getApiBaseUrl();
 
 export default function EmployeeDetailPage() {
   const params = useParams();

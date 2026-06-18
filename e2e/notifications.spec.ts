@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL;
 const AUTH_STORAGE_KEY = 'hrms_auth_session';
 const AUTH_SESSION = {
   token: 'playwright-token',

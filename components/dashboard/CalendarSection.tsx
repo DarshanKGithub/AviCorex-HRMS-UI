@@ -11,6 +11,7 @@ import CelebrationIcon from '@mui/icons-material/Celebration';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useDashboard } from './DashboardContext';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 interface CalendarEvent {
   id: string;
@@ -22,13 +23,6 @@ interface CalendarEvent {
   is_all_day: boolean;
   color: string;
 }
-
-const resolveApiBaseUrl = () => {
-  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
-  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
-  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
-  return raw.replace(/\/$/, '');
-};
 
 const floatIn = keyframes`
   from {
@@ -46,7 +40,7 @@ export function CalendarSection() {
   const isDark = theme.palette.mode === 'dark';
   const { token } = useAuth();
   const { refreshKey } = useDashboard();
-  const API_BASE = resolveApiBaseUrl();
+  const API_BASE = getApiBaseUrl();
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);

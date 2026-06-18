@@ -24,8 +24,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/components/auth/AuthContext';
 import { useEmployeeId } from '@/components/auth/useEmployeeId';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = getApiBaseUrl();
 const COLOR_PALETTE = ['#8b5cf6', '#a855f7', '#10b981', '#c4b5fd', '#f59e0b', '#ec4899'];
 
 const commonCardStyles = {

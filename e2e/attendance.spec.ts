@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
-const API_BASE_URL = process.env.PLAYWRIGHT_TEST_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL;
+const API_BASE_URL = process.env.PLAYWRIGHT_TEST_API_URL;
 
 test.describe('Attendance Workflows', () => {
   let authToken: string;

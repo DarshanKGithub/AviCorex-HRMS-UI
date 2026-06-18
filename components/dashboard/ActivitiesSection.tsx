@@ -6,6 +6,7 @@ import { alpha, keyframes, useTheme } from '@mui/material/styles';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useDashboard } from './DashboardContext';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 interface Activity {
   id: string;
@@ -19,13 +20,6 @@ interface Activity {
   action_url?: string;
   priority: string;
 }
-
-const resolveApiBaseUrl = () => {
-  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
-  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
-  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
-  return raw.replace(/\/$/, '');
-};
 
 const getColorForPriority = (priority: string) => {
   switch (priority) {
@@ -69,7 +63,7 @@ export function ActivitiesSection() {
   const isDark = theme.palette.mode === 'dark';
   const { token } = useAuth();
   const { refreshKey } = useDashboard();
-  const API_BASE = resolveApiBaseUrl();
+  const API_BASE = getApiBaseUrl();
 
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);

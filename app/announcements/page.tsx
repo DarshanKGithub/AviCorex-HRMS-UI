@@ -22,8 +22,9 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = getApiBaseUrl();
 
 interface Announcement {
   id: string;

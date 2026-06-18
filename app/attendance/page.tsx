@@ -19,6 +19,7 @@ import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ScheduleIcon from '@mui/icons-material/Schedule';
@@ -31,8 +32,9 @@ import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE_URL = getApiBaseUrl();
 
 const commonCardStyles = {
   borderRadius: 0,
@@ -49,7 +51,11 @@ type AttendanceRecord = {
   employee_id: string;
   attendance_date: string;
   check_in_time: string | null;
+  check_in_latitude?: number | null;
+  check_in_longitude?: number | null;
   check_out_time: string | null;
+  check_out_latitude?: number | null;
+  check_out_longitude?: number | null;
   status?: string;
   is_late: boolean;
   late_minutes: number;
@@ -58,6 +64,13 @@ type AttendanceRecord = {
   notes?: string | null;
   created_at: string;
   updated_at: string;
+  breaks?: {
+    id: string;
+    attendance_id: string;
+    break_type: string;
+    start_time: string;
+    end_time: string | null;
+  }[];
 };
 
 type PaginatedResponse = {
@@ -217,8 +230,23 @@ export default function AttendancePage() {
     try {
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toISOString();
-
       const empId = employeeId;
+
+      // Wrap in a promise to handle geolocation cleanly
+      let latitude = null;
+      let longitude = null;
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+          });
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+        } catch (geoError) {
+          console.warn('Geolocation failed or denied, proceeding without coordinates:', geoError);
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/attendance/check-in`, {
         method: 'POST',
         headers: {
@@ -229,6 +257,8 @@ export default function AttendancePage() {
           employee_id: empId,
           attendance_date: today,
           check_in_time: now,
+          latitude: latitude,
+          longitude: longitude,
         }),
       });
 
@@ -295,6 +325,88 @@ export default function AttendancePage() {
       setChecking(false);
     });
   }
+  async function handleStartBreak() {
+    if (!auth.token || !auth.user || !todayAttendance) return;
+
+    setChecking(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const now = new Date().toISOString();
+      const empId = employeeId;
+
+      const response = await fetch(`${API_BASE_URL}/attendance/start-break`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({
+          employee_id: empId,
+          attendance_date: today,
+          break_type: 'lunch',
+          start_time: now,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTodayAttendance(data);
+        setSuccess('Break started successfully!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const error = await response.json();
+        setError(error.detail || 'Failed to start break');
+      }
+    } catch {
+      setError('Failed to connect to server');
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function handleEndBreak() {
+    if (!auth.token || !auth.user || !todayAttendance) return;
+
+    setChecking(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const now = new Date().toISOString();
+      const empId = employeeId;
+
+      const response = await fetch(`${API_BASE_URL}/attendance/end-break`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({
+          employee_id: empId,
+          attendance_date: today,
+          end_time: now,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTodayAttendance(data);
+        setSuccess('Break ended successfully!');
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        const error = await response.json();
+        setError(error.detail || 'Failed to end break');
+      }
+    } catch {
+      setError('Failed to connect to server');
+    } finally {
+      setChecking(false);
+    }
+  }
 
   async function handleCheckOut() {
     if (!auth.token || !auth.user || !todayAttendance) return;
@@ -306,8 +418,22 @@ export default function AttendancePage() {
     try {
       const today = new Date().toISOString().split('T')[0];
       const now = new Date().toISOString();
-
       const empId = employeeId;
+
+      let latitude = null;
+      let longitude = null;
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+          });
+          latitude = position.coords.latitude;
+          longitude = position.coords.longitude;
+        } catch (geoError) {
+          console.warn('Geolocation failed or denied, proceeding without coordinates:', geoError);
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/attendance/check-out`, {
         method: 'POST',
         headers: {
@@ -318,6 +444,8 @@ export default function AttendancePage() {
           employee_id: empId,
           attendance_date: today,
           check_out_time: now,
+          latitude: latitude,
+          longitude: longitude,
         }),
       });
 
@@ -691,15 +819,35 @@ export default function AttendancePage() {
                   </Stack>
                 ) : (
                   <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', mb: 4 }}>
-                    <Typography sx={{ color: '#94a3b8', fontSize: '1.1rem', fontWeight: 500 }}>You are currently punched in.</Typography>
+                    <Typography sx={{ color: '#94a3b8', fontSize: '1.1rem', fontWeight: 500 }}>
+                      {todayAttendance?.breaks?.find((b) => !b.end_time) ? 'You are currently on break.' : 'You are currently punched in.'}
+                    </Typography>
                   </Box>
                 )}
                 
-                <Box sx={{ mt: 'auto' }}>
+                <Stack spacing={2} sx={{ mt: 'auto' }}>
+                  {todayAttendance?.check_in_time && !todayAttendance?.check_out_time && (
+                    <Button
+                      variant="outlined"
+                      onClick={todayAttendance?.breaks?.find((b) => !b.end_time) ? handleEndBreak : handleStartBreak}
+                      disabled={checking || !canMarkAttendance}
+                      sx={{
+                        py: 1.2,
+                        borderRadius: 2,
+                        borderColor: todayAttendance?.breaks?.find((b) => !b.end_time) ? '#f59e0b' : '#3b82f6',
+                        color: todayAttendance?.breaks?.find((b) => !b.end_time) ? '#f59e0b' : '#3b82f6',
+                        fontWeight: 700,
+                        '&:hover': { bgcolor: todayAttendance?.breaks?.find((b) => !b.end_time) ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)' }
+                      }}
+                      fullWidth
+                    >
+                      {todayAttendance?.breaks?.find((b) => !b.end_time) ? 'End Break' : 'Start Break'}
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
                     onClick={handleCheckOut}
-                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time || !canMarkAttendance}
+                    disabled={checking || !todayAttendance?.check_in_time || !!todayAttendance?.check_out_time || !!todayAttendance?.breaks?.find((b) => !b.end_time) || !canMarkAttendance}
                     sx={{ 
                       py: 1.5, 
                       borderRadius: 2, 
@@ -713,7 +861,7 @@ export default function AttendancePage() {
                   >
                     {checking ? 'Processing...' : 'Mark Check Out'}
                   </Button>
-                </Box>
+                </Stack>
               </CardContent>
             </Card>
           </Grid>
@@ -805,6 +953,7 @@ export default function AttendancePage() {
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Date</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check In</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check Out</TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Breaks</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>Remark</TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', align: 'right' }}>Late</TableCell>
@@ -817,8 +966,37 @@ export default function AttendancePage() {
                           return (
                             <TableRow key={record.id} sx={{ '& td': { borderBottom: '1px solid #f8fafc', py: 2.5 } }}>
                               <TableCell sx={{ color: '#1e293b', fontWeight: 600 }}>{formatDate(record.attendance_date)}</TableCell>
-                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_in_time)}</TableCell>
-                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{formatTime(record.check_out_time)}</TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {formatTime(record.check_in_time)}
+                                  {record.check_in_latitude && (
+                                    <Tooltip title={`Lat: ${record.check_in_latitude}, Lng: ${record.check_in_longitude}`}>
+                                      <PinDropIcon sx={{ fontSize: '1rem', color: '#6366f1' }} />
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {formatTime(record.check_out_time)}
+                                  {record.check_out_latitude && (
+                                    <Tooltip title={`Lat: ${record.check_out_latitude}, Lng: ${record.check_out_longitude}`}>
+                                      <PinDropIcon sx={{ fontSize: '1rem', color: '#6366f1' }} />
+                                    </Tooltip>
+                                  )}
+                                </Box>
+                              </TableCell>
+                              <TableCell sx={{ color: '#475569', fontWeight: 500 }}>
+                                {record.breaks && record.breaks.length > 0 ? (
+                                  <Tooltip title={
+                                    record.breaks.map(b => 
+                                      `${b.break_type}: ${formatTime(b.start_time)} - ${b.end_time ? formatTime(b.end_time) : 'Ongoing'}`
+                                    ).join('\n')
+                                  } style={{ whiteSpace: 'pre-line' }}>
+                                    <Chip label={`${record.breaks.length} breaks`} size="small" variant="outlined" />
+                                  </Tooltip>
+                                ) : '-'}
+                              </TableCell>
                               <TableCell>
                                 <Chip
                                   label={formatAttendanceStatusLabel(record.status ? record.status : deriveAttendanceStatus(record))}

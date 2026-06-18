@@ -12,8 +12,9 @@ import { useEmployeeId } from '@/components/auth/useEmployeeId';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = getApiBaseUrl();
 
 export default function PerformancePage() {
   const { token, user, status } = useAuth();

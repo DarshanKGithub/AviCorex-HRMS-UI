@@ -26,6 +26,7 @@ import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 const commonCardStyles = {
   borderRadius: 0,
   boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
@@ -36,7 +37,7 @@ const commonCardStyles = {
 };
 
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = getApiBaseUrl();
 
 type Payslip = {
   id: string;

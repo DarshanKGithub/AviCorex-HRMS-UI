@@ -10,8 +10,9 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = getApiBaseUrl();
 
 const commonCardStyles = {
   borderRadius: 0,

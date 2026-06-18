@@ -29,8 +29,9 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { useRouter } from 'next/navigation';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE_URL = getApiBaseUrl();
 
 type AuditLog = {
   id: string;

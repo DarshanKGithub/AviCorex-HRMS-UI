@@ -12,20 +12,14 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useAuth } from '@/components/auth/AuthContext';
 import { useDashboard } from './DashboardContext';
-
-const resolveApiBaseUrl = () => {
-  const raw = (process.env.NEXT_PUBLIC_API_BASE_URL || '').trim();
-  if (process.env.NODE_ENV === 'development') return raw || 'http://localhost:8000';
-  if (!raw || raw.includes('your-backend-production-url.com')) return 'https://avicorex-hrms-server.onrender.com';
-  return raw.replace(/\/$/, '');
-};
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 export function DelegationSection() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { token } = useAuth();
   const { refreshKey } = useDashboard();
-  const API_BASE = resolveApiBaseUrl();
+  const API_BASE = getApiBaseUrl();
 
   const [delegationData, setDelegationData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

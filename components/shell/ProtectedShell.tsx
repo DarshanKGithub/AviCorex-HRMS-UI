@@ -33,6 +33,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { usePermissions } from '@/components/auth/usePermissions';
 import { SIDEBAR_ITEMS } from '@/components/shell/sidebarConfig';
 import { iconMap } from '@/components/shell/iconMapping';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 const expandedWidth = 300;
 const collapsedWidth = 120;
@@ -53,7 +54,7 @@ function resolveAvatarUrl(avatarUrl?: string | null) {
     return avatarUrl;
   }
 
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+  const base = getApiBaseUrl();
   return `${base.replace(/\/$/, '')}/${avatarUrl.replace(/^\//, '')}`;
 }
 

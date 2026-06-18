@@ -32,6 +32,7 @@ import { usePermissions } from '@/components/auth/usePermissions';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
 import { iconMap } from '@/components/shell/iconMapping';
 import BusinessCenterRoundedIcon from '@mui/icons-material/BusinessCenterRounded';
+import { getApiBaseUrl } from '@/lib/apiBase';
 
 interface ProfileData {
   id: string;
@@ -41,7 +42,7 @@ interface ProfileData {
   avatar_url?: string | null;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = getApiBaseUrl();
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_AVATAR_DIMENSION = 512;
 const ALLOWED_AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp'];

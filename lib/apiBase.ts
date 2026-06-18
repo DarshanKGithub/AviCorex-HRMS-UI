@@ -8,25 +8,8 @@ function isLocalHostname(hostname: string) {
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
 
-/** Resolve API base URL at call time (safe for client-side fetch). */
 export function getApiBaseUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? '';
-
-  if (typeof window !== 'undefined' && isLocalHostname(window.location.hostname)) {
-    if (isPlaceholderUrl(raw)) {
-      return 'http://localhost:8000';
-    }
-    return raw.replace(/\/$/, '');
-  }
-
-  if (process.env.NODE_ENV === 'development') {
-    return (raw || 'http://localhost:8000').replace(/\/$/, '');
-  }
-
-  if (isPlaceholderUrl(raw)) {
-    return 'https://avicorex-hrms-server.onrender.com';
-  }
-
   return raw.replace(/\/$/, '');
 }
 

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const base = process.env.E2E_BASE_URL || 'http://localhost:3000';
+const base = process.env.E2E_BASE_URL;
 const adminEmail = 'admin@hrms.com';
 const adminPassword = 'Hrms@12345';
 
