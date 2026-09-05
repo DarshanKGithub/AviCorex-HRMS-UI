@@ -1,6 +1,6 @@
-# GreaterHR Frontend
+# UpsatirsHR Frontend
 
-Phase 1 frontend implementation for the GreaterHR product.
+Phase 1 frontend implementation for the UpsatirsHR product.
 
 ## Stack
 - Next.js
@@ -11,7 +11,7 @@ Phase 1 frontend implementation for the GreaterHR product.
 - Secure authentication UX
 - Clean SaaS dashboard shell
 - Role-aware frontend structure
-- Shared design system using the GreaterHR palette
+- Shared design system using the UpsatirsHR  palette
 
 ## Palette
 - #fcfcfe

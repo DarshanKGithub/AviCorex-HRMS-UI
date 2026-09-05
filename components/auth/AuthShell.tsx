@@ -40,12 +40,12 @@ export function AuthShell({ children }: AuthShellProps) {
           <div className="absolute bottom-10 left-10 h-72 w-72 rounded-full bg-purple-500/15 blur-3xl" />
 
             <Box sx={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: 3, animation: `${floatIn} 360ms ease-out` }}>
-            <Box className="overflow-hidden rounded-2xl bg-white/95 p-1.5 shadow-[0_14px_34px_-16px_rgba(15,23,42,0.5)]">
-              <Image src="/logo.png" alt="GreaterHR logo" width={46} height={46} className="h-11 w-11 rounded-xl object-cover" priority />
+            <Box className="overflow-hidden rounded-2xl  p-1.5 shadow-[0_14px_34px_-16px_rgba(15,23,42,0.5)]">
+              <Image src="/Upstairs.png" alt="Upstairs logo" width={46} height={46} className="h-16 w-16 rounded-xl object-cover" priority />
             </Box>
             <Box>
               <Typography sx={{ fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.82)', fontWeight: 700 }}>
-                GreaterHR
+                Upstairs
               </Typography>
               <Typography sx={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.03em' }}>
                 Where Workforce Meets Insight
@@ -55,7 +55,7 @@ export function AuthShell({ children }: AuthShellProps) {
 
           <Box sx={{ position: 'relative', zIndex: 10, maxWidth: 520, animation: `${floatIn} 420ms ease-out` }}>
             <Typography variant="h3" component="h1" sx={{ mt: 2.5, fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.06, fontSize: { xs: '2.4rem', xl: '3.25rem' } }}>
-              GreaterHR.
+              Upstairs.
             </Typography>
             <Typography sx={{ mt: 2, maxWidth: 420, color: 'rgba(255,255,255,0.8)', fontSize: '0.96rem', lineHeight: 1.6 }}>
               Where workforce operations, analytics, and employee experiences come together.
@@ -114,11 +114,11 @@ export function AuthShell({ children }: AuthShellProps) {
           <Box sx={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: 500, animation: `${floatIn} 300ms ease-out` }}>
             <Box className="mb-6 flex items-center gap-3 lg:hidden" sx={{ alignItems: 'center', animation: `${floatIn} 300ms ease-out` }}>
               <Box className="overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_10px_24px_-16px_rgba(15,23,42,0.35)] ring-1 ring-slate-200/70">
-                <Image src="/logo.png" alt="GreaterHR logo" width={42} height={42} className="h-10 w-10 rounded-xl object-cover" priority />
+                <Image src="/Upstairs.png" alt="Upstairs logo" width={42} height={42} className="h-10 w-10 rounded-xl object-cover" priority />
               </Box>
               <Box>
                 <Typography sx={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7C3AED', fontWeight: 700 }}>
-                  GreaterHR
+                  UpsatirsHR 
                 </Typography>
                 <Typography sx={{ fontSize: 18, color: 'text.primary', fontWeight: 800, letterSpacing: '-0.03em' }}>Where Workforce Meets Insight</Typography>
               </Box>

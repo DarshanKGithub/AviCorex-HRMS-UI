@@ -397,7 +397,7 @@ export default function LeavesPage() {
       setRequests([]);
       if (isNetworkFetchError(err)) {
         setApiUnreachable(err instanceof Error ? err.message : `Cannot reach API at ${getApiBaseUrl()}`);
-        setError(err instanceof Error ? err.message : 'Unable to connect to the GreaterHR API.');
+        setError(err instanceof Error ? err.message : 'Unable to connect to the UpsatirsHR API.');
       }
     }
   }

@@ -172,7 +172,7 @@ export default function SubscriptionsAdminPage() {
         key: razorpay_key_id,
         amount: order.amount,
         currency: order.currency,
-        name: 'GreaterHR',
+        name: 'UpsatirsHR ',
         description: 'Subscription purchase',
         order_id: order.id,
         handler: function (response: any) {

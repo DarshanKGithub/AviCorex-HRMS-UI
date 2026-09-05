@@ -6,8 +6,8 @@ import { ReactQueryProvider } from '@/components/providers/ReactQueryProvider';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'GreaterHR - Where Workforce Meets Insight',
-  description: 'GreaterHR is the workforce platform frontend for authentication, operations, and SaaS UX.'
+  title: 'Upstairs - Where Workforce Meets Insight',
+  description: 'UpsatirsHR is the workforce platform frontend for authentication, operations, and SaaS UX.'
 };
 
 export default function RootLayout({

@@ -341,10 +341,10 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
               border: '1px solid rgba(231, 233, 239, 0.9)'
             }}
           >
-            <Image src="/logo.png" alt="GreaterHR logo" width={44} height={44} style={{ objectFit: 'cover' }} priority />
+            <Image src="/Upstairs.png" alt="Upstairs logo" width={44} height={44} style={{ objectFit: 'cover' }} priority />
           </Box>
           <Box sx={{ display: collapsed ? 'none' : 'block', minWidth: 0 }}>
-            <Typography sx={{ fontWeight: 800, letterSpacing: '-0.03em', color: 'text.primary' }}>GreaterHR</Typography>
+            <Typography sx={{ fontWeight: 800, letterSpacing: '-0.03em', color: 'text.primary' }}>UpsatirsHR</Typography>
             <Typography sx={{ color: 'text.secondary', fontSize: 13 }}>{user.role} workspace</Typography>
           </Box>
 
@@ -408,7 +408,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
             ) : null}
             <Box>
               <Typography sx={{ fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase', color: '#7C3AED', fontWeight: 800 }}>
-                Secure GreaterHR Platform
+                Secure UpstairsHR Platform
               </Typography>
               <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
                 {activeNav ? activeNav.label : 'Dashboard'}
